@@ -18,7 +18,8 @@ public class FFTest : MonoBehaviour
     public string contentUrl;
     public bool stream = false;
     private int id;
-    private Rect windowRect;
+    private Rect windowRect = new Rect(0, 0, 250, 300);
+    private Vector2 scrollPosition;
 
     private void Start()
     {
@@ -28,12 +29,13 @@ public class FFTest : MonoBehaviour
 
     private void OnGUI()
     {
-        windowRect = GUILayout.Window(id, windowRect, OnWindow, name);
+        windowRect = GUI.Window(id, windowRect, OnWindow, name);
     }
 
     private void OnWindow(int wid)
     {
-        GUILayout.BeginHorizontal();
+        // scrollPosition = GUILayout.BeginScrollView(scrollPosition);
+        GUILayout.BeginHorizontal(GUILayout.ExpandWidth(false));
         {
             GUILayout.Label("URL:");
             contentUrl = GUILayout.TextField(contentUrl);
@@ -45,34 +47,49 @@ public class FFTest : MonoBehaviour
             {
                 Play();
             }
-            if (GUILayout.Button("Resume"))
+            if (ffmpeg.IsPaused)
             {
-                ffmpeg.Resume();
+                if (GUILayout.Button("Resume"))
+                {
+                    ffmpeg.Resume();
+                }
             }
-            if (GUILayout.Button("Pause"))
+            else
             {
-                ffmpeg.Pause();
+                if (GUILayout.Button("Pause"))
+                {
+                    ffmpeg.Pause();
+                }
             }
         }
         GUILayout.EndHorizontal();
         GUILayout.Label("Volume:");
         ffmpeg.source.volume = GUILayout.HorizontalSlider(ffmpeg.source.volume, 0f, 1f);
+        GUILayout.BeginHorizontal();
+        if (GUILayout.Button("<<"))
+        {
+            ffmpeg.Seek(ffmpeg.PlaybackTime - 10d);
+        }
+        if (GUILayout.Button("<"))
+        {
+            ffmpeg.Seek(ffmpeg.PlaybackTime - 5d);
+        }
+        if (GUILayout.Button(">"))
+        {
+            ffmpeg.Seek(ffmpeg.PlaybackTime + 5d);
+        }
+        if (GUILayout.Button(">>"))
+        {
+            ffmpeg.Seek(ffmpeg.PlaybackTime + 10d);
+        }
+        GUILayout.EndHorizontal();
         GUILayout.Label($"DisplayTime: {ffmpeg?.PlaybackTime:0.0}");
         GUILayout.Label($"Time: {ffmpeg?._elapsedOffset:0.0}");
         GUILayout.Label($"VideoTime: {ffmpeg?._elapsedOffsetVideo:0.0}");
         GUILayout.Label($"Diff: {(ffmpeg?._elapsedOffset - ffmpeg?.PlaybackTime):0.0}");
         GUILayout.Label($"DiffVideo: {(ffmpeg?._elapsedOffsetVideo - ffmpeg?.PlaybackTime):0.0}");
         GUILayout.Label($"Skipped Frames: {(ffmpeg?.skippedFrames)}");
-        if (GUILayout.Button("Seek Back 5s"))
-        {
-            ffmpeg.Seek(ffmpeg.PlaybackTime - 5d);
-            // ffmpeg.Seek(10);
-        }
-        if (GUILayout.Button("Seek Forward 5s"))
-        {
-            ffmpeg.Seek(ffmpeg.PlaybackTime + 5d);
-            // ffmpeg.Seek(5);
-        }
+        // GUILayout.EndScrollView();
         GUI.DragWindow(new Rect(0, 0, windowRect.width, 20));
     }
 
@@ -113,11 +130,14 @@ public class FFTest : MonoBehaviour
         // var video = await yt.Videos.GetAsync(contentUrl);
         // Debug.Log(video.Url);
         var video = await yt.Videos.Streams.GetManifestAsync(contentUrl);
-        // var ytStream = video.GetMuxedStreams().FirstOrDefault(x => x.VideoResolution.Height == 360) ?? video.GetMuxedStreams().FirstOrDefault();
-        var ytStream = video.GetMuxedStreams().FirstOrDefault();
-        if (ytStream == null)
+        var ytVideoStream = video.GetVideoStreams().OrderByDescending(x => x.VideoResolution.Height * x.VideoQuality.Framerate).FirstOrDefault();
+        var ytAudioStream = video.GetAudioStreams().OrderByDescending(x => x.Bitrate).FirstOrDefault();
+        if (ytVideoStream == null && ytAudioStream == null)
+        {
+            ffmpeg.Play(contentUrl, contentUrl);
             return;
-        PlayStream(ytStream.Url);
+        }
+        ffmpeg.Play(ytVideoStream.Url, ytAudioStream.Url);
         return;
 
         Cobalt cobalt = new Cobalt();
