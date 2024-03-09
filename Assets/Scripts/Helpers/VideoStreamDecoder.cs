@@ -158,6 +158,14 @@ namespace FFmpeg.Unity.Helpers
             return 0;
         }
 
+        public void Seek()
+        {
+            ffmpeg.av_frame_unref(_pFrame);
+            ffmpeg.av_frame_unref(_receivedFrame);
+            ffmpeg.avcodec_flush_buffers(_pCodecContext);
+            // ffmpeg.avcodec_send_packet(_pCodecContext, null).ThrowExceptionIfError();
+        }
+
         public void Seek(long offset)
         {
             AVRational base_q = ffmpeg.av_get_time_base_q();

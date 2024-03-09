@@ -59,7 +59,10 @@ public class FFTest : MonoBehaviour
         ffmpeg.source.volume = GUILayout.HorizontalSlider(ffmpeg.source.volume, 0f, 1f);
         GUILayout.Label($"DisplayTime: {ffmpeg?.PlaybackTime:0.0}");
         GUILayout.Label($"Time: {ffmpeg?._elapsedOffset:0.0}");
+        GUILayout.Label($"VideoTime: {ffmpeg?._elapsedOffsetVideo:0.0}");
         GUILayout.Label($"Diff: {(ffmpeg?._elapsedOffset - ffmpeg?.PlaybackTime):0.0}");
+        GUILayout.Label($"DiffVideo: {(ffmpeg?._elapsedOffsetVideo - ffmpeg?.PlaybackTime):0.0}");
+        GUILayout.Label($"Skipped Frames: {(ffmpeg?.skippedFrames)}");
         if (GUILayout.Button("Seek Back 5s"))
         {
             ffmpeg.Seek(ffmpeg.PlaybackTime - 5d);
@@ -81,7 +84,7 @@ public class FFTest : MonoBehaviour
         try
         {
             Stream video = contentVideo.ReadAsStreamAsync().Result;
-            ffmpeg.Play(video);
+            ffmpeg.Play(video, video);
         }
         catch (Exception e)
         {
@@ -91,7 +94,7 @@ public class FFTest : MonoBehaviour
 
     public void PlayStream(string url)
     {
-        ffmpeg.Play(url);
+        ffmpeg.Play(url, url);
     }
 
     [ContextMenu(nameof(Play))]
@@ -112,6 +115,8 @@ public class FFTest : MonoBehaviour
         var video = await yt.Videos.Streams.GetManifestAsync(contentUrl);
         // var ytStream = video.GetMuxedStreams().FirstOrDefault(x => x.VideoResolution.Height == 360) ?? video.GetMuxedStreams().FirstOrDefault();
         var ytStream = video.GetMuxedStreams().FirstOrDefault();
+        if (ytStream == null)
+            return;
         PlayStream(ytStream.Url);
         return;
 

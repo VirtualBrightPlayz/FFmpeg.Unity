@@ -217,8 +217,8 @@ namespace FFmpeg.Unity.Helpers
                 return false;
             }*/
             int error;
-            // do
-            // {
+            do
+            {
                 ffmpeg.av_packet_unref(_pPacket);
                 error = ffmpeg.av_read_frame(_pFormatContext, _pPacket);
                 if (error == ffmpeg.AVERROR_EOF)
@@ -228,7 +228,7 @@ namespace FFmpeg.Unity.Helpers
                     return false;
                 }
                 error.ThrowExceptionIfError();
-            // } while (error == ffmpeg.AVERROR(ffmpeg.EAGAIN));
+            } while (error == ffmpeg.AVERROR(ffmpeg.EAGAIN));
             packet = *_pPacket;
             EndReached = false;
             return true;
