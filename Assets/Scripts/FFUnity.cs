@@ -486,7 +486,7 @@ namespace FFmpeg.Unity
                 {
                     // if (_elapsedOffsetVideo + _videoTimeBuffer < PlaybackTime)
                     //     break;
-                    if (_elapsedOffsetVideo + _videoTimeBuffer < PlaybackTime /*&& !CanSeek*/)
+                    if (_elapsedOffsetVideo + _videoTimeBuffer < PlaybackTime && !CanSeek)
                     {
                         _timeOffset = -PlaybackTime;
                         // _streamVideoCtx.NextFrame(out _);
