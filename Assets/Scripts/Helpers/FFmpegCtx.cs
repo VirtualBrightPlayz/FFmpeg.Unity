@@ -17,6 +17,7 @@ namespace FFmpeg.Unity.Helpers
         internal readonly AVPacket* _pPacket;
         internal readonly int _videoIndex = 0;
         public bool EndReached { get; private set; } = false;
+        public bool IsValid { get; private set; } = false;
 
         public FFmpegCtx(Stream stream, uint bufferSize = 16000000)
         {
@@ -42,6 +43,7 @@ namespace FFmpeg.Unity.Helpers
             // UnityEngine.Debug.Log($"{AVRationalToString(_pFormatContext->streams[_videoIndex]->avg_frame_rate)} {AVRationalToString(_pFormatContext->streams[_videoIndex]->r_frame_rate)} {AVRationalToString(_pFormatContext->streams[_videoIndex]->time_base)}");
 
             _pPacket = ffmpeg.av_packet_alloc();
+            IsValid = true;
         }
 
         public FFmpegCtx(string url)
@@ -54,6 +56,7 @@ namespace FFmpeg.Unity.Helpers
             _videoIndex = ffmpeg.av_find_best_stream(_pFormatContext, AVMediaType.AVMEDIA_TYPE_VIDEO, -1, -1, null, 0).ThrowExceptionIfError();
 
             _pPacket = ffmpeg.av_packet_alloc();
+            IsValid = true;
         }
 
         public static string AVRationalToString(AVRational av)
@@ -210,6 +213,11 @@ namespace FFmpeg.Unity.Helpers
 
         public bool NextFrame(out AVPacket packet)
         {
+            if (!IsValid)
+            {
+                packet = default;
+                return false;
+            }
             /*if (EndReached)
             {
                 frame = default;
@@ -236,6 +244,8 @@ namespace FFmpeg.Unity.Helpers
 
         public void Seek(long offset)
         {
+            if (!IsValid)
+                return;
             // AVRational base_q = ffmpeg.av_get_time_base_q();
             // long target = ffmpeg.av_rescale_q(offset, base_q, _ctx._pFormatContext->streams[_streamIndex]->time_base);
             // ffmpeg.avformat_seek_file(_pFormatContext, -1, long.MinValue, offset, long.MaxValue, ffmpeg.AVSEEK_FLAG_ANY).ThrowExceptionIfError();
@@ -245,6 +255,8 @@ namespace FFmpeg.Unity.Helpers
 
         public void Seek(double offset)
         {
+            if (!IsValid)
+                return;
             // if (TryGetPts(out double pts))
             AVRational base_q = ffmpeg.av_get_time_base_q();
             double pts = (double)base_q.num / base_q.den;
@@ -254,6 +266,7 @@ namespace FFmpeg.Unity.Helpers
 
         public void Dispose()
         {
+            IsValid = false;
             var pPacket = _pPacket;
             ffmpeg.av_packet_free(&pPacket);
 

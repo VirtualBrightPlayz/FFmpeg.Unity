@@ -30,6 +30,8 @@ namespace FFmpeg.Unity
         [SerializeField]
         public bool _paused;
         private bool _wasPaused = false;
+        [SerializeField]
+        public bool CanSeek = true;
 
         // time controls
         [SerializeField]
@@ -71,6 +73,7 @@ namespace FFmpeg.Unity
         private TexData? _lastTexData;
         private AudioClip _audioClip;
         private MaterialPropertyBlock propertyBlock;
+        public Action<Texture2D> OnDisplay = null;
 
         // decoders
         [SerializeField]
@@ -112,7 +115,9 @@ namespace FFmpeg.Unity
 
         private void OnDestroy()
         {
+            _paused = true;
             _decodeThread?.Abort();
+            _decodeThread?.Join();
             _videoDecoder?.Dispose();
             _audioDecoder?.Dispose();
             _streamVideoCtx?.Dispose();
@@ -150,8 +155,11 @@ namespace FFmpeg.Unity
             _prevTime = _offset;
             _lastPts = null;
             _lastPts2 = null;
-            _streamVideoCtx.Seek(seek);
-            _streamAudioCtx.Seek(seek);
+            if (CanSeek)
+            {
+                _streamVideoCtx.Seek(seek);
+                _streamAudioCtx.Seek(seek);
+            }
             _videoDecoder.Seek();
             _audioDecoder.Seek();
             // _paused = false;
@@ -167,7 +175,9 @@ namespace FFmpeg.Unity
         public void Play(Stream video, Stream audio)
         {
             DynamicallyLinkedBindings.Initialize();
+            _paused = true;
             _decodeThread?.Abort();
+            _decodeThread?.Join();
             _videoDecoder?.Dispose();
             _audioDecoder?.Dispose();
             _streamVideoCtx?.Dispose();
@@ -180,7 +190,9 @@ namespace FFmpeg.Unity
         public void Play(string urlV, string urlA)
         {
             DynamicallyLinkedBindings.Initialize();
+            _paused = true;
             _decodeThread?.Abort();
+            _decodeThread?.Join();
             _videoDecoder?.Dispose();
             _audioDecoder?.Dispose();
             _streamVideoCtx?.Dispose();
@@ -246,13 +258,10 @@ namespace FFmpeg.Unity
             // _videoWatch.Restart();
             _startTime = AudioSettings.dspTime;
             _audioClip = AudioClip.Create($"{name}-AudioClip", _audioBufferSize * _audioDecoder.Channels, _audioDecoder.Channels, _audioDecoder.SampleRate, true, AudioCallback, AudioPosCallback);
-            // _videoOffset = _streamVideoCtx.TryGetFps(out double fps) ? -1d / fps : -1d;
-            _audioTimeBuffer = (double)_audioBufferSize / _audioDecoder.SampleRate * _audioDecoder.Channels;
-            _videoOffset = 0d;
-            // _videoOffset = -1d - _audioTimeBuffer;
+            // _audioTimeBuffer = (double)_audioBufferSize / _audioDecoder.SampleRate * _audioDecoder.Channels;
+            // _videoOffset = 0d;
             source.clip = _audioClip;
             source.Play();
-            // source.PlayScheduled(_startTime);
             Log(nameof(Play));
         }
 
@@ -313,12 +322,10 @@ namespace FFmpeg.Unity
                 // timer += Time.deltaTime;
                 if (_streamVideoCtx.TryGetFps(_videoDecoder, out double fps))
                 {
-                    _videoOffset = -1d - 1d / fps - _audioTimeBuffer;
-                    // while (timer >= 0)
-                    while (_elapsedOffset - timer >= 0d/*1d / fps*/ /*|| _videoTextures.Count > Math.Ceiling(fps) * 2*/)
+                    // _videoOffset = -1d - 1d / fps - _audioTimeBuffer;
+                    while (_elapsedOffset - timer >= 0d)
                     {
                         timer += 1d / fps;
-                        // timer += Time.deltaTime;
                         Present(idx);
                     }
                     int k = 0;
@@ -326,11 +333,6 @@ namespace FFmpeg.Unity
                     {
                         k++;
                         Present(idx);
-                    }
-                    // while (_elapsedOffset - PlaybackTime < 0d && k < fps)
-                    {
-                        k++;
-                            // Present(idx);
                     }
                 }
 
@@ -392,15 +394,25 @@ namespace FFmpeg.Unity
             if (tex != _lastVideoTex)
                 _texturePool.Release(_lastVideoTex);
             _lastVideoTex = tex;
-            if (propertyBlock == null)
-                propertyBlock = new MaterialPropertyBlock();
-            propertyBlock.SetTexture("_MainTex", tex.texture);
-            if (materialIndex == -1)
-                renderMesh.SetPropertyBlock(propertyBlock);
-                // renderMesh.material.mainTexture = _lastVideoTex.texture;
+            if (OnDisplay == null)
+            {
+                if (propertyBlock == null)
+                    propertyBlock = new MaterialPropertyBlock();
+                propertyBlock.SetTexture("_MainTex", tex.texture);
+                if (renderMesh != null)
+                {
+                    if (materialIndex == -1)
+                        renderMesh.SetPropertyBlock(propertyBlock);
+                        // renderMesh.material.mainTexture = _lastVideoTex.texture;
+                    else
+                        renderMesh.SetPropertyBlock(propertyBlock, materialIndex);
+                        // renderMesh.materials[materialIndex].mainTexture = _lastVideoTex.texture;
+                }
+            }
             else
-                renderMesh.SetPropertyBlock(propertyBlock, materialIndex);
-                // renderMesh.materials[materialIndex].mainTexture = _lastVideoTex.texture;
+            {
+                OnDisplay.Invoke(tex.texture);
+            }
         }
 
         private void AudioPosCallback(int pos)
@@ -474,8 +486,9 @@ namespace FFmpeg.Unity
                 {
                     // if (_elapsedOffsetVideo + _videoTimeBuffer < PlaybackTime)
                     //     break;
-                    if (_elapsedOffsetVideo > PlaybackTime + _videoSkipBuffer)
+                    if (_elapsedOffsetVideo + _videoTimeBuffer < PlaybackTime && !CanSeek)
                     {
+                        _timeOffset = -PlaybackTime;
                         // _streamVideoCtx.NextFrame(out _);
                         // skippedFrames++;
                         // decodeV = false;
@@ -489,7 +502,7 @@ namespace FFmpeg.Unity
                     if (_elapsedOffsetVideo + _videoTimeBuffer < time)
                         decodeV = false;
                         // breaks++;
-                    if (_elapsedOffsetVideo > time + _videoSkipBuffer)
+                    if (_elapsedOffsetVideo > time + _videoSkipBuffer && CanSeek)
                     {
                         _streamVideoCtx.NextFrame(out _);
                         skippedFrames++;
@@ -503,7 +516,7 @@ namespace FFmpeg.Unity
                         decodeA = false;
                         // breaks++;
                     // /*
-                    if (_elapsedOffset > time + _audioSkipBuffer)
+                    if (_elapsedOffset > time + _audioSkipBuffer && CanSeek)
                     {
                         _streamAudioCtx.NextFrame(out _);
                         skippedFrames++;

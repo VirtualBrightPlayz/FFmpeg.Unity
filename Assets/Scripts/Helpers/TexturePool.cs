@@ -53,8 +53,8 @@ namespace FFmpeg.Unity.Helpers
             if (state == null)
                 return;
             state.inUse = false;
-            // UnityEngine.Object.DestroyImmediate(state.texture);
-            // state.texture = new Texture2D(16, 16, TextureFormat.RGB24, false);
+            UnityEngine.Object.DestroyImmediate(state.texture);
+            state.texture = new Texture2D(16, 16, TextureFormat.RGB24, false);
         }
 
         public void Dispose()

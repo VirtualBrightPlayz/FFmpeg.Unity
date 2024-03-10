@@ -20,11 +20,20 @@ public class FFTest : MonoBehaviour
     private int id;
     private Rect windowRect = new Rect(0, 0, 250, 300);
     private Vector2 scrollPosition;
+    public MeshRenderer mesh;
 
     private void Start()
     {
         id = GetInstanceID();
+        ffmpeg.OnDisplay = OnDisplay;
         Play();
+    }
+
+    private void OnDisplay(Texture2D tex)
+    {
+        mesh.material.mainTexture = tex;
+        mesh.material.SetTexture("_EmissionMap", tex);
+        mesh.UpdateGIMaterials();
     }
 
     private void OnGUI()
@@ -83,12 +92,16 @@ public class FFTest : MonoBehaviour
             ffmpeg.Seek(ffmpeg.PlaybackTime + 10d);
         }
         GUILayout.EndHorizontal();
+        /*ffmpeg.CanSeek = !*/GUILayout.Toggle(!ffmpeg.CanSeek, "Live Stream");
+        GUILayout.Label($"{1 / Time.deltaTime:0} FPS");
+        /*
         GUILayout.Label($"DisplayTime: {ffmpeg?.PlaybackTime:0.0}");
         GUILayout.Label($"Time: {ffmpeg?._elapsedOffset:0.0}");
         GUILayout.Label($"VideoTime: {ffmpeg?._elapsedOffsetVideo:0.0}");
         GUILayout.Label($"Diff: {(ffmpeg?._elapsedOffset - ffmpeg?.PlaybackTime):0.0}");
         GUILayout.Label($"DiffVideo: {(ffmpeg?._elapsedOffsetVideo - ffmpeg?.PlaybackTime):0.0}");
         GUILayout.Label($"Skipped Frames: {(ffmpeg?.skippedFrames)}");
+        */
         // GUILayout.EndScrollView();
         GUI.DragWindow(new Rect(0, 0, windowRect.width, 20));
     }
@@ -119,6 +132,7 @@ public class FFTest : MonoBehaviour
     {
         if (string.IsNullOrEmpty(contentUrl))
             return;
+        ffmpeg.CanSeek = !contentUrl.StartsWith("rtmp://");
         if (stream)
         {
             PlayStream(contentUrl);
@@ -129,15 +143,22 @@ public class FFTest : MonoBehaviour
         Debug.Log("Start");
         // var video = await yt.Videos.GetAsync(contentUrl);
         // Debug.Log(video.Url);
-        var video = await yt.Videos.Streams.GetManifestAsync(contentUrl);
-        var ytVideoStream = video.GetVideoStreams().OrderByDescending(x => x.VideoResolution.Height * x.VideoQuality.Framerate).FirstOrDefault();
-        var ytAudioStream = video.GetAudioStreams().OrderByDescending(x => x.Bitrate).FirstOrDefault();
-        if (ytVideoStream == null && ytAudioStream == null)
+        try
+        {
+            var video = await yt.Videos.Streams.GetManifestAsync(contentUrl);
+            var ytVideoStream = video.GetVideoStreams().OrderByDescending(x => x.VideoResolution.Height * x.VideoQuality.Framerate).FirstOrDefault(x => x.VideoResolution.Height <= 1080);
+            var ytAudioStream = video.GetAudioStreams()/*.OrderByDescending(x => x.Bitrate)*/.FirstOrDefault();
+            if (ytVideoStream == null && ytAudioStream == null)
+            {
+                ffmpeg.Play(contentUrl, contentUrl);
+                return;
+            }
+            ffmpeg.Play(ytVideoStream.Url, ytAudioStream.Url);
+        }
+        catch (ArgumentException)
         {
             ffmpeg.Play(contentUrl, contentUrl);
-            return;
         }
-        ffmpeg.Play(ytVideoStream.Url, ytAudioStream.Url);
         return;
 
         Cobalt cobalt = new Cobalt();
