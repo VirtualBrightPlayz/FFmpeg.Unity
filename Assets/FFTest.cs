@@ -146,7 +146,7 @@ public class FFTest : MonoBehaviour
         try
         {
             var video = await yt.Videos.Streams.GetManifestAsync(contentUrl);
-            var ytVideoStream = video.GetVideoStreams().OrderByDescending(x => x.VideoResolution.Height * x.VideoQuality.Framerate).FirstOrDefault(x => x.VideoResolution.Height <= 1080);
+            var ytVideoStream = video.GetVideoStreams().OrderByDescending(x => x.VideoResolution.Height * x.VideoQuality.Framerate).FirstOrDefault(x => x.VideoResolution.Height <= 720);
             var ytAudioStream = video.GetAudioStreams()/*.OrderByDescending(x => x.Bitrate)*/.FirstOrDefault();
             if (ytVideoStream == null && ytAudioStream == null)
             {
