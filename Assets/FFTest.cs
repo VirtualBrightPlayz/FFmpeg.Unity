@@ -94,14 +94,12 @@ public class FFTest : MonoBehaviour
         GUILayout.EndHorizontal();
         /*ffmpeg.CanSeek = !*/GUILayout.Toggle(!ffmpeg.CanSeek, "Live Stream");
         GUILayout.Label($"{1 / Time.deltaTime:0} FPS");
-        /*
         GUILayout.Label($"DisplayTime: {ffmpeg?.PlaybackTime:0.0}");
-        GUILayout.Label($"Time: {ffmpeg?._elapsedOffset:0.0}");
-        GUILayout.Label($"VideoTime: {ffmpeg?._elapsedOffsetVideo:0.0}");
-        GUILayout.Label($"Diff: {(ffmpeg?._elapsedOffset - ffmpeg?.PlaybackTime):0.0}");
-        GUILayout.Label($"DiffVideo: {(ffmpeg?._elapsedOffsetVideo - ffmpeg?.PlaybackTime):0.0}");
-        GUILayout.Label($"Skipped Frames: {(ffmpeg?.skippedFrames)}");
-        */
+        // GUILayout.Label($"Time: {ffmpeg?._elapsedOffset:0.0}");
+        // GUILayout.Label($"VideoTime: {ffmpeg?._elapsedOffsetVideo:0.0}");
+        // GUILayout.Label($"Diff: {(ffmpeg?._elapsedOffset - ffmpeg?.PlaybackTime):0.0}");
+        // GUILayout.Label($"DiffVideo: {(ffmpeg?._elapsedOffsetVideo - ffmpeg?.PlaybackTime):0.0}");
+        // GUILayout.Label($"Skipped Frames: {(ffmpeg?.skippedFrames)}");
         // GUILayout.EndScrollView();
         GUI.DragWindow(new Rect(0, 0, windowRect.width, 20));
     }

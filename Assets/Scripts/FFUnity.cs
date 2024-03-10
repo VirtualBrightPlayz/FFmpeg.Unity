@@ -157,8 +157,8 @@ namespace FFmpeg.Unity
             _lastPts2 = null;
             if (CanSeek)
             {
-                _streamVideoCtx.Seek(seek);
-                _streamAudioCtx.Seek(seek);
+                _streamVideoCtx.Seek(_videoDecoder, seek);
+                _streamAudioCtx.Seek(_audioDecoder, seek);
             }
             _videoDecoder.Seek();
             _audioDecoder.Seek();
@@ -486,7 +486,7 @@ namespace FFmpeg.Unity
                 {
                     // if (_elapsedOffsetVideo + _videoTimeBuffer < PlaybackTime)
                     //     break;
-                    if (_elapsedOffsetVideo + _videoTimeBuffer < PlaybackTime && !CanSeek)
+                    if (_elapsedOffsetVideo + _videoTimeBuffer < PlaybackTime /*&& !CanSeek*/)
                     {
                         _timeOffset = -PlaybackTime;
                         // _streamVideoCtx.NextFrame(out _);
