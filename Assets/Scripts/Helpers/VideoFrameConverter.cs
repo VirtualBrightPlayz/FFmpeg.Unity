@@ -1,4 +1,5 @@
-﻿using System;
+using System;
+using System.Collections.Generic;
 using System.Drawing;
 using System.Runtime.InteropServices;
 // using FFmpeg.AutoGen.Abstractions;
@@ -10,6 +11,8 @@ public sealed unsafe class VideoFrameConverter : IDisposable
     private readonly Size _destinationSize;
     private readonly AVPixelFormat _destinationPixelFormat;
     private readonly SwsContext* _pConvertContext;
+    private readonly List<byte_ptr4> ptrs = new List<byte_ptr4>();
+    private readonly List<IntPtr> ptrs2 = new List<IntPtr>();
 
     public VideoFrameConverter(Size sourceSize, AVPixelFormat sourcePixelFormat,
         Size destinationSize, AVPixelFormat destinationPixelFormat)
@@ -34,6 +37,11 @@ public sealed unsafe class VideoFrameConverter : IDisposable
 
     public void Dispose()
     {
+        foreach (var _dstData in ptrs)
+            fixed (void* p = &_dstData.ToArray()[0])
+                ffmpeg.av_freep(p);
+        foreach (var _dstData in ptrs2)
+            Marshal.FreeHGlobal(_dstData);
         ffmpeg.sws_freeContext(_pConvertContext);
     }
 
@@ -42,7 +50,7 @@ public sealed unsafe class VideoFrameConverter : IDisposable
         int j = 1;
         if (align < 0)
         {
-            for (uint i = 1; i <= 128; i*=2)
+            for (uint i = 1; i <= 64; i*=2)
             {
                 if (sourceFrame.linesize[0*i] % i == 0 &&
                 sourceFrame.linesize[1*i] % i == 0 &&
@@ -85,9 +93,11 @@ public sealed unsafe class VideoFrameConverter : IDisposable
         var linesize = new int8();
         linesize.UpdateFrom(_dstLinesize);
 
-        fixed (void* p = &_dstData.ToArray()[0])
+        ptrs.Add(_dstData);
+
+        // fixed (void* p = &_dstData.ToArray()[0])
         {
-            ffmpeg.av_freep(p);
+            // ffmpeg.av_freep(p);
         }
 
         return new AVFrame

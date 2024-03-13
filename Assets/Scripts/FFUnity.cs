@@ -911,8 +911,9 @@ namespace FFmpeg.Unity
             {
                 return false;
             }
-            using var converter = new VideoFrameConverter(new System.Drawing.Size(width, height), (AVPixelFormat)frame.format, new System.Drawing.Size(width, height), AVPixelFormat.AV_PIX_FMT_RGB24);
-            var convFrame = converter.Convert(frame, format == AVPixelFormat.AV_PIX_FMT_NONE ? -1 : 1);
+            using var converter = new VideoFrameConverter(new System.Drawing.Size(frame.width, frame.height), (AVPixelFormat)frame.format, new System.Drawing.Size(width, height), AVPixelFormat.AV_PIX_FMT_RGB24);
+            var convFrame = converter.Convert(frame, format == AVPixelFormat.AV_PIX_FMT_NONE ? 32 : 1);
+            // var convFrame = converter.Convert(frame, 32);
             Marshal.Copy((IntPtr)convFrame.data[0], line, 0, width * height * 3);
             Array.Copy(line, 0, texture, 0, width * height * 3);
             return true;
