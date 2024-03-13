@@ -7,16 +7,15 @@ using System.Runtime.InteropServices;
 
 public sealed unsafe class VideoFrameConverter : IDisposable
 {
-    private readonly IntPtr _convertedFrameBufferPtr;
     private readonly Size _destinationSize;
-    private readonly byte_ptr4 _dstData;
-    private readonly int4 _dstLinesize;
+    private readonly AVPixelFormat _destinationPixelFormat;
     private readonly SwsContext* _pConvertContext;
 
     public VideoFrameConverter(Size sourceSize, AVPixelFormat sourcePixelFormat,
         Size destinationSize, AVPixelFormat destinationPixelFormat)
     {
         _destinationSize = destinationSize;
+        _destinationPixelFormat = destinationPixelFormat;
 
         _pConvertContext = ffmpeg.sws_getContext(sourceSize.Width,
             sourceSize.Height,
@@ -31,75 +30,72 @@ public sealed unsafe class VideoFrameConverter : IDisposable
             null);
         if (_pConvertContext == null)
             throw new ApplicationException("Could not initialize the conversion context.");
-
-        var convertedFrameBufferSize = ffmpeg.av_image_get_buffer_size(destinationPixelFormat,
-            destinationSize.Width,
-            destinationSize.Height,
-            1);
-        _convertedFrameBufferPtr = Marshal.AllocHGlobal(convertedFrameBufferSize);
-        _dstData = new byte_ptr4();
-        _dstLinesize = new int4();
-
-        ffmpeg.av_image_fill_arrays(ref _dstData,
-            ref _dstLinesize,
-            (byte*)_convertedFrameBufferPtr,
-            destinationPixelFormat,
-            destinationSize.Width,
-            destinationSize.Height,
-            1);
     }
 
     public void Dispose()
     {
-        Marshal.FreeHGlobal(_convertedFrameBufferPtr);
         ffmpeg.sws_freeContext(_pConvertContext);
     }
 
-    public AVFrame Convert(AVFrame sourceFrame)
+    public AVFrame Convert(AVFrame sourceFrame, int align = -1)
     {
-        ffmpeg.sws_scale(_pConvertContext,
+        int j = 1;
+        if (align < 0)
+        {
+            for (uint i = 1; i <= 128; i*=2)
+            {
+                if (sourceFrame.linesize[0*i] % i == 0 &&
+                sourceFrame.linesize[1*i] % i == 0 &&
+                sourceFrame.linesize[2*i] % i == 0)
+                {
+                }
+                else
+                {
+                    j = (int)i;
+                    break;
+                }
+            }
+        }
+        else
+        {
+            j = align;
+        }
+        byte_ptr4 _dstData;
+        int4 _dstLinesize;
+        ffmpeg.av_image_alloc(ref _dstData, ref _dstLinesize, _destinationSize.Width, _destinationSize.Height, _destinationPixelFormat, j).ThrowExceptionIfError();
+        int ret = ffmpeg.sws_scale(_pConvertContext,
             sourceFrame.data,
             sourceFrame.linesize,
             0,
             sourceFrame.height,
             _dstData,
             _dstLinesize);
+        if (ret < 0)
+        {
+            fixed (void* p = &_dstData.ToArray()[0])
+            {
+                ffmpeg.av_freep(p);
+            }
+            ret.ThrowExceptionIfError();
+            throw new ApplicationException();
+        }
 
         var data = new byte_ptr8();
         data.UpdateFrom(_dstData);
         var linesize = new int8();
         linesize.UpdateFrom(_dstLinesize);
 
-        return new AVFrame
+        fixed (void* p = &_dstData.ToArray()[0])
         {
-            data = data,
-            linesize = linesize,
-            width = _destinationSize.Width,
-            height = _destinationSize.Height
-        };
-    }
-
-    public AVFrame Convert(byte*[] data2, int[] linesize2, int height)
-    {
-        ffmpeg.sws_scale(_pConvertContext,
-            data2,
-            linesize2,
-            0,
-            height,
-            _dstData,
-            _dstLinesize);
-
-        var data = new byte_ptr8();
-        data.UpdateFrom(_dstData);
-        var linesize = new int8();
-        linesize.UpdateFrom(_dstLinesize);
+            ffmpeg.av_freep(p);
+        }
 
         return new AVFrame
         {
             data = data,
             linesize = linesize,
             width = _destinationSize.Width,
-            height = _destinationSize.Height
+            height = _destinationSize.Height,
         };
     }
 }

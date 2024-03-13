@@ -105,14 +105,30 @@ namespace FFmpeg.Unity.Helpers
             return AVPixelFormat.AV_PIX_FMT_NONE;
         }
 
+        private AVPixelFormat GetSWFormat(AVCodecContext* @s, AVPixelFormat* @fmt)
+        {
+            int* p;
+
+            for (p = (int*)fmt; *p != -1; p++)
+            {
+                // if (*p == (int)HWPixelFormat)
+                    return (AVPixelFormat)(*p);
+            }
+
+            return AVPixelFormat.AV_PIX_FMT_NONE;
+        }
+
         public void Dispose()
         {
             var pFrame = _pFrame;
-            ffmpeg.av_frame_free(&pFrame);
+            if (_pFrame != null)
+                ffmpeg.av_frame_free(&pFrame);
             var receivedFrame = _receivedFrame;
-            ffmpeg.av_frame_free(&receivedFrame);
+            if (_receivedFrame != null)
+                ffmpeg.av_frame_free(&receivedFrame);
 
-            ffmpeg.avcodec_close(_pCodecContext);
+            if (_pCodecContext != null)
+                ffmpeg.avcodec_close(_pCodecContext);
         }
 
         public bool CanDecode()
@@ -128,7 +144,10 @@ namespace FFmpeg.Unity.Helpers
         {
             if (_ctx.EndReached || _ctx._pPacket->stream_index != _streamIndex)
             {
-                frame = default;
+                frame = new AVFrame()
+                {
+                    format = -1
+                };
                 return -1;
             }
             ffmpeg.av_frame_unref(_pFrame);
@@ -137,7 +156,10 @@ namespace FFmpeg.Unity.Helpers
             int error = ffmpeg.avcodec_receive_frame(_pCodecContext, _pFrame);
             if (error == ffmpeg.AVERROR(ffmpeg.EAGAIN))
             {
-                frame = default;
+                frame = new AVFrame()
+                {
+                    format = -1
+                };
                 return 1;
             }
             error.ThrowExceptionIfError();
@@ -155,11 +177,17 @@ namespace FFmpeg.Unity.Helpers
             }
             else
                 frame = *_pFrame;
+            // fixed (int* w = &frame.width)
+            // fixed (int* h = &frame.height)
+            {
+                // ffmpeg.avcodec_align_dimensions(_pCodecContext, w, h);
+            }
             return 0;
         }
 
         public void Seek()
         {
+            return;
             ffmpeg.av_frame_unref(_pFrame);
             ffmpeg.av_frame_unref(_receivedFrame);
             ffmpeg.avcodec_flush_buffers(_pCodecContext);

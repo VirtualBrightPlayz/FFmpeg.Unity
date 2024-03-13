@@ -11,6 +11,7 @@ using FFmpeg.Unity;
 using UnityEngine;
 using YoutubeExplode;
 using YoutubeExplode.Common;
+using YoutubeExplode.Exceptions;
 
 public class FFTest : MonoBehaviour
 {
@@ -43,7 +44,6 @@ public class FFTest : MonoBehaviour
 
     private void OnWindow(int wid)
     {
-        // scrollPosition = GUILayout.BeginScrollView(scrollPosition);
         GUILayout.BeginHorizontal(GUILayout.ExpandWidth(false));
         {
             GUILayout.Label("URL:");
@@ -95,12 +95,13 @@ public class FFTest : MonoBehaviour
         /*ffmpeg.CanSeek = !*/GUILayout.Toggle(!ffmpeg.CanSeek, "Live Stream");
         GUILayout.Label($"{1 / Time.deltaTime:0} FPS");
         GUILayout.Label($"DisplayTime: {ffmpeg?.PlaybackTime:0.0}");
-        // GUILayout.Label($"Time: {ffmpeg?._elapsedOffset:0.0}");
-        // GUILayout.Label($"VideoTime: {ffmpeg?._elapsedOffsetVideo:0.0}");
-        // GUILayout.Label($"Diff: {(ffmpeg?._elapsedOffset - ffmpeg?.PlaybackTime):0.0}");
-        // GUILayout.Label($"DiffVideo: {(ffmpeg?._elapsedOffsetVideo - ffmpeg?.PlaybackTime):0.0}");
-        // GUILayout.Label($"Skipped Frames: {(ffmpeg?.skippedFrames)}");
-        // GUILayout.EndScrollView();
+        scrollPosition = GUILayout.BeginScrollView(scrollPosition);
+        GUILayout.Label($"Time: {ffmpeg?._elapsedOffset:0.0}");
+        GUILayout.Label($"VideoTime: {ffmpeg?._elapsedOffsetVideo:0.0}");
+        GUILayout.Label($"Diff: {(ffmpeg?._elapsedOffset - ffmpeg?.PlaybackTime):0.0}");
+        GUILayout.Label($"DiffVideo: {(ffmpeg?._elapsedOffsetVideo - ffmpeg?.PlaybackTime):0.0}");
+        GUILayout.Label($"Skipped Frames: {(ffmpeg?.skippedFrames)}");
+        GUILayout.EndScrollView();
         GUI.DragWindow(new Rect(0, 0, windowRect.width, 20));
     }
 
@@ -136,7 +137,8 @@ public class FFTest : MonoBehaviour
             PlayStream(contentUrl);
             return;
         }
-        
+
+        ffmpeg.CanSeek = false;
         var yt = new YoutubeClient();
         Debug.Log("Start");
         // var video = await yt.Videos.GetAsync(contentUrl);
@@ -144,17 +146,26 @@ public class FFTest : MonoBehaviour
         try
         {
             var video = await yt.Videos.Streams.GetManifestAsync(contentUrl);
-            var ytVideoStream = video.GetVideoStreams().OrderByDescending(x => x.VideoResolution.Height * x.VideoQuality.Framerate).FirstOrDefault(x => x.VideoResolution.Height <= 720);
+            var ytVideoStream = video.GetVideoStreams().OrderByDescending(x => x.VideoResolution.Height /** x.VideoQuality.Framerate*/).FirstOrDefault(x => x.VideoResolution.Height <= 1080);
             var ytAudioStream = video.GetAudioStreams()/*.OrderByDescending(x => x.Bitrate)*/.FirstOrDefault();
             if (ytVideoStream == null && ytAudioStream == null)
             {
+                ffmpeg.CanSeek = !contentUrl.StartsWith("rtmp://");
                 ffmpeg.Play(contentUrl, contentUrl);
                 return;
             }
+            ffmpeg.CanSeek = true;
             ffmpeg.Play(ytVideoStream.Url, ytAudioStream.Url);
+        }
+        catch (VideoUnplayableException)
+        {
+            var live = await yt.Videos.Streams.GetHttpLiveStreamUrlAsync(contentUrl);
+            ffmpeg.CanSeek = false;
+            ffmpeg.Play(live, live);
         }
         catch (ArgumentException)
         {
+            ffmpeg.CanSeek = !contentUrl.StartsWith("rtmp://");
             ffmpeg.Play(contentUrl, contentUrl);
         }
         return;

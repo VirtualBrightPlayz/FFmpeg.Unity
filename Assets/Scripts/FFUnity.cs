@@ -131,13 +131,13 @@ namespace FFmpeg.Unity
             _paused = true;
             _decodeThread?.Join();
             source.Stop();
-            if (_audioLocker.WaitOne())
+            // if (_audioLocker.WaitOne())
             {
                 _audioMemStream.Position = 0;
                 _audioStream.Clear();
-                _audioLocker.ReleaseMutex();
+                // _audioLocker.ReleaseMutex();
             }
-            if (_videoMutex.WaitOne())
+            // if (_videoMutex.WaitOne())
             {
                 _videoFrameClones.Clear();
                 foreach (var tex in _videoTextures)
@@ -147,7 +147,7 @@ namespace FFmpeg.Unity
                 _videoTextures.Clear();
                 _lastVideoTex = null;
                 _lastTexData = null;
-                _videoMutex.ReleaseMutex();
+                // _videoMutex.ReleaseMutex();
             }
             _videoWatch.Restart();
             ResetTimers();
@@ -204,6 +204,8 @@ namespace FFmpeg.Unity
 
         public void Resume()
         {
+            if (!CanSeek)
+                Init();
             _paused = false;
         }
 
@@ -329,7 +331,7 @@ namespace FFmpeg.Unity
                         Present(idx);
                     }
                     int k = 0;
-                    if (_elapsedOffsetVideo > PlaybackTime + _videoSkipBuffer && k < fps)
+                    if (CanSeek && _elapsedOffsetVideo > PlaybackTime + _videoSkipBuffer && k < fps)
                     {
                         k++;
                         Present(idx);
@@ -450,7 +452,8 @@ namespace FFmpeg.Unity
         #endregion
 
         #region Buffer Handling
-        private double _lastDecodeTime;
+        private double _lastVideoDecodeTime;
+        private double _lastAudioDecodeTime;
         [NonSerialized]
         public int skippedFrames = 0;
 
@@ -486,19 +489,19 @@ namespace FFmpeg.Unity
                 {
                     // if (_elapsedOffsetVideo + _videoTimeBuffer < PlaybackTime)
                     //     break;
-                    if (_elapsedOffsetVideo + _videoTimeBuffer < PlaybackTime && !CanSeek)
+                    // if (_elapsedOffsetVideo + _videoTimeBuffer < PlaybackTime && !CanSeek)
+                    if (Math.Abs(_elapsedOffsetVideo - PlaybackTime) > _videoTimeBuffer * 5 && !CanSeek)
                     {
                         _timeOffset = -PlaybackTime;
                         // _streamVideoCtx.NextFrame(out _);
+                        // _streamAudioCtx.NextFrame(out _);
                         // skippedFrames++;
-                        // decodeV = false;
-                        // break;
-                        // continue;
                     }
                 }
                 // */
                 if (_lastVideoTex != null && _videoDecoder.CanDecode() && _streamVideoCtx.TryGetTime(_videoDecoder, out time))
                 {
+                    // time = _lastVideoDecodeTime;
                     if (_elapsedOffsetVideo + _videoTimeBuffer < time)
                         decodeV = false;
                         // breaks++;
@@ -512,6 +515,7 @@ namespace FFmpeg.Unity
                 }
                 if (_lastVideoTex != null && _audioDecoder.CanDecode() && _streamAudioCtx.TryGetTime(_audioDecoder, out time))
                 {
+                    // time = _lastAudioDecodeTime;
                     if (_elapsedOffset + _audioTimeBuffer < time)
                         decodeA = false;
                         // breaks++;
@@ -559,10 +563,12 @@ namespace FFmpeg.Unity
                     switch (vid)
                     {
                         case 0:
-                            if (_streamVideoCtx.TryGetTime(_videoDecoder, vFrame, out time) && _elapsedOffsetVideo > time + _videoSkipBuffer)
+                            if (_streamVideoCtx.TryGetTime(_videoDecoder, vFrame, out time) && _elapsedOffsetVideo > time + _videoSkipBuffer && CanSeek)
                                 break;
-                            // if (_streamCtx.TryGetTime(_videoDecoder, vFrame, out time) && _elapsedOffsetVideo + _videoTimeBuffer > time)
+                            // if (_streamVideoCtx.TryGetTime(_videoDecoder, vFrame, out time) && _elapsedOffsetVideo + _videoTimeBuffer > time)
                             //     break;
+                            if (_streamVideoCtx.TryGetTime(_videoDecoder, vFrame, out time) && time != 0)
+                                _lastVideoDecodeTime = time;
                             _videoFrames[_videoWriteIndex % _videoFrames.Length] = vFrame;
                             if (mainThread)
                             {
@@ -606,10 +612,12 @@ namespace FFmpeg.Unity
                     switch (aud)
                     {
                         case 0:
-                            if (_streamAudioCtx.TryGetTime(_audioDecoder, aFrame, out time) && _elapsedOffset > time + _audioSkipBuffer)
+                            if (_streamAudioCtx.TryGetTime(_audioDecoder, aFrame, out time) && _elapsedOffset > time + _audioSkipBuffer && CanSeek)
                                 break;
-                            // if (_streamCtx.TryGetTime(_audioDecoder, aFrame, out time) && _elapsedOffset + _audioTimeBuffer > time)
+                            // if (_streamAudioCtx.TryGetTime(_audioDecoder, aFrame, out time) && _elapsedOffset + _audioTimeBuffer > time)
                             //     break;
+                            if (_streamAudioCtx.TryGetTime(_audioDecoder, aFrame, out time) && time != 0)
+                                _lastAudioDecodeTime = time;
                             _audioFrames[_audioWriteIndex % _audioFrames.Length] = aFrame;
                             UpdateAudio(_audioWriteIndex % _audioFrames.Length);
                             _audioWriteIndex++;
@@ -904,10 +912,9 @@ namespace FFmpeg.Unity
                 return false;
             }
             using var converter = new VideoFrameConverter(new System.Drawing.Size(width, height), (AVPixelFormat)frame.format, new System.Drawing.Size(width, height), AVPixelFormat.AV_PIX_FMT_RGB24);
-            var convFrame = converter.Convert(frame);
+            var convFrame = converter.Convert(frame, format == AVPixelFormat.AV_PIX_FMT_NONE ? -1 : 1);
             Marshal.Copy((IntPtr)convFrame.data[0], line, 0, width * height * 3);
             Array.Copy(line, 0, texture, 0, width * height * 3);
-            // converter.Dispose();
             return true;
         }
 
