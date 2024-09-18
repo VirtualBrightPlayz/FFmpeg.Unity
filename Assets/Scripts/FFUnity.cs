@@ -56,11 +56,11 @@ namespace FFmpeg.Unity
         [SerializeField]
         public double _videoTimeBuffer = 1d;
         [SerializeField]
-        public double _videoSkipBuffer = 0.1d;
+        public double _videoSkipBuffer = 0.25d;
         [SerializeField]
         public double _audioTimeBuffer = 1d;
         [SerializeField]
-        public double _audioSkipBuffer = 0.1d;
+        public double _audioSkipBuffer = 0.25d;
         private int _audioBufferSize = 128;
 
         // unity assets
