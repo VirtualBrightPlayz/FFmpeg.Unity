@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Runtime.InteropServices;
+using UnityEngine;
 // using FFmpeg.AutoGen.Abstractions;
 
 // namespace FFmpeg.AutoGen.Example;
@@ -52,9 +53,9 @@ public sealed unsafe class VideoFrameConverter : IDisposable
         {
             for (uint i = 1; i <= 64; i*=2)
             {
-                if (sourceFrame.linesize[0*i] % i == 0 &&
-                sourceFrame.linesize[1*i] % i == 0 &&
-                sourceFrame.linesize[2*i] % i == 0)
+                if (Mathf.Abs(sourceFrame.linesize[0*i]) % i == 0 &&
+                Mathf.Abs(sourceFrame.linesize[1*i]) % i == 0 &&
+                Mathf.Abs(sourceFrame.linesize[2*i]) % i == 0)
                 {
                 }
                 else
@@ -68,9 +69,13 @@ public sealed unsafe class VideoFrameConverter : IDisposable
         {
             j = align;
         }
-        byte_ptr4 _dstData;
-        int4 _dstLinesize;
+        byte_ptr4 _dstData = new byte_ptr4();
+        int4 _dstLinesize = new int4();
         ffmpeg.av_image_alloc(ref _dstData, ref _dstLinesize, _destinationSize.Width, _destinationSize.Height, _destinationPixelFormat, j).ThrowExceptionIfError();
+        _dstLinesize[0] = _destinationSize.Width * 3;
+        _dstLinesize[1] = 0;
+        _dstLinesize[2] = 0;
+        _dstLinesize[3] = 0;
         int ret = ffmpeg.sws_scale(_pConvertContext,
             sourceFrame.data,
             sourceFrame.linesize,

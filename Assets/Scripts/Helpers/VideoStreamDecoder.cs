@@ -187,6 +187,7 @@ namespace FFmpeg.Unity.Helpers
 
         public void Seek()
         {
+            ffmpeg.avcodec_flush_buffers(_pCodecContext);
             return;
             ffmpeg.av_frame_unref(_pFrame);
             ffmpeg.av_frame_unref(_receivedFrame);

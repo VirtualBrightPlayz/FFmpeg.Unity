@@ -20,7 +20,7 @@ namespace FFmpeg.Unity.Helpers
         public bool EndReached { get; private set; } = false;
         public bool IsValid { get; private set; } = false;
 
-        public FFmpegCtx(Stream stream, uint bufferSize = 16000000)
+        public FFmpegCtx(Stream stream, uint bufferSize = 16_000_000)
         {
             _stream = stream;
             bufferPtr = (byte*)ffmpeg.av_malloc(bufferSize);
@@ -63,6 +63,12 @@ namespace FFmpeg.Unity.Helpers
         public static string AVRationalToString(AVRational av)
         {
             return $"{av.num}/{av.den}";
+        }
+
+        public double GetLength()
+        {
+            double time_base = (double)_pFormatContext->streams[_videoIndex]->time_base.num / _pFormatContext->streams[_videoIndex]->time_base.den;
+            return _pFormatContext->streams[_videoIndex]->duration * time_base;
         }
 
         public bool TryGetFps(out double fps)
@@ -250,7 +256,7 @@ namespace FFmpeg.Unity.Helpers
             // AVRational base_q = ffmpeg.av_get_time_base_q();
             // long target = ffmpeg.av_rescale_q(offset, base_q, _ctx._pFormatContext->streams[_streamIndex]->time_base);
             // ffmpeg.avformat_seek_file(_pFormatContext, -1, long.MinValue, offset, long.MaxValue, ffmpeg.AVSEEK_FLAG_ANY).ThrowExceptionIfError();
-            int flags = ffmpeg.AVSEEK_FLAG_FRAME;
+            int flags = ffmpeg.AVSEEK_FLAG_BACKWARD;
             ffmpeg.av_seek_frame(_pFormatContext, index, offset, flags).ThrowExceptionIfError();
             // ffmpeg.avformat_seek_file(_pFormatContext, index, 0, offset, offset, flags).ThrowExceptionIfError();
         }
@@ -266,10 +272,7 @@ namespace FFmpeg.Unity.Helpers
             double pts = (double)base_q.num / base_q.den;
             long frame = ffmpeg.av_rescale((long)(offset * 1000d), base_q.den, base_q.num);
             frame /= 1000;
-            // Debug.Log(frame);
-            Seek(_streamIndex, frame);
-            // UnityEngine.Debug.Log(AVRationalToString(base_q));
-            // Seek(_streamIndex, (long)Math.Floor(offset * pts));
+            Seek(_streamIndex, Math.Max(0, frame));
         }
 
         public void Dispose()
@@ -287,8 +290,8 @@ namespace FFmpeg.Unity.Helpers
                 ffmpeg.avio_context_free(&pIOContext);
             if (streamHandle.IsAllocated)
                 streamHandle.Free();
-            // if (bufferPtr != null)
-            //     ffmpeg.av_free(bufferPtr);
+            if (bufferPtr != null)
+                ffmpeg.av_free(bufferPtr);
         }
     }
 }
