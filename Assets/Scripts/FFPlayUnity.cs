@@ -29,11 +29,6 @@ namespace FFmpeg.Unity
             timeOffset = Time.timeAsDouble;
         }
 
-        private void Start()
-        {
-            // Play(@"e:\Apps\Hypernex\Hypernex.Unity_Data\StreamingAssets\ytdl\Downloads\hypernexdevs [hypernexdevs].mov");
-        }
-
         private void Update()
         {
             if (videoTimings != null)
