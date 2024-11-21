@@ -691,6 +691,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b2c04debbdd7eaf4a8c0abbb01bd3742, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  bufferDelay: 2
 --- !u!850595691 &1495372973
 LightingSettings:
   m_ObjectHideFlags: 0

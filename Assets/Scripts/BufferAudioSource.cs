@@ -4,9 +4,6 @@ using UnityEngine;
 [RequireComponent(typeof(AudioSource))]
 public class BufferAudioSource : MonoBehaviour
 {
-    public const int SAMPLE_SIZE = 512;
-    public const int CLIP_SAMPLE_SIZE = 4096;
-    public const float MAX_DELAY = 0.1f;
     private float[] RingBuffer = null;
     private int RingBufferPosition = 0;
     private int PlaybackPosition = 0;
@@ -17,6 +14,7 @@ public class BufferAudioSource : MonoBehaviour
     private int maxEmptyReads = 0;
     private AudioClip clip = null;
     private AudioSource audioSource;
+    public float bufferDelay = 1f;
 
     private float[] spectrum = new float[1024];
 
@@ -79,7 +77,7 @@ public class BufferAudioSource : MonoBehaviour
         bool newClip = false;
         if (clip == null || clip.channels != channels || clip.frequency != frequency)
         {
-            maxEmptyReads = frequency * channels * 2;
+            maxEmptyReads = (int)(frequency * channels * bufferDelay);
             newClip = true;
         }
         AddRingBuffer(pcm);
