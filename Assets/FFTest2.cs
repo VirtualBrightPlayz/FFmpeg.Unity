@@ -1,16 +1,12 @@
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Net.Http;
-using System.Threading;
-using System.Threading.Tasks;
-using CobaltSharp;
 using FFmpeg.Unity;
 using UnityEngine;
+using YoutubeDLSharp;
+using YoutubeDLSharp.Options;
 using YoutubeExplode;
-using YoutubeExplode.Common;
 using YoutubeExplode.Exceptions;
 
 public class FFTest2 : MonoBehaviour
@@ -120,6 +116,18 @@ public class FFTest2 : MonoBehaviour
             return;
         }
 
+        var ytdlPath = Path.Combine(Application.streamingAssetsPath, "yt-dlp.exe");
+        var ytdl = new YoutubeDL();
+        ytdl.YoutubeDLPath = ytdlPath;
+        Debug.Log("Start");
+        var res = await ytdl.RunVideoDataFetch(contentUrl);
+        string[] formats = res.Data.FormatID.Split('+');
+        var video = res.Data.Formats.FirstOrDefault(x => x.FormatId == formats[0]);
+        var audio = res.Data.Formats.FirstOrDefault(x => x.FormatId == formats[1]);
+        Debug.Log("Done");
+        ffmpeg.Play(video.Url, audio.Url);
+
+#if false
         // ffmpeg.CanSeek = false;
         var yt = new YoutubeClient();
         Debug.Log("Start");
@@ -148,5 +156,6 @@ public class FFTest2 : MonoBehaviour
             // ffmpeg.CanSeek = !contentUrl.StartsWith("rtmp://");
             ffmpeg.Play(contentUrl, contentUrl);
         }
+#endif
     }
 }

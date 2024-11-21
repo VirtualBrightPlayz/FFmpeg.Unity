@@ -6,7 +6,7 @@ EditorBuildSettings:
   serializedVersion: 2
   m_Scenes:
   - enabled: 1
-    path: Assets/Scenes/SampleScene.unity
-    guid: 9fc0d4010bbf28b4594072e72b8655ab
+    path: Assets/Scenes/FFPlay.unity
+    guid: a234dbeba8bb05d4a81925a855e3ecb0
   m_configObjects: {}
   m_UseUCBPForAssetBundles: 0

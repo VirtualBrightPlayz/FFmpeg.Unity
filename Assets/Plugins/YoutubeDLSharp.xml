@@ -1,0 +1,2436 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>YoutubeDLSharp</name>
+    </assembly>
+    <members>
+        <member name="T:YoutubeDLSharp.DownloadState">
+            <summary>
+            Specifies possible download states of a video.
+            (None and Success are not used by YoutubeDLProcess.)
+            </summary>
+        </member>
+        <member name="T:YoutubeDLSharp.DownloadProgress">
+            <summary>
+            Provides status information for a video download.
+            </summary>
+        </member>
+        <member name="P:YoutubeDLSharp.DownloadProgress.State">
+            <summary>
+            Video download status.
+            </summary>
+        </member>
+        <member name="P:YoutubeDLSharp.DownloadProgress.Progress">
+            <summary>
+            Download progress value between 0 and 1.
+            </summary>
+        </member>
+        <member name="P:YoutubeDLSharp.DownloadProgress.TotalDownloadSize">
+            <summary>
+            The total download size string as outputted by yt-dlp.
+            </summary>
+        </member>
+        <member name="P:YoutubeDLSharp.DownloadProgress.DownloadSpeed">
+            <summary>
+            The download speed string as outputted by yt-dlp.
+            </summary>
+        </member>
+        <member name="P:YoutubeDLSharp.DownloadProgress.ETA">
+            <summary>
+            The estimated remaining time of the download as outputted by yt-dlp.
+            </summary>
+        </member>
+        <member name="P:YoutubeDLSharp.DownloadProgress.VideoIndex">
+            <summary>
+            The current video index (starting at 1) if mutliple items are downloaded at once.
+            </summary>
+        </member>
+        <member name="P:YoutubeDLSharp.DownloadProgress.Data">
+            <summary>
+            Additional optional progress information.
+            </summary>
+        </member>
+        <member name="M:YoutubeDLSharp.DownloadProgress.#ctor(YoutubeDLSharp.DownloadState,System.Single,System.String,System.String,System.String,System.Int32,System.String)">
+            <summary>
+            Creates a new instance of class DownloadProgress.
+            </summary>
+        </member>
+        <member name="M:YoutubeDLSharp.Helpers.OSHelper.GetOSVersion">
+            <summary>
+            Gets the <see cref="T:YoutubeDLSharp.Helpers.OSVersion"/> depending on what platform you are on
+            </summary>
+            <returns>Returns the OS Version</returns>
+            <exception cref="T:System.Exception"></exception>
+        </member>
+        <member name="T:YoutubeDLSharp.Helpers.ProcessExtensions">
+            <summary>
+            Process extensions for killing full process tree.
+            From https://github.com/dotnet/cli/blob/master/test/Microsoft.DotNet.Tools.Tests.Utilities/Extensions/ProcessExtensions.cs.
+            </summary>
+        </member>
+        <member name="T:YoutubeDLSharp.Helpers.ProcessRunner">
+            <summary>
+            Provides methods for throttled execution of processes.
+            </summary>
+        </member>
+        <member name="T:YoutubeDLSharp.Metadata.FormatData">
+            <summary>
+            Represents information for one available download format for one video as extracted by yt-dlp.
+            </summary>
+        </member>
+        <member name="T:YoutubeDLSharp.Metadata.MetadataType">
+            <summary>
+            Possible types of media fetched by yt-dlp.
+            </summary>
+        </member>
+        <member name="T:YoutubeDLSharp.Metadata.VideoData">
+            <summary>
+            Represents the video metadata for one video as extracted by yt-dlp.
+            Explanation can be found at https://github.com/yt-dlp/yt-dlp/blob/master/yt_dlp/extractor/common.py#L91.
+            </summary>
+        </member>
+        <member name="T:YoutubeDLSharp.Options.DownloadMergeFormat">
+            <summary>
+            Possible video merging formats.
+            </summary>
+        </member>
+        <member name="T:YoutubeDLSharp.Options.AudioConversionFormat">
+            <summary>
+            Possible audio formats for audio conversion.
+            </summary>
+        </member>
+        <member name="T:YoutubeDLSharp.Options.VideoRecodeFormat">
+            <summary>
+            Possible video formats for video conversion.
+            </summary>
+        </member>
+        <member name="T:YoutubeDLSharp.Options.IOption">
+            <summary>
+            Interface for one yt-dlp option.
+            </summary>
+        </member>
+        <member name="P:YoutubeDLSharp.Options.IOption.DefaultOptionString">
+            <summary>
+            The default string representation of the option flag.
+            </summary>
+        </member>
+        <member name="P:YoutubeDLSharp.Options.IOption.OptionStrings">
+            <summary>
+            An array of all possible string representations of the option flag.
+            </summary>
+        </member>
+        <member name="P:YoutubeDLSharp.Options.IOption.IsSet">
+            <summary>
+            True if the option flag is set; false otherwise.
+            </summary>
+        </member>
+        <member name="M:YoutubeDLSharp.Options.IOption.SetFromString(System.String)">
+            <summary>
+            Sets the option value from a given string representation.
+            </summary>
+            <param name="s">The string (including the option flag).</param>
+        </member>
+        <member name="M:YoutubeDLSharp.Options.IOption.ToStringCollection">
+            <summary>
+            Converts the option to a collection of string representations.
+            This is relevant for MultiOption instances that can have multiple values.
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="P:YoutubeDLSharp.Options.IOption.IsCustom">
+            <summary>
+            True if this option is custom.
+            </summary>
+        </member>
+        <member name="T:YoutubeDLSharp.Options.MultiOption`1">
+            <summary>
+            Represents a yt-dlp option that can be set multiple times.
+            </summary>
+            <typeparam name="T">The type of the option.</typeparam>
+        </member>
+        <member name="T:YoutubeDLSharp.Options.Option`1">
+            <summary>
+            Represents one yt-dlp option.
+            </summary>
+            <typeparam name="T">The type of the option.</typeparam>
+        </member>
+        <member name="P:YoutubeDLSharp.Options.Option`1.DefaultOptionString">
+            <summary>
+            The default string representation of the option flag.
+            </summary>
+        </member>
+        <member name="P:YoutubeDLSharp.Options.Option`1.OptionStrings">
+            <summary>
+            An array of all possible string representations of the option flag.
+            </summary>
+        </member>
+        <member name="P:YoutubeDLSharp.Options.Option`1.IsSet">
+            <summary>
+            True if the option flag is set; false otherwise.
+            </summary>
+        </member>
+        <member name="P:YoutubeDLSharp.Options.Option`1.Value">
+            <summary>
+            The option value.
+            </summary>
+        </member>
+        <member name="P:YoutubeDLSharp.Options.Option`1.IsCustom">
+            <summary>
+            True if this option is custom.
+            </summary>
+        </member>
+        <member name="M:YoutubeDLSharp.Options.Option`1.#ctor(System.String[])">
+            <summary>
+            Creates a new instance of class Option.
+            </summary>
+        </member>
+        <member name="M:YoutubeDLSharp.Options.Option`1.SetFromString(System.String)">
+            <summary>
+            Sets the option value from a given string representation.
+            </summary>
+            <param name="s">The string (including the option flag).</param>
+        </member>
+        <member name="T:YoutubeDLSharp.Options.OptionSet">
+            <summary>
+            Represents a set of options for yt-dlp.
+            </summary>
+        </member>
+        <member name="P:YoutubeDLSharp.Options.OptionSet.Username">
+            <summary>
+            Login with this account ID
+            </summary>
+        </member>
+        <member name="P:YoutubeDLSharp.Options.OptionSet.Password">
+            <summary>
+            Account password. If this option is left
+            out, yt-dlp will ask interactively
+            </summary>
+        </member>
+        <member name="P:YoutubeDLSharp.Options.OptionSet.TwoFactor">
+            <summary>
+            Two-factor authentication code
+            </summary>
+        </member>
+        <member name="P:YoutubeDLSharp.Options.OptionSet.Netrc">
+            <summary>
+            Use .netrc authentication data
+            </summary>
+        </member>
+        <member name="P:YoutubeDLSharp.Options.OptionSet.NetrcLocation">
+            <summary>
+            Location of .netrc authentication data;
+            either the path or its containing directory.
+            Defaults to ~/.netrc
+            </summary>
+        </member>
+        <member name="P:YoutubeDLSharp.Options.OptionSet.NetrcCmd">
+            <summary>
+            Command to execute to get the credentials
+            for an extractor.
+            </summary>
+        </member>
+        <member name="P:YoutubeDLSharp.Options.OptionSet.VideoPassword">
+            <summary>
+            Video-specific password
+            </summary>
+        </member>
+        <member name="P:YoutubeDLSharp.Options.OptionSet.ApMso">
+            <summary>
+            Adobe Pass multiple-system operator (TV
+            provider) identifier, use --ap-list-mso for
+            a list of available MSOs
+            </summary>
+        </member>
+        <member name="P:YoutubeDLSharp.Options.OptionSet.ApUsername">
+            <summary>
+            Multiple-system operator account login
+            </summary>
+        </member>
+        <member name="P:YoutubeDLSharp.Options.OptionSet.ApPassword">
+            <summary>
+            Multiple-system operator account password.
+            If this option is left out, yt-dlp will ask
+            interactively
+            </summary>
+        </member>
+        <member name="P:YoutubeDLSharp.Options.OptionSet.ApListMso">
+            <summary>
+            List all supported multiple-system operators
+            </summary>
+        </member>
+        <member name="P:YoutubeDLSharp.Options.OptionSet.ClientCertificate">
+            <summary>
+            Path to client certificate file in PEM
+            format. May include the private key
+            </summary>
+        </member>
+        <member name="P:YoutubeDLSharp.Options.OptionSet.ClientCertificateKey">
+            <summary>
+            Path to private key file for client
+            certificate
+            </summary>
+        </member>
+        <member name="P:YoutubeDLSharp.Options.OptionSet.ClientCertificatePassword">
+            <summary>
+            Password for client certificate private key,
+            if encrypted. If not provided, and the key
+            is encrypted, yt-dlp will ask interactively
+            </summary>
+        </member>
+        <member name="F:YoutubeDLSharp.Options.OptionSet.Default">
+            <summary>
+            The default option set (if no options are explicitly set).
+            </summary>
+        </member>
+        <member name="M:YoutubeDLSharp.Options.OptionSet.WriteConfigFile(System.String)">
+            <summary>
+            Writes all options to a config file with the specified path.
+            </summary>
+        </member>
+        <member name="M:YoutubeDLSharp.Options.OptionSet.GetOptionFlags">
+            <summary>
+            Returns an enumerable of all option flags.
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:YoutubeDLSharp.Options.OptionSet.OverrideOptions(YoutubeDLSharp.Options.OptionSet,System.Boolean)">
+            <summary>
+            Creates a clone of this option set and overrides all options with non-default values set in the given option set.
+            
+            Note: Only overriding non-default values might cause some unintuitive behaviour, e.g. for bool options, where "false" is the default.
+            Use forceOverride to force overriding also with default values.
+            </summary>
+            <param name="overrideOptions">All non-default option values of this option set will be copied to the cloned option set.</param>
+            <param name="forceOverride">Force overriding also default values.</param>
+            <returns>A cloned option set with all specified options overriden.</returns>
+        </member>
+        <member name="M:YoutubeDLSharp.Options.OptionSet.FromString(System.Collections.Generic.IEnumerable{System.String})">
+            <summary>
+            Creates an option set from an array of command-line option strings.
+            </summary>
+            <param name="lines">An array containing one command-line option string per item.</param>
+            <returns>The parsed OptionSet.</returns>
+        </member>
+        <member name="M:YoutubeDLSharp.Options.OptionSet.LoadConfigFile(System.String)">
+            <summary>
+            Loads an option set from a yt-dlp config file.
+            </summary>
+            <param name="path">The path to the config file.</param>
+            <returns>The loaded OptionSet.</returns>
+        </member>
+        <member name="M:YoutubeDLSharp.Options.OptionSet.AddCustomOption``1(System.String,``0)">
+            <summary>
+            Adds a new option to the list of custom options of this OptionSet.
+            </summary>
+            <param name="optionString">The option flag.</param>
+            <param name="value">The option value.</param>
+        </member>
+        <member name="M:YoutubeDLSharp.Options.OptionSet.SetCustomOption``1(System.String,``0)">
+            <summary>
+            Sets the value of a custom option of this OptionSet.
+            </summary>
+            <param name="optionString">The option flag.</param>
+            <param name="value">The option value.</param>
+        </member>
+        <member name="M:YoutubeDLSharp.Options.OptionSet.DeleteCustomOption(System.String)">
+            <summary>
+            Deletes a custom option from this OptionSet.
+            </summary>
+            <param name="optionString">The option flag of the option to delete.</param>
+        </member>
+        <member name="P:YoutubeDLSharp.Options.OptionSet.GetDescription">
+            <summary>
+            Deprecated in favor of: --print description.
+            </summary>
+        </member>
+        <member name="P:YoutubeDLSharp.Options.OptionSet.GetDuration">
+            <summary>
+            Deprecated in favor of: --print duration_string.
+            </summary>
+        </member>
+        <member name="P:YoutubeDLSharp.Options.OptionSet.GetFilename">
+            <summary>
+            Deprecated in favor of: --print filename.
+            </summary>
+        </member>
+        <member name="P:YoutubeDLSharp.Options.OptionSet.GetFormat">
+            <summary>
+            Deprecated in favor of: --print format.
+            </summary>
+        </member>
+        <member name="P:YoutubeDLSharp.Options.OptionSet.GetId">
+            <summary>
+            Deprecated in favor of: --print id.
+            </summary>
+        </member>
+        <member name="P:YoutubeDLSharp.Options.OptionSet.GetThumbnail">
+            <summary>
+            Deprecated in favor of: --print thumbnail.
+            </summary>
+        </member>
+        <member name="P:YoutubeDLSharp.Options.OptionSet.GetTitle">
+            <summary>
+            Deprecated in favor of: --print title.
+            </summary>
+        </member>
+        <member name="P:YoutubeDLSharp.Options.OptionSet.GetUrl">
+            <summary>
+            Deprecated in favor of: --print urls.
+            </summary>
+        </member>
+        <member name="P:YoutubeDLSharp.Options.OptionSet.MatchTitle">
+            <summary>
+            Deprecated in favor of: --match-filter &quot;title ~= (?i)REGEX&quot;.
+            </summary>
+        </member>
+        <member name="P:YoutubeDLSharp.Options.OptionSet.RejectTitle">
+            <summary>
+            Deprecated in favor of: --match-filter &quot;title !~= (?i)REGEX&quot;.
+            </summary>
+        </member>
+        <member name="P:YoutubeDLSharp.Options.OptionSet.MinViews">
+            <summary>
+            Deprecated in favor of: --match-filter &quot;view_count &gt;=? COUNT&quot;.
+            </summary>
+        </member>
+        <member name="P:YoutubeDLSharp.Options.OptionSet.MaxViews">
+            <summary>
+            Deprecated in favor of: --match-filter &quot;view_count &lt;=? COUNT&quot;.
+            </summary>
+        </member>
+        <member name="P:YoutubeDLSharp.Options.OptionSet.BreakOnReject">
+            <summary>
+            Deprecated in favor of: Use --break-match-filter.
+            </summary>
+        </member>
+        <member name="P:YoutubeDLSharp.Options.OptionSet.UserAgent">
+            <summary>
+            Deprecated in favor of: --add-header &quot;User-Agent:UA&quot;.
+            </summary>
+        </member>
+        <member name="P:YoutubeDLSharp.Options.OptionSet.Referer">
+            <summary>
+            Deprecated in favor of: --add-header &quot;Referer:URL&quot;.
+            </summary>
+        </member>
+        <member name="P:YoutubeDLSharp.Options.OptionSet.PlaylistStart">
+            <summary>
+            Deprecated in favor of: -I NUMBER:.
+            </summary>
+        </member>
+        <member name="P:YoutubeDLSharp.Options.OptionSet.PlaylistEnd">
+            <summary>
+            Deprecated in favor of: -I :NUMBER.
+            </summary>
+        </member>
+        <member name="P:YoutubeDLSharp.Options.OptionSet.PlaylistReverse">
+            <summary>
+            Deprecated in favor of: -I ::-1.
+            </summary>
+        </member>
+        <member name="P:YoutubeDLSharp.Options.OptionSet.NoColors">
+            <summary>
+            Deprecated in favor of: --color no_color.
+            </summary>
+        </member>
+        <member name="P:YoutubeDLSharp.Options.OptionSet.ForceGenericExtractor">
+            <summary>
+            Deprecated in favor of: --ies generic,default.
+            </summary>
+        </member>
+        <member name="P:YoutubeDLSharp.Options.OptionSet.ExecBeforeDownload">
+            <summary>
+            Deprecated in favor of: --exec &quot;before_dl:CMD&quot;.
+            </summary>
+        </member>
+        <member name="P:YoutubeDLSharp.Options.OptionSet.NoExecBeforeDownload">
+            <summary>
+            Deprecated in favor of: --no-exec.
+            </summary>
+        </member>
+        <member name="P:YoutubeDLSharp.Options.OptionSet.AllFormats">
+            <summary>
+            Deprecated in favor of: -f all.
+            </summary>
+        </member>
+        <member name="P:YoutubeDLSharp.Options.OptionSet.AllSubs">
+            <summary>
+            Deprecated in favor of: --sub-langs all --write-subs.
+            </summary>
+        </member>
+        <member name="P:YoutubeDLSharp.Options.OptionSet.PrintJson">
+            <summary>
+            Deprecated in favor of: -j --no-simulate.
+            </summary>
+        </member>
+        <member name="P:YoutubeDLSharp.Options.OptionSet.AutonumberSize">
+            <summary>
+            Deprecated in favor of: Use string formatting, e.g. %(autonumber)03d.
+            </summary>
+        </member>
+        <member name="P:YoutubeDLSharp.Options.OptionSet.AutonumberStart">
+            <summary>
+            Deprecated in favor of: Use internal field formatting like %(autonumber+NUMBER)s.
+            </summary>
+        </member>
+        <member name="P:YoutubeDLSharp.Options.OptionSet.Id">
+            <summary>
+            Deprecated in favor of: -o &quot;%(id)s.%(ext)s&quot;.
+            </summary>
+        </member>
+        <member name="P:YoutubeDLSharp.Options.OptionSet.MetadataFromTitle">
+            <summary>
+            Deprecated in favor of: --parse-metadata &quot;%(title)s:FORMAT&quot;.
+            </summary>
+        </member>
+        <member name="P:YoutubeDLSharp.Options.OptionSet.HlsPreferNative">
+            <summary>
+            Deprecated in favor of: --downloader &quot;m3u8:native&quot;.
+            </summary>
+        </member>
+        <member name="P:YoutubeDLSharp.Options.OptionSet.HlsPreferFfmpeg">
+            <summary>
+            Deprecated in favor of: --downloader &quot;m3u8:ffmpeg&quot;.
+            </summary>
+        </member>
+        <member name="P:YoutubeDLSharp.Options.OptionSet.ListFormatsOld">
+            <summary>
+            Deprecated in favor of: --compat-options list-formats (Alias: --no-list-formats-as-table).
+            </summary>
+        </member>
+        <member name="P:YoutubeDLSharp.Options.OptionSet.ListFormatsAsTable">
+            <summary>
+            Deprecated in favor of: --compat-options -list-formats [Default] (Alias: --no-list-formats-old).
+            </summary>
+        </member>
+        <member name="P:YoutubeDLSharp.Options.OptionSet.YoutubeSkipDashManifest">
+            <summary>
+            Deprecated in favor of: --extractor-args &quot;youtube:skip=dash&quot; (Alias: --no-youtube-include-dash-manifest).
+            </summary>
+        </member>
+        <member name="P:YoutubeDLSharp.Options.OptionSet.YoutubeSkipHlsManifest">
+            <summary>
+            Deprecated in favor of: --extractor-args &quot;youtube:skip=hls&quot; (Alias: --no-youtube-include-hls-manifest).
+            </summary>
+        </member>
+        <member name="P:YoutubeDLSharp.Options.OptionSet.GeoBypass">
+            <summary>
+            Deprecated in favor of: --xff &quot;default&quot;.
+            </summary>
+        </member>
+        <member name="P:YoutubeDLSharp.Options.OptionSet.NoGeoBypass">
+            <summary>
+            Deprecated in favor of: --xff &quot;never&quot;.
+            </summary>
+        </member>
+        <member name="P:YoutubeDLSharp.Options.OptionSet.GeoBypassCountry">
+            <summary>
+            Deprecated in favor of: --xff CODE.
+            </summary>
+        </member>
+        <member name="P:YoutubeDLSharp.Options.OptionSet.GeoBypassIpBlock">
+            <summary>
+            Deprecated in favor of: --xff IP_BLOCK.
+            </summary>
+        </member>
+        <member name="P:YoutubeDLSharp.Options.OptionSet.ConcurrentFragments">
+            <summary>
+            Number of fragments of a dash/hlsnative
+            video that should be downloaded concurrently
+            (default is 1)
+            </summary>
+        </member>
+        <member name="P:YoutubeDLSharp.Options.OptionSet.LimitRate">
+            <summary>
+            Maximum download rate in bytes per second,
+            e.g. 50K or 4.2M
+            </summary>
+        </member>
+        <member name="P:YoutubeDLSharp.Options.OptionSet.ThrottledRate">
+            <summary>
+            Minimum download rate in bytes per second
+            below which throttling is assumed and the
+            video data is re-extracted, e.g. 100K
+            </summary>
+        </member>
+        <member name="P:YoutubeDLSharp.Options.OptionSet.Retries">
+            <summary>
+            Number of retries (default is 10), or
+            &quot;infinite&quot;
+            </summary>
+        </member>
+        <member name="P:YoutubeDLSharp.Options.OptionSet.FileAccessRetries">
+            <summary>
+            Number of times to retry on file access
+            error (default is 3), or &quot;infinite&quot;
+            </summary>
+        </member>
+        <member name="P:YoutubeDLSharp.Options.OptionSet.FragmentRetries">
+            <summary>
+            Number of retries for a fragment (default is
+            10), or &quot;infinite&quot; (DASH, hlsnative and ISM)
+            </summary>
+        </member>
+        <member name="P:YoutubeDLSharp.Options.OptionSet.RetrySleep">
+            <summary>
+            Time to sleep between retries in seconds
+            (optionally) prefixed by the type of retry
+            (http (default), fragment, file_access,
+            extractor) to apply the sleep to. EXPR can
+            be a number, linear=START[:END[:STEP=1]] or
+            exp=START[:END[:BASE=2]]. This option can be
+            used multiple times to set the sleep for the
+            different retry types, e.g. --retry-sleep
+            linear=1::2 --retry-sleep fragment:exp=1:20
+            </summary>
+        </member>
+        <member name="P:YoutubeDLSharp.Options.OptionSet.SkipUnavailableFragments">
+            <summary>
+            Skip unavailable fragments for DASH,
+            hlsnative and ISM downloads (default)
+            (Alias: --no-abort-on-unavailable-fragments)
+            </summary>
+        </member>
+        <member name="P:YoutubeDLSharp.Options.OptionSet.AbortOnUnavailableFragments">
+            <summary>
+            Abort download if a fragment is unavailable
+            (Alias: --no-skip-unavailable-fragments)
+            </summary>
+        </member>
+        <member name="P:YoutubeDLSharp.Options.OptionSet.KeepFragments">
+            <summary>
+            Keep downloaded fragments on disk after
+            downloading is finished
+            </summary>
+        </member>
+        <member name="P:YoutubeDLSharp.Options.OptionSet.NoKeepFragments">
+            <summary>
+            Delete downloaded fragments after
+            downloading is finished (default)
+            </summary>
+        </member>
+        <member name="P:YoutubeDLSharp.Options.OptionSet.BufferSize">
+            <summary>
+            Size of download buffer, e.g. 1024 or 16K
+            (default is 1024)
+            </summary>
+        </member>
+        <member name="P:YoutubeDLSharp.Options.OptionSet.ResizeBuffer">
+            <summary>
+            The buffer size is automatically resized
+            from an initial value of --buffer-size
+            (default)
+            </summary>
+        </member>
+        <member name="P:YoutubeDLSharp.Options.OptionSet.NoResizeBuffer">
+            <summary>
+            Do not automatically adjust the buffer size
+            </summary>
+        </member>
+        <member name="P:YoutubeDLSharp.Options.OptionSet.HttpChunkSize">
+            <summary>
+            Size of a chunk for chunk-based HTTP
+            downloading, e.g. 10485760 or 10M (default
+            is disabled). May be useful for bypassing
+            bandwidth throttling imposed by a webserver
+            (experimental)
+            </summary>
+        </member>
+        <member name="P:YoutubeDLSharp.Options.OptionSet.PlaylistRandom">
+            <summary>
+            Download playlist videos in random order
+            </summary>
+        </member>
+        <member name="P:YoutubeDLSharp.Options.OptionSet.LazyPlaylist">
+            <summary>
+            Process entries in the playlist as they are
+            received. This disables n_entries,
+            --playlist-random and --playlist-reverse
+            </summary>
+        </member>
+        <member name="P:YoutubeDLSharp.Options.OptionSet.NoLazyPlaylist">
+            <summary>
+            Process videos in the playlist only after
+            the entire playlist is parsed (default)
+            </summary>
+        </member>
+        <member name="P:YoutubeDLSharp.Options.OptionSet.XattrSetFilesize">
+            <summary>
+            Set file xattribute ytdl.filesize with
+            expected file size
+            </summary>
+        </member>
+        <member name="P:YoutubeDLSharp.Options.OptionSet.HlsUseMpegts">
+            <summary>
+            Use the mpegts container for HLS videos;
+            allowing some players to play the video
+            while downloading, and reducing the chance
+            of file corruption if download is
+            interrupted. This is enabled by default for
+            live streams
+            </summary>
+        </member>
+        <member name="P:YoutubeDLSharp.Options.OptionSet.NoHlsUseMpegts">
+            <summary>
+            Do not use the mpegts container for HLS
+            videos. This is default when not downloading
+            live streams
+            </summary>
+        </member>
+        <member name="P:YoutubeDLSharp.Options.OptionSet.DownloadSections">
+            <summary>
+            Download only chapters that match the
+            regular expression. A &quot;*&quot; prefix denotes
+            time-range instead of chapter. Negative
+            timestamps are calculated from the end.
+            &quot;*from-url&quot; can be used to download between
+            the &quot;start_time&quot; and &quot;end_time&quot; extracted
+            from the URL. Needs ffmpeg. This option can
+            be used multiple times to download multiple
+            sections, e.g. --download-sections
+            &quot;*10:15-inf&quot; --download-sections &quot;intro&quot;
+            </summary>
+        </member>
+        <member name="P:YoutubeDLSharp.Options.OptionSet.Downloader">
+            <summary>
+            Name or path of the external downloader to
+            use (optionally) prefixed by the protocols
+            (http, ftp, m3u8, dash, rstp, rtmp, mms) to
+            use it for. Currently supports native,
+            aria2c, avconv, axel, curl, ffmpeg, httpie,
+            wget. You can use this option multiple times
+            to set different downloaders for different
+            protocols. E.g. --downloader aria2c
+            --downloader &quot;dash,m3u8:native&quot; will use
+            aria2c for http/ftp downloads, and the
+            native downloader for dash/m3u8 downloads
+            (Alias: --external-downloader)
+            </summary>
+        </member>
+        <member name="P:YoutubeDLSharp.Options.OptionSet.DownloaderArgs">
+            <summary>
+            Give these arguments to the external
+            downloader. Specify the downloader name and
+            the arguments separated by a colon &quot;:&quot;. For
+            ffmpeg, arguments can be passed to different
+            positions using the same syntax as
+            --postprocessor-args. You can use this
+            option multiple times to give different
+            arguments to different downloaders (Alias:
+            --external-downloader-args)
+            </summary>
+        </member>
+        <member name="P:YoutubeDLSharp.Options.OptionSet.ExtractorRetries">
+            <summary>
+            Number of retries for known extractor errors
+            (default is 3), or &quot;infinite&quot;
+            </summary>
+        </member>
+        <member name="P:YoutubeDLSharp.Options.OptionSet.AllowDynamicMpd">
+            <summary>
+            Process dynamic DASH manifests (default)
+            (Alias: --no-ignore-dynamic-mpd)
+            </summary>
+        </member>
+        <member name="P:YoutubeDLSharp.Options.OptionSet.IgnoreDynamicMpd">
+            <summary>
+            Do not process dynamic DASH manifests
+            (Alias: --no-allow-dynamic-mpd)
+            </summary>
+        </member>
+        <member name="P:YoutubeDLSharp.Options.OptionSet.HlsSplitDiscontinuity">
+            <summary>
+            Split HLS playlists to different formats at
+            discontinuities such as ad breaks
+            </summary>
+        </member>
+        <member name="P:YoutubeDLSharp.Options.OptionSet.NoHlsSplitDiscontinuity">
+            <summary>
+            Do not split HLS playlists to different
+            formats at discontinuities such as ad breaks
+            (default)
+            </summary>
+        </member>
+        <member name="P:YoutubeDLSharp.Options.OptionSet.ExtractorArgs">
+            <summary>
+            Pass ARGS arguments to the IE_KEY extractor.
+            See &quot;EXTRACTOR ARGUMENTS&quot; for details. You
+            can use this option multiple times to give
+            arguments for different extractors
+            </summary>
+        </member>
+        <member name="P:YoutubeDLSharp.Options.OptionSet.BatchFile">
+            <summary>
+            File containing URLs to download (&quot;-&quot; for
+            stdin), one URL per line. Lines starting
+            with &quot;#&quot;, &quot;;&quot; or &quot;]&quot; are considered as
+            comments and ignored
+            </summary>
+        </member>
+        <member name="P:YoutubeDLSharp.Options.OptionSet.NoBatchFile">
+            <summary>
+            Do not read URLs from batch file (default)
+            </summary>
+        </member>
+        <member name="P:YoutubeDLSharp.Options.OptionSet.Paths">
+            <summary>
+            The paths where the files should be
+            downloaded. Specify the type of file and the
+            path separated by a colon &quot;:&quot;. All the same
+            TYPES as --output are supported.
+            Additionally, you can also provide &quot;home&quot;
+            (default) and &quot;temp&quot; paths. All intermediary
+            files are first downloaded to the temp path
+            and then the final files are moved over to
+            the home path after download is finished.
+            This option is ignored if --output is an
+            absolute path
+            </summary>
+        </member>
+        <member name="P:YoutubeDLSharp.Options.OptionSet.Output">
+            <summary>
+            Output filename template; see &quot;OUTPUT
+            TEMPLATE&quot; for details
+            </summary>
+        </member>
+        <member name="P:YoutubeDLSharp.Options.OptionSet.OutputNaPlaceholder">
+            <summary>
+            Placeholder for unavailable fields in
+            &quot;OUTPUT TEMPLATE&quot; (default: &quot;NA&quot;)
+            </summary>
+        </member>
+        <member name="P:YoutubeDLSharp.Options.OptionSet.RestrictFilenames">
+            <summary>
+            Restrict filenames to only ASCII characters,
+            and avoid &quot;&amp;&quot; and spaces in filenames
+            </summary>
+        </member>
+        <member name="P:YoutubeDLSharp.Options.OptionSet.NoRestrictFilenames">
+            <summary>
+            Allow Unicode characters, &quot;&amp;&quot; and spaces in
+            filenames (default)
+            </summary>
+        </member>
+        <member name="P:YoutubeDLSharp.Options.OptionSet.WindowsFilenames">
+            <summary>
+            Force filenames to be Windows-compatible
+            </summary>
+        </member>
+        <member name="P:YoutubeDLSharp.Options.OptionSet.NoWindowsFilenames">
+            <summary>
+            Make filenames Windows-compatible only if
+            using Windows (default)
+            </summary>
+        </member>
+        <member name="P:YoutubeDLSharp.Options.OptionSet.TrimFilenames">
+            <summary>
+            Limit the filename length (excluding
+            extension) to the specified number of
+            characters
+            </summary>
+        </member>
+        <member name="P:YoutubeDLSharp.Options.OptionSet.NoOverwrites">
+            <summary>
+            Do not overwrite any files
+            </summary>
+        </member>
+        <member name="P:YoutubeDLSharp.Options.OptionSet.ForceOverwrites">
+            <summary>
+            Overwrite all video and metadata files. This
+            option includes --no-continue
+            </summary>
+        </member>
+        <member name="P:YoutubeDLSharp.Options.OptionSet.NoForceOverwrites">
+            <summary>
+            Do not overwrite the video, but overwrite
+            related files (default)
+            </summary>
+        </member>
+        <member name="P:YoutubeDLSharp.Options.OptionSet.Continue">
+            <summary>
+            Resume partially downloaded files/fragments
+            (default)
+            </summary>
+        </member>
+        <member name="P:YoutubeDLSharp.Options.OptionSet.NoContinue">
+            <summary>
+            Do not resume partially downloaded
+            fragments. If the file is not fragmented,
+            restart download of the entire file
+            </summary>
+        </member>
+        <member name="P:YoutubeDLSharp.Options.OptionSet.Part">
+            <summary>
+            Use .part files instead of writing directly
+            into output file (default)
+            </summary>
+        </member>
+        <member name="P:YoutubeDLSharp.Options.OptionSet.NoPart">
+            <summary>
+            Do not use .part files - write directly into
+            output file
+            </summary>
+        </member>
+        <member name="P:YoutubeDLSharp.Options.OptionSet.Mtime">
+            <summary>
+            Use the Last-modified header to set the file
+            modification time (default)
+            </summary>
+        </member>
+        <member name="P:YoutubeDLSharp.Options.OptionSet.NoMtime">
+            <summary>
+            Do not use the Last-modified header to set
+            the file modification time
+            </summary>
+        </member>
+        <member name="P:YoutubeDLSharp.Options.OptionSet.WriteDescription">
+            <summary>
+            Write video description to a .description
+            file
+            </summary>
+        </member>
+        <member name="P:YoutubeDLSharp.Options.OptionSet.NoWriteDescription">
+            <summary>
+            Do not write video description (default)
+            </summary>
+        </member>
+        <member name="P:YoutubeDLSharp.Options.OptionSet.WriteInfoJson">
+            <summary>
+            Write video metadata to a .info.json file
+            (this may contain personal information)
+            </summary>
+        </member>
+        <member name="P:YoutubeDLSharp.Options.OptionSet.NoWriteInfoJson">
+            <summary>
+            Do not write video metadata (default)
+            </summary>
+        </member>
+        <member name="P:YoutubeDLSharp.Options.OptionSet.WritePlaylistMetafiles">
+            <summary>
+            Write playlist metadata in addition to the
+            video metadata when using --write-info-json,
+            --write-description etc. (default)
+            </summary>
+        </member>
+        <member name="P:YoutubeDLSharp.Options.OptionSet.NoWritePlaylistMetafiles">
+            <summary>
+            Do not write playlist metadata when using
+            --write-info-json, --write-description etc.
+            </summary>
+        </member>
+        <member name="P:YoutubeDLSharp.Options.OptionSet.CleanInfoJson">
+            <summary>
+            Remove some internal metadata such as
+            filenames from the infojson (default)
+            </summary>
+        </member>
+        <member name="P:YoutubeDLSharp.Options.OptionSet.NoCleanInfoJson">
+            <summary>
+            Write all fields to the infojson
+            </summary>
+        </member>
+        <member name="P:YoutubeDLSharp.Options.OptionSet.WriteComments">
+            <summary>
+            Retrieve video comments to be placed in the
+            infojson. The comments are fetched even
+            without this option if the extraction is
+            known to be quick (Alias: --get-comments)
+            </summary>
+        </member>
+        <member name="P:YoutubeDLSharp.Options.OptionSet.NoWriteComments">
+            <summary>
+            Do not retrieve video comments unless the
+            extraction is known to be quick (Alias:
+            --no-get-comments)
+            </summary>
+        </member>
+        <member name="P:YoutubeDLSharp.Options.OptionSet.LoadInfoJson">
+            <summary>
+            JSON file containing the video information
+            (created with the &quot;--write-info-json&quot;
+            option)
+            </summary>
+        </member>
+        <member name="P:YoutubeDLSharp.Options.OptionSet.Cookies">
+            <summary>
+            Netscape formatted file to read cookies from
+            and dump cookie jar in
+            </summary>
+        </member>
+        <member name="P:YoutubeDLSharp.Options.OptionSet.NoCookies">
+            <summary>
+            Do not read/dump cookies from/to file
+            (default)
+            </summary>
+        </member>
+        <member name="P:YoutubeDLSharp.Options.OptionSet.CookiesFromBrowser">
+            <summary>
+            The name of the browser to load cookies
+            from. Currently supported browsers are:
+            brave, chrome, chromium, edge, firefox,
+            opera, safari, vivaldi. Optionally, the
+            KEYRING used for decrypting Chromium cookies
+            on Linux, the name/path of the PROFILE to
+            load cookies from, and the CONTAINER name
+            (if Firefox) (&quot;none&quot; for no container) can
+            be given with their respective seperators.
+            By default, all containers of the most
+            recently accessed profile are used.
+            Currently supported keyrings are: basictext,
+            gnomekeyring, kwallet, kwallet5, kwallet6
+            </summary>
+        </member>
+        <member name="P:YoutubeDLSharp.Options.OptionSet.NoCookiesFromBrowser">
+            <summary>
+            Do not load cookies from browser (default)
+            </summary>
+        </member>
+        <member name="P:YoutubeDLSharp.Options.OptionSet.CacheDir">
+            <summary>
+            Location in the filesystem where yt-dlp can
+            store some downloaded information (such as
+            client ids and signatures) permanently. By
+            default ${XDG_CACHE_HOME}/yt-dlp
+            </summary>
+        </member>
+        <member name="P:YoutubeDLSharp.Options.OptionSet.NoCacheDir">
+            <summary>
+            Disable filesystem caching
+            </summary>
+        </member>
+        <member name="P:YoutubeDLSharp.Options.OptionSet.RemoveCacheDir">
+            <summary>
+            Delete all filesystem cache files
+            </summary>
+        </member>
+        <member name="P:YoutubeDLSharp.Options.OptionSet.Help">
+            <summary>
+            Print this help text and exit
+            </summary>
+        </member>
+        <member name="P:YoutubeDLSharp.Options.OptionSet.Version">
+            <summary>
+            Print program version and exit
+            </summary>
+        </member>
+        <member name="P:YoutubeDLSharp.Options.OptionSet.Update">
+            <summary>
+            Update this program to the latest stable
+            version
+            </summary>
+        </member>
+        <member name="P:YoutubeDLSharp.Options.OptionSet.NoUpdate">
+            <summary>
+            Do not check for updates (default)
+            </summary>
+        </member>
+        <member name="P:YoutubeDLSharp.Options.OptionSet.UpdateTo">
+            <summary>
+            Upgrade/downgrade to a specific version.
+            CHANNEL can be a repository as well. CHANNEL
+            and TAG default to &quot;stable&quot; and &quot;latest&quot;
+            respectively if omitted; See &quot;UPDATE&quot; for
+            details. Supported channels: stable,
+            nightly, master
+            </summary>
+        </member>
+        <member name="P:YoutubeDLSharp.Options.OptionSet.IgnoreErrors">
+            <summary>
+            Ignore download and postprocessing errors.
+            The download will be considered successful
+            even if the postprocessing fails
+            </summary>
+        </member>
+        <member name="P:YoutubeDLSharp.Options.OptionSet.NoAbortOnError">
+            <summary>
+            Continue with next video on download errors;
+            e.g. to skip unavailable videos in a
+            playlist (default)
+            </summary>
+        </member>
+        <member name="P:YoutubeDLSharp.Options.OptionSet.AbortOnError">
+            <summary>
+            Abort downloading of further videos if an
+            error occurs (Alias: --no-ignore-errors)
+            </summary>
+        </member>
+        <member name="P:YoutubeDLSharp.Options.OptionSet.DumpUserAgent">
+            <summary>
+            Display the current user-agent and exit
+            </summary>
+        </member>
+        <member name="P:YoutubeDLSharp.Options.OptionSet.ListExtractors">
+            <summary>
+            List all supported extractors and exit
+            </summary>
+        </member>
+        <member name="P:YoutubeDLSharp.Options.OptionSet.ExtractorDescriptions">
+            <summary>
+            Output descriptions of all supported
+            extractors and exit
+            </summary>
+        </member>
+        <member name="P:YoutubeDLSharp.Options.OptionSet.UseExtractors">
+            <summary>
+            Extractor names to use separated by commas.
+            You can also use regexes, &quot;all&quot;, &quot;default&quot;
+            and &quot;end&quot; (end URL matching); e.g. --ies
+            &quot;holodex.*,end,youtube&quot;. Prefix the name
+            with a &quot;-&quot; to exclude it, e.g. --ies
+            default,-generic. Use --list-extractors for
+            a list of extractor names. (Alias: --ies)
+            </summary>
+        </member>
+        <member name="P:YoutubeDLSharp.Options.OptionSet.DefaultSearch">
+            <summary>
+            Use this prefix for unqualified URLs. E.g.
+            &quot;gvsearch2:python&quot; downloads two videos from
+            google videos for the search term &quot;python&quot;.
+            Use the value &quot;auto&quot; to let yt-dlp guess
+            (&quot;auto_warning&quot; to emit a warning when
+            guessing). &quot;error&quot; just throws an error. The
+            default value &quot;fixup_error&quot; repairs broken
+            URLs, but emits an error if this is not
+            possible instead of searching
+            </summary>
+        </member>
+        <member name="P:YoutubeDLSharp.Options.OptionSet.IgnoreConfig">
+            <summary>
+            Don&#x27;t load any more configuration files
+            except those given by --config-locations.
+            For backward compatibility, if this option
+            is found inside the system configuration
+            file, the user configuration is not loaded.
+            (Alias: --no-config)
+            </summary>
+        </member>
+        <member name="P:YoutubeDLSharp.Options.OptionSet.NoConfigLocations">
+            <summary>
+            Do not load any custom configuration files
+            (default). When given inside a configuration
+            file, ignore all previous --config-locations
+            defined in the current file
+            </summary>
+        </member>
+        <member name="P:YoutubeDLSharp.Options.OptionSet.ConfigLocations">
+            <summary>
+            Location of the main configuration file;
+            either the path to the config or its
+            containing directory (&quot;-&quot; for stdin). Can be
+            used multiple times and inside other
+            configuration files
+            </summary>
+        </member>
+        <member name="P:YoutubeDLSharp.Options.OptionSet.FlatPlaylist">
+            <summary>
+            Do not extract the videos of a playlist,
+            only list them
+            </summary>
+        </member>
+        <member name="P:YoutubeDLSharp.Options.OptionSet.NoFlatPlaylist">
+            <summary>
+            Fully extract the videos of a playlist
+            (default)
+            </summary>
+        </member>
+        <member name="P:YoutubeDLSharp.Options.OptionSet.LiveFromStart">
+            <summary>
+            Download livestreams from the start.
+            Currently only supported for YouTube
+            (Experimental)
+            </summary>
+        </member>
+        <member name="P:YoutubeDLSharp.Options.OptionSet.NoLiveFromStart">
+            <summary>
+            Download livestreams from the current time
+            (default)
+            </summary>
+        </member>
+        <member name="P:YoutubeDLSharp.Options.OptionSet.WaitForVideo">
+            <summary>
+            Wait for scheduled streams to become
+            available. Pass the minimum number of
+            seconds (or range) to wait between retries
+            </summary>
+        </member>
+        <member name="P:YoutubeDLSharp.Options.OptionSet.NoWaitForVideo">
+            <summary>
+            Do not wait for scheduled streams (default)
+            </summary>
+        </member>
+        <member name="P:YoutubeDLSharp.Options.OptionSet.MarkWatched">
+            <summary>
+            Mark videos watched (even with --simulate)
+            </summary>
+        </member>
+        <member name="P:YoutubeDLSharp.Options.OptionSet.NoMarkWatched">
+            <summary>
+            Do not mark videos watched (default)
+            </summary>
+        </member>
+        <member name="P:YoutubeDLSharp.Options.OptionSet.Color">
+            <summary>
+            Whether to emit color codes in output,
+            optionally prefixed by the STREAM (stdout or
+            stderr) to apply the setting to. Can be one
+            of &quot;always&quot;, &quot;auto&quot; (default), &quot;never&quot;, or
+            &quot;no_color&quot; (use non color terminal
+            sequences). Can be used multiple times
+            </summary>
+        </member>
+        <member name="P:YoutubeDLSharp.Options.OptionSet.CompatOptions">
+            <summary>
+            Options that can help keep compatibility
+            with youtube-dl or youtube-dlc
+            configurations by reverting some of the
+            changes made in yt-dlp. See &quot;Differences in
+            default behavior&quot; for details
+            </summary>
+        </member>
+        <member name="P:YoutubeDLSharp.Options.OptionSet.Alias">
+            <summary>
+            Create aliases for an option string. Unless
+            an alias starts with a dash &quot;-&quot;, it is
+            prefixed with &quot;--&quot;. Arguments are parsed
+            according to the Python string formatting
+            mini-language. E.g. --alias get-audio,-X
+            &quot;-S=aext:{0},abr -x --audio-format {0}&quot;
+            creates options &quot;--get-audio&quot; and &quot;-X&quot; that
+            takes an argument (ARG0) and expands to
+            &quot;-S=aext:ARG0,abr -x --audio-format ARG0&quot;.
+            All defined aliases are listed in the --help
+            output. Alias options can trigger more
+            aliases; so be careful to avoid defining
+            recursive options. As a safety measure, each
+            alias may be triggered a maximum of 100
+            times. This option can be used multiple
+            times
+            </summary>
+        </member>
+        <member name="P:YoutubeDLSharp.Options.OptionSet.GeoVerificationProxy">
+            <summary>
+            Use this proxy to verify the IP address for
+            some geo-restricted sites. The default proxy
+            specified by --proxy (or none, if the option
+            is not present) is used for the actual
+            downloading
+            </summary>
+        </member>
+        <member name="P:YoutubeDLSharp.Options.OptionSet.Xff">
+            <summary>
+            How to fake X-Forwarded-For HTTP header to
+            try bypassing geographic restriction. One of
+            &quot;default&quot; (only when known to be useful),
+            &quot;never&quot;, an IP block in CIDR notation, or a
+            two-letter ISO 3166-2 country code
+            </summary>
+        </member>
+        <member name="P:YoutubeDLSharp.Options.OptionSet.WriteLink">
+            <summary>
+            Write an internet shortcut file, depending
+            on the current platform (.url, .webloc or
+            .desktop). The URL may be cached by the OS
+            </summary>
+        </member>
+        <member name="P:YoutubeDLSharp.Options.OptionSet.WriteUrlLink">
+            <summary>
+            Write a .url Windows internet shortcut. The
+            OS caches the URL based on the file path
+            </summary>
+        </member>
+        <member name="P:YoutubeDLSharp.Options.OptionSet.WriteWeblocLink">
+            <summary>
+            Write a .webloc macOS internet shortcut
+            </summary>
+        </member>
+        <member name="P:YoutubeDLSharp.Options.OptionSet.WriteDesktopLink">
+            <summary>
+            Write a .desktop Linux internet shortcut
+            </summary>
+        </member>
+        <member name="P:YoutubeDLSharp.Options.OptionSet.Proxy">
+            <summary>
+            Use the specified HTTP/HTTPS/SOCKS proxy. To
+            enable SOCKS proxy, specify a proper scheme,
+            e.g. socks5://user:pass@127.0.0.1:1080/.
+            Pass in an empty string (--proxy &quot;&quot;) for
+            direct connection
+            </summary>
+        </member>
+        <member name="P:YoutubeDLSharp.Options.OptionSet.SocketTimeout">
+            <summary>
+            Time to wait before giving up, in seconds
+            </summary>
+        </member>
+        <member name="P:YoutubeDLSharp.Options.OptionSet.SourceAddress">
+            <summary>
+            Client-side IP address to bind to
+            </summary>
+        </member>
+        <member name="P:YoutubeDLSharp.Options.OptionSet.ForceIPv4">
+            <summary>
+            Make all connections via IPv4
+            </summary>
+        </member>
+        <member name="P:YoutubeDLSharp.Options.OptionSet.ForceIPv6">
+            <summary>
+            Make all connections via IPv6
+            </summary>
+        </member>
+        <member name="P:YoutubeDLSharp.Options.OptionSet.EnableFileUrls">
+            <summary>
+            Enable file:// URLs. This is disabled by
+            default for security reasons.
+            </summary>
+        </member>
+        <member name="P:YoutubeDLSharp.Options.OptionSet.ExtractAudio">
+            <summary>
+            Convert video files to audio-only files
+            (requires ffmpeg and ffprobe)
+            </summary>
+        </member>
+        <member name="P:YoutubeDLSharp.Options.OptionSet.AudioFormat">
+            <summary>
+            Format to convert the audio to when -x is
+            used. (currently supported: best (default),
+            aac, alac, flac, m4a, mp3, opus, vorbis,
+            wav). You can specify multiple rules using
+            similar syntax as --remux-video
+            </summary>
+        </member>
+        <member name="P:YoutubeDLSharp.Options.OptionSet.AudioQuality">
+            <summary>
+            Specify ffmpeg audio quality to use when
+            converting the audio with -x. Insert a value
+            between 0 (best) and 10 (worst) for VBR or a
+            specific bitrate like 128K (default 5)
+            </summary>
+        </member>
+        <member name="P:YoutubeDLSharp.Options.OptionSet.RemuxVideo">
+            <summary>
+            Remux the video into another container if
+            necessary (currently supported: avi, flv,
+            gif, mkv, mov, mp4, webm, aac, aiff, alac,
+            flac, m4a, mka, mp3, ogg, opus, vorbis,
+            wav). If target container does not support
+            the video/audio codec, remuxing will fail.
+            You can specify multiple rules; e.g.
+            &quot;aac&gt;m4a/mov&gt;mp4/mkv&quot; will remux aac to m4a,
+            mov to mp4 and anything else to mkv
+            </summary>
+        </member>
+        <member name="P:YoutubeDLSharp.Options.OptionSet.RecodeVideo">
+            <summary>
+            Re-encode the video into another format if
+            necessary. The syntax and supported formats
+            are the same as --remux-video
+            </summary>
+        </member>
+        <member name="P:YoutubeDLSharp.Options.OptionSet.PostprocessorArgs">
+            <summary>
+            Give these arguments to the postprocessors.
+            Specify the postprocessor/executable name
+            and the arguments separated by a colon &quot;:&quot;
+            to give the argument to the specified
+            postprocessor/executable. Supported PP are:
+            Merger, ModifyChapters, SplitChapters,
+            ExtractAudio, VideoRemuxer, VideoConvertor,
+            Metadata, EmbedSubtitle, EmbedThumbnail,
+            SubtitlesConvertor, ThumbnailsConvertor,
+            FixupStretched, FixupM4a, FixupM3u8,
+            FixupTimestamp and FixupDuration. The
+            supported executables are: AtomicParsley,
+            FFmpeg and FFprobe. You can also specify
+            &quot;PP+EXE:ARGS&quot; to give the arguments to the
+            specified executable only when being used by
+            the specified postprocessor. Additionally,
+            for ffmpeg/ffprobe, &quot;_i&quot;/&quot;_o&quot; can be
+            appended to the prefix optionally followed
+            by a number to pass the argument before the
+            specified input/output file, e.g. --ppa
+            &quot;Merger+ffmpeg_i1:-v quiet&quot;. You can use
+            this option multiple times to give different
+            arguments to different postprocessors.
+            (Alias: --ppa)
+            </summary>
+        </member>
+        <member name="P:YoutubeDLSharp.Options.OptionSet.KeepVideo">
+            <summary>
+            Keep the intermediate video file on disk
+            after post-processing
+            </summary>
+        </member>
+        <member name="P:YoutubeDLSharp.Options.OptionSet.NoKeepVideo">
+            <summary>
+            Delete the intermediate video file after
+            post-processing (default)
+            </summary>
+        </member>
+        <member name="P:YoutubeDLSharp.Options.OptionSet.PostOverwrites">
+            <summary>
+            Overwrite post-processed files (default)
+            </summary>
+        </member>
+        <member name="P:YoutubeDLSharp.Options.OptionSet.NoPostOverwrites">
+            <summary>
+            Do not overwrite post-processed files
+            </summary>
+        </member>
+        <member name="P:YoutubeDLSharp.Options.OptionSet.EmbedSubs">
+            <summary>
+            Embed subtitles in the video (only for mp4,
+            webm and mkv videos)
+            </summary>
+        </member>
+        <member name="P:YoutubeDLSharp.Options.OptionSet.NoEmbedSubs">
+            <summary>
+            Do not embed subtitles (default)
+            </summary>
+        </member>
+        <member name="P:YoutubeDLSharp.Options.OptionSet.EmbedThumbnail">
+            <summary>
+            Embed thumbnail in the video as cover art
+            </summary>
+        </member>
+        <member name="P:YoutubeDLSharp.Options.OptionSet.NoEmbedThumbnail">
+            <summary>
+            Do not embed thumbnail (default)
+            </summary>
+        </member>
+        <member name="P:YoutubeDLSharp.Options.OptionSet.EmbedMetadata">
+            <summary>
+            Embed metadata to the video file. Also
+            embeds chapters/infojson if present unless
+            --no-embed-chapters/--no-embed-info-json are
+            used (Alias: --add-metadata)
+            </summary>
+        </member>
+        <member name="P:YoutubeDLSharp.Options.OptionSet.NoEmbedMetadata">
+            <summary>
+            Do not add metadata to file (default)
+            (Alias: --no-add-metadata)
+            </summary>
+        </member>
+        <member name="P:YoutubeDLSharp.Options.OptionSet.EmbedChapters">
+            <summary>
+            Add chapter markers to the video file
+            (Alias: --add-chapters)
+            </summary>
+        </member>
+        <member name="P:YoutubeDLSharp.Options.OptionSet.NoEmbedChapters">
+            <summary>
+            Do not add chapter markers (default) (Alias:
+            --no-add-chapters)
+            </summary>
+        </member>
+        <member name="P:YoutubeDLSharp.Options.OptionSet.EmbedInfoJson">
+            <summary>
+            Embed the infojson as an attachment to
+            mkv/mka video files
+            </summary>
+        </member>
+        <member name="P:YoutubeDLSharp.Options.OptionSet.NoEmbedInfoJson">
+            <summary>
+            Do not embed the infojson as an attachment
+            to the video file
+            </summary>
+        </member>
+        <member name="P:YoutubeDLSharp.Options.OptionSet.ParseMetadata">
+            <summary>
+            Parse additional metadata like title/artist
+            from other fields; see &quot;MODIFYING METADATA&quot;
+            for details. Supported values of &quot;WHEN&quot; are
+            the same as that of --use-postprocessor
+            (default: pre_process)
+            </summary>
+        </member>
+        <member name="P:YoutubeDLSharp.Options.OptionSet.ReplaceInMetadata">
+            <summary>
+            Replace text in a metadata field using the
+            given regex. This option can be used
+            multiple times. Supported values of &quot;WHEN&quot;
+            are the same as that of --use-postprocessor
+            (default: pre_process)
+            </summary>
+        </member>
+        <member name="P:YoutubeDLSharp.Options.OptionSet.Xattrs">
+            <summary>
+            Write metadata to the video file&#x27;s xattrs
+            (using dublin core and xdg standards)
+            </summary>
+        </member>
+        <member name="P:YoutubeDLSharp.Options.OptionSet.ConcatPlaylist">
+            <summary>
+            Concatenate videos in a playlist. One of
+            &quot;never&quot;, &quot;always&quot;, or &quot;multi_video&quot;
+            (default; only when the videos form a single
+            show). All the video files must have same
+            codecs and number of streams to be
+            concatable. The &quot;pl_video:&quot; prefix can be
+            used with &quot;--paths&quot; and &quot;--output&quot; to set
+            the output filename for the concatenated
+            files. See &quot;OUTPUT TEMPLATE&quot; for details
+            </summary>
+        </member>
+        <member name="P:YoutubeDLSharp.Options.OptionSet.Fixup">
+            <summary>
+            Automatically correct known faults of the
+            file. One of never (do nothing), warn (only
+            emit a warning), detect_or_warn (the
+            default; fix file if we can, warn
+            otherwise), force (try fixing even if file
+            already exists)
+            </summary>
+        </member>
+        <member name="P:YoutubeDLSharp.Options.OptionSet.FfmpegLocation">
+            <summary>
+            Location of the ffmpeg binary; either the
+            path to the binary or its containing
+            directory
+            </summary>
+        </member>
+        <member name="P:YoutubeDLSharp.Options.OptionSet.Exec">
+            <summary>
+            Execute a command, optionally prefixed with
+            when to execute it, separated by a &quot;:&quot;.
+            Supported values of &quot;WHEN&quot; are the same as
+            that of --use-postprocessor (default:
+            after_move). Same syntax as the output
+            template can be used to pass any field as
+            arguments to the command. If no fields are
+            passed, %(filepath,_filename|)q is appended
+            to the end of the command. This option can
+            be used multiple times
+            </summary>
+        </member>
+        <member name="P:YoutubeDLSharp.Options.OptionSet.NoExec">
+            <summary>
+            Remove any previously defined --exec
+            </summary>
+        </member>
+        <member name="P:YoutubeDLSharp.Options.OptionSet.ConvertSubs">
+            <summary>
+            Convert the subtitles to another format
+            (currently supported: ass, lrc, srt, vtt)
+            (Alias: --convert-subtitles)
+            </summary>
+        </member>
+        <member name="P:YoutubeDLSharp.Options.OptionSet.ConvertThumbnails">
+            <summary>
+            Convert the thumbnails to another format
+            (currently supported: jpg, png, webp). You
+            can specify multiple rules using similar
+            syntax as --remux-video
+            </summary>
+        </member>
+        <member name="P:YoutubeDLSharp.Options.OptionSet.SplitChapters">
+            <summary>
+            Split video into multiple files based on
+            internal chapters. The &quot;chapter:&quot; prefix can
+            be used with &quot;--paths&quot; and &quot;--output&quot; to set
+            the output filename for the split files. See
+            &quot;OUTPUT TEMPLATE&quot; for details
+            </summary>
+        </member>
+        <member name="P:YoutubeDLSharp.Options.OptionSet.NoSplitChapters">
+            <summary>
+            Do not split video based on chapters
+            (default)
+            </summary>
+        </member>
+        <member name="P:YoutubeDLSharp.Options.OptionSet.RemoveChapters">
+            <summary>
+            Remove chapters whose title matches the
+            given regular expression. The syntax is the
+            same as --download-sections. This option can
+            be used multiple times
+            </summary>
+        </member>
+        <member name="P:YoutubeDLSharp.Options.OptionSet.NoRemoveChapters">
+            <summary>
+            Do not remove any chapters from the file
+            (default)
+            </summary>
+        </member>
+        <member name="P:YoutubeDLSharp.Options.OptionSet.ForceKeyframesAtCuts">
+            <summary>
+            Force keyframes at cuts when
+            downloading/splitting/removing sections.
+            This is slow due to needing a re-encode, but
+            the resulting video may have fewer artifacts
+            around the cuts
+            </summary>
+        </member>
+        <member name="P:YoutubeDLSharp.Options.OptionSet.NoForceKeyframesAtCuts">
+            <summary>
+            Do not force keyframes around the chapters
+            when cutting/splitting (default)
+            </summary>
+        </member>
+        <member name="P:YoutubeDLSharp.Options.OptionSet.UsePostprocessor">
+            <summary>
+            The (case sensitive) name of plugin
+            postprocessors to be enabled, and
+            (optionally) arguments to be passed to it,
+            separated by a colon &quot;:&quot;. ARGS are a
+            semicolon &quot;;&quot; delimited list of NAME=VALUE.
+            The &quot;when&quot; argument determines when the
+            postprocessor is invoked. It can be one of
+            &quot;pre_process&quot; (after video extraction),
+            &quot;after_filter&quot; (after video passes filter),
+            &quot;video&quot; (after --format; before
+            --print/--output), &quot;before_dl&quot; (before each
+            video download), &quot;post_process&quot; (after each
+            video download; default), &quot;after_move&quot;
+            (after moving video file to it&#x27;s final
+            locations), &quot;after_video&quot; (after downloading
+            and processing all formats of a video), or
+            &quot;playlist&quot; (at end of playlist). This option
+            can be used multiple times to add different
+            postprocessors
+            </summary>
+        </member>
+        <member name="P:YoutubeDLSharp.Options.OptionSet.SponsorblockMark">
+            <summary>
+            SponsorBlock categories to create chapters
+            for, separated by commas. Available
+            categories are sponsor, intro, outro,
+            selfpromo, preview, filler, interaction,
+            music_offtopic, poi_highlight, chapter, all
+            and default (=all). You can prefix the
+            category with a &quot;-&quot; to exclude it. See [1]
+            for description of the categories. E.g.
+            --sponsorblock-mark all,-preview [1] https:/
+            /wiki.sponsor.ajay.app/w/Segment_Categories
+            </summary>
+        </member>
+        <member name="P:YoutubeDLSharp.Options.OptionSet.SponsorblockRemove">
+            <summary>
+            SponsorBlock categories to be removed from
+            the video file, separated by commas. If a
+            category is present in both mark and remove,
+            remove takes precedence. The syntax and
+            available categories are the same as for
+            --sponsorblock-mark except that &quot;default&quot;
+            refers to &quot;all,-filler&quot; and poi_highlight,
+            chapter are not available
+            </summary>
+        </member>
+        <member name="P:YoutubeDLSharp.Options.OptionSet.SponsorblockChapterTitle">
+            <summary>
+            An output template for the title of the
+            SponsorBlock chapters created by
+            --sponsorblock-mark. The only available
+            fields are start_time, end_time, category,
+            categories, name, category_names. Defaults
+            to &quot;[SponsorBlock]: %(category_names)l&quot;
+            </summary>
+        </member>
+        <member name="P:YoutubeDLSharp.Options.OptionSet.NoSponsorblock">
+            <summary>
+            Disable both --sponsorblock-mark and
+            --sponsorblock-remove
+            </summary>
+        </member>
+        <member name="P:YoutubeDLSharp.Options.OptionSet.SponsorblockApi">
+            <summary>
+            SponsorBlock API location, defaults to
+            https://sponsor.ajay.app
+            </summary>
+        </member>
+        <member name="P:YoutubeDLSharp.Options.OptionSet.WriteSubs">
+            <summary>
+            Write subtitle file
+            </summary>
+        </member>
+        <member name="P:YoutubeDLSharp.Options.OptionSet.NoWriteSubs">
+            <summary>
+            Do not write subtitle file (default)
+            </summary>
+        </member>
+        <member name="P:YoutubeDLSharp.Options.OptionSet.WriteAutoSubs">
+            <summary>
+            Write automatically generated subtitle file
+            (Alias: --write-automatic-subs)
+            </summary>
+        </member>
+        <member name="P:YoutubeDLSharp.Options.OptionSet.NoWriteAutoSubs">
+            <summary>
+            Do not write auto-generated subtitles
+            (default) (Alias: --no-write-automatic-subs)
+            </summary>
+        </member>
+        <member name="P:YoutubeDLSharp.Options.OptionSet.ListSubs">
+            <summary>
+            List available subtitles of each video.
+            Simulate unless --no-simulate is used
+            </summary>
+        </member>
+        <member name="P:YoutubeDLSharp.Options.OptionSet.SubFormat">
+            <summary>
+            Subtitle format; accepts formats preference,
+            e.g. &quot;srt&quot; or &quot;ass/srt/best&quot;
+            </summary>
+        </member>
+        <member name="P:YoutubeDLSharp.Options.OptionSet.SubLangs">
+            <summary>
+            Languages of the subtitles to download (can
+            be regex) or &quot;all&quot; separated by commas, e.g.
+            --sub-langs &quot;en.*,ja&quot;. You can prefix the
+            language code with a &quot;-&quot; to exclude it from
+            the requested languages, e.g. --sub-langs
+            all,-live_chat. Use --list-subs for a list
+            of available language tags
+            </summary>
+        </member>
+        <member name="P:YoutubeDLSharp.Options.OptionSet.WriteThumbnail">
+            <summary>
+            Write thumbnail image to disk
+            </summary>
+        </member>
+        <member name="P:YoutubeDLSharp.Options.OptionSet.NoWriteThumbnail">
+            <summary>
+            Do not write thumbnail image to disk
+            (default)
+            </summary>
+        </member>
+        <member name="P:YoutubeDLSharp.Options.OptionSet.WriteAllThumbnails">
+            <summary>
+            Write all thumbnail image formats to disk
+            </summary>
+        </member>
+        <member name="P:YoutubeDLSharp.Options.OptionSet.ListThumbnails">
+            <summary>
+            List available thumbnails of each video.
+            Simulate unless --no-simulate is used
+            </summary>
+        </member>
+        <member name="P:YoutubeDLSharp.Options.OptionSet.Quiet">
+            <summary>
+            Activate quiet mode. If used with --verbose,
+            print the log to stderr
+            </summary>
+        </member>
+        <member name="P:YoutubeDLSharp.Options.OptionSet.NoQuiet">
+            <summary>
+            Deactivate quiet mode. (Default)
+            </summary>
+        </member>
+        <member name="P:YoutubeDLSharp.Options.OptionSet.NoWarnings">
+            <summary>
+            Ignore warnings
+            </summary>
+        </member>
+        <member name="P:YoutubeDLSharp.Options.OptionSet.Simulate">
+            <summary>
+            Do not download the video and do not write
+            anything to disk
+            </summary>
+        </member>
+        <member name="P:YoutubeDLSharp.Options.OptionSet.NoSimulate">
+            <summary>
+            Download the video even if printing/listing
+            options are used
+            </summary>
+        </member>
+        <member name="P:YoutubeDLSharp.Options.OptionSet.IgnoreNoFormatsError">
+            <summary>
+            Ignore &quot;No video formats&quot; error. Useful for
+            extracting metadata even if the videos are
+            not actually available for download
+            (experimental)
+            </summary>
+        </member>
+        <member name="P:YoutubeDLSharp.Options.OptionSet.NoIgnoreNoFormatsError">
+            <summary>
+            Throw error when no downloadable video
+            formats are found (default)
+            </summary>
+        </member>
+        <member name="P:YoutubeDLSharp.Options.OptionSet.SkipDownload">
+            <summary>
+            Do not download the video but write all
+            related files (Alias: --no-download)
+            </summary>
+        </member>
+        <member name="P:YoutubeDLSharp.Options.OptionSet.Print">
+            <summary>
+            Field name or output template to print to
+            screen, optionally prefixed with when to
+            print it, separated by a &quot;:&quot;. Supported
+            values of &quot;WHEN&quot; are the same as that of
+            --use-postprocessor (default: video).
+            Implies --quiet. Implies --simulate unless
+            --no-simulate or later stages of WHEN are
+            used. This option can be used multiple times
+            </summary>
+        </member>
+        <member name="P:YoutubeDLSharp.Options.OptionSet.PrintToFile">
+            <summary>
+            FILE
+            Append given template to the file. The
+            values of WHEN and TEMPLATE are same as that
+            of --print. FILE uses the same syntax as the
+            output template. This option can be used
+            multiple times
+            </summary>
+        </member>
+        <member name="P:YoutubeDLSharp.Options.OptionSet.DumpJson">
+            <summary>
+            Quiet, but print JSON information for each
+            video. Simulate unless --no-simulate is
+            used. See &quot;OUTPUT TEMPLATE&quot; for a
+            description of available keys
+            </summary>
+        </member>
+        <member name="P:YoutubeDLSharp.Options.OptionSet.DumpSingleJson">
+            <summary>
+            Quiet, but print JSON information for each
+            url or infojson passed. Simulate unless
+            --no-simulate is used. If the URL refers to
+            a playlist, the whole playlist information
+            is dumped in a single line
+            </summary>
+        </member>
+        <member name="P:YoutubeDLSharp.Options.OptionSet.ForceWriteArchive">
+            <summary>
+            Force download archive entries to be written
+            as far as no errors occur, even if -s or
+            another simulation option is used (Alias:
+            --force-download-archive)
+            </summary>
+        </member>
+        <member name="P:YoutubeDLSharp.Options.OptionSet.Newline">
+            <summary>
+            Output progress bar as new lines
+            </summary>
+        </member>
+        <member name="P:YoutubeDLSharp.Options.OptionSet.NoProgress">
+            <summary>
+            Do not print progress bar
+            </summary>
+        </member>
+        <member name="P:YoutubeDLSharp.Options.OptionSet.Progress">
+            <summary>
+            Show progress bar, even if in quiet mode
+            </summary>
+        </member>
+        <member name="P:YoutubeDLSharp.Options.OptionSet.ConsoleTitle">
+            <summary>
+            Display progress in console titlebar
+            </summary>
+        </member>
+        <member name="P:YoutubeDLSharp.Options.OptionSet.ProgressTemplate">
+            <summary>
+            Template for progress outputs, optionally
+            prefixed with one of &quot;download:&quot; (default),
+            &quot;download-title:&quot; (the console title),
+            &quot;postprocess:&quot;,  or &quot;postprocess-title:&quot;.
+            The video&#x27;s fields are accessible under the
+            &quot;info&quot; key and the progress attributes are
+            accessible under &quot;progress&quot; key. E.g.
+            --console-title --progress-template
+            &quot;download-
+            title:%(info.id)s-%(progress.eta)s&quot;
+            </summary>
+        </member>
+        <member name="P:YoutubeDLSharp.Options.OptionSet.Verbose">
+            <summary>
+            Print various debugging information
+            </summary>
+        </member>
+        <member name="P:YoutubeDLSharp.Options.OptionSet.DumpPages">
+            <summary>
+            Print downloaded pages encoded using base64
+            to debug problems (very verbose)
+            </summary>
+        </member>
+        <member name="P:YoutubeDLSharp.Options.OptionSet.WritePages">
+            <summary>
+            Write downloaded intermediary pages to files
+            in the current directory to debug problems
+            </summary>
+        </member>
+        <member name="P:YoutubeDLSharp.Options.OptionSet.PrintTraffic">
+            <summary>
+            Display sent and read HTTP traffic
+            </summary>
+        </member>
+        <member name="P:YoutubeDLSharp.Options.OptionSet.Format">
+            <summary>
+            Video format code, see &quot;FORMAT SELECTION&quot;
+            for more details
+            </summary>
+        </member>
+        <member name="P:YoutubeDLSharp.Options.OptionSet.FormatSort">
+            <summary>
+            Sort the formats by the fields given, see
+            &quot;Sorting Formats&quot; for more details
+            </summary>
+        </member>
+        <member name="P:YoutubeDLSharp.Options.OptionSet.FormatSortForce">
+            <summary>
+            Force user specified sort order to have
+            precedence over all fields, see &quot;Sorting
+            Formats&quot; for more details (Alias: --S-force)
+            </summary>
+        </member>
+        <member name="P:YoutubeDLSharp.Options.OptionSet.NoFormatSortForce">
+            <summary>
+            Some fields have precedence over the user
+            specified sort order (default)
+            </summary>
+        </member>
+        <member name="P:YoutubeDLSharp.Options.OptionSet.VideoMultistreams">
+            <summary>
+            Allow multiple video streams to be merged
+            into a single file
+            </summary>
+        </member>
+        <member name="P:YoutubeDLSharp.Options.OptionSet.NoVideoMultistreams">
+            <summary>
+            Only one video stream is downloaded for each
+            output file (default)
+            </summary>
+        </member>
+        <member name="P:YoutubeDLSharp.Options.OptionSet.AudioMultistreams">
+            <summary>
+            Allow multiple audio streams to be merged
+            into a single file
+            </summary>
+        </member>
+        <member name="P:YoutubeDLSharp.Options.OptionSet.NoAudioMultistreams">
+            <summary>
+            Only one audio stream is downloaded for each
+            output file (default)
+            </summary>
+        </member>
+        <member name="P:YoutubeDLSharp.Options.OptionSet.PreferFreeFormats">
+            <summary>
+            Prefer video formats with free containers
+            over non-free ones of same quality. Use with
+            &quot;-S ext&quot; to strictly prefer free containers
+            irrespective of quality
+            </summary>
+        </member>
+        <member name="P:YoutubeDLSharp.Options.OptionSet.NoPreferFreeFormats">
+            <summary>
+            Don&#x27;t give any special preference to free
+            containers (default)
+            </summary>
+        </member>
+        <member name="P:YoutubeDLSharp.Options.OptionSet.CheckFormats">
+            <summary>
+            Make sure formats are selected only from
+            those that are actually downloadable
+            </summary>
+        </member>
+        <member name="P:YoutubeDLSharp.Options.OptionSet.CheckAllFormats">
+            <summary>
+            Check all formats for whether they are
+            actually downloadable
+            </summary>
+        </member>
+        <member name="P:YoutubeDLSharp.Options.OptionSet.NoCheckFormats">
+            <summary>
+            Do not check that the formats are actually
+            downloadable
+            </summary>
+        </member>
+        <member name="P:YoutubeDLSharp.Options.OptionSet.ListFormats">
+            <summary>
+            List available formats of each video.
+            Simulate unless --no-simulate is used
+            </summary>
+        </member>
+        <member name="P:YoutubeDLSharp.Options.OptionSet.MergeOutputFormat">
+            <summary>
+            Containers that may be used when merging
+            formats, separated by &quot;/&quot;, e.g. &quot;mp4/mkv&quot;.
+            Ignored if no merge is required. (currently
+            supported: avi, flv, mkv, mov, mp4, webm)
+            </summary>
+        </member>
+        <member name="P:YoutubeDLSharp.Options.OptionSet.PlaylistItems">
+            <summary>
+            Comma separated playlist_index of the items
+            to download. You can specify a range using
+            &quot;[START]:[STOP][:STEP]&quot;. For backward
+            compatibility, START-STOP is also supported.
+            Use negative indices to count from the right
+            and negative STEP to download in reverse
+            order. E.g. &quot;-I 1:3,7,-5::2&quot; used on a
+            playlist of size 15 will download the items
+            at index 1,2,3,7,11,13,15
+            </summary>
+        </member>
+        <member name="P:YoutubeDLSharp.Options.OptionSet.MinFilesize">
+            <summary>
+            Abort download if filesize is smaller than
+            SIZE, e.g. 50k or 44.6M
+            </summary>
+        </member>
+        <member name="P:YoutubeDLSharp.Options.OptionSet.MaxFilesize">
+            <summary>
+            Abort download if filesize is larger than
+            SIZE, e.g. 50k or 44.6M
+            </summary>
+        </member>
+        <member name="P:YoutubeDLSharp.Options.OptionSet.Date">
+            <summary>
+            Download only videos uploaded on this date.
+            The date can be &quot;YYYYMMDD&quot; or in the format
+            [now|today|yesterday][-N[day|week|month|year
+            ]]. E.g. &quot;--date today-2weeks&quot; downloads
+            only videos uploaded on the same day two
+            weeks ago
+            </summary>
+        </member>
+        <member name="P:YoutubeDLSharp.Options.OptionSet.DateBefore">
+            <summary>
+            Download only videos uploaded on or before
+            this date. The date formats accepted is the
+            same as --date
+            </summary>
+        </member>
+        <member name="P:YoutubeDLSharp.Options.OptionSet.DateAfter">
+            <summary>
+            Download only videos uploaded on or after
+            this date. The date formats accepted is the
+            same as --date
+            </summary>
+        </member>
+        <member name="P:YoutubeDLSharp.Options.OptionSet.MatchFilters">
+            <summary>
+            Generic video filter. Any &quot;OUTPUT TEMPLATE&quot;
+            field can be compared with a number or a
+            string using the operators defined in
+            &quot;Filtering Formats&quot;. You can also simply
+            specify a field to match if the field is
+            present, use &quot;!field&quot; to check if the field
+            is not present, and &quot;&amp;&quot; to check multiple
+            conditions. Use a &quot;\&quot; to escape &quot;&amp;&quot; or
+            quotes if needed. If used multiple times,
+            the filter matches if atleast one of the
+            conditions are met. E.g. --match-filter
+            !is_live --match-filter &quot;like_count&gt;?100 &amp;
+            description~=&#x27;(?i)\bcats \&amp; dogs\b&#x27;&quot; matches
+            only videos that are not live OR those that
+            have a like count more than 100 (or the like
+            field is not available) and also has a
+            description that contains the phrase &quot;cats &amp;
+            dogs&quot; (caseless). Use &quot;--match-filter -&quot; to
+            interactively ask whether to download each
+            video
+            </summary>
+        </member>
+        <member name="P:YoutubeDLSharp.Options.OptionSet.NoMatchFilters">
+            <summary>
+            Do not use any --match-filter (default)
+            </summary>
+        </member>
+        <member name="P:YoutubeDLSharp.Options.OptionSet.BreakMatchFilters">
+            <summary>
+            Same as &quot;--match-filters&quot; but stops the
+            download process when a video is rejected
+            </summary>
+        </member>
+        <member name="P:YoutubeDLSharp.Options.OptionSet.NoBreakMatchFilters">
+            <summary>
+            Do not use any --break-match-filters
+            (default)
+            </summary>
+        </member>
+        <member name="P:YoutubeDLSharp.Options.OptionSet.NoPlaylist">
+            <summary>
+            Download only the video, if the URL refers
+            to a video and a playlist
+            </summary>
+        </member>
+        <member name="P:YoutubeDLSharp.Options.OptionSet.YesPlaylist">
+            <summary>
+            Download the playlist, if the URL refers to
+            a video and a playlist
+            </summary>
+        </member>
+        <member name="P:YoutubeDLSharp.Options.OptionSet.AgeLimit">
+            <summary>
+            Download only videos suitable for the given
+            age
+            </summary>
+        </member>
+        <member name="P:YoutubeDLSharp.Options.OptionSet.DownloadArchive">
+            <summary>
+            Download only videos not listed in the
+            archive file. Record the IDs of all
+            downloaded videos in it
+            </summary>
+        </member>
+        <member name="P:YoutubeDLSharp.Options.OptionSet.NoDownloadArchive">
+            <summary>
+            Do not use archive file (default)
+            </summary>
+        </member>
+        <member name="P:YoutubeDLSharp.Options.OptionSet.MaxDownloads">
+            <summary>
+            Abort after downloading NUMBER files
+            </summary>
+        </member>
+        <member name="P:YoutubeDLSharp.Options.OptionSet.BreakOnExisting">
+            <summary>
+            Stop the download process when encountering
+            a file that is in the archive
+            </summary>
+        </member>
+        <member name="P:YoutubeDLSharp.Options.OptionSet.BreakPerInput">
+            <summary>
+            Alters --max-downloads, --break-on-existing,
+            --break-match-filter, and autonumber to
+            reset per input URL
+            </summary>
+        </member>
+        <member name="P:YoutubeDLSharp.Options.OptionSet.NoBreakPerInput">
+            <summary>
+            --break-on-existing and similar options
+            terminates the entire download queue
+            </summary>
+        </member>
+        <member name="P:YoutubeDLSharp.Options.OptionSet.SkipPlaylistAfterErrors">
+            <summary>
+            Number of allowed failures until the rest of
+            the playlist is skipped
+            </summary>
+        </member>
+        <member name="P:YoutubeDLSharp.Options.OptionSet.Encoding">
+            <summary>
+            Force the specified encoding (experimental)
+            </summary>
+        </member>
+        <member name="P:YoutubeDLSharp.Options.OptionSet.LegacyServerConnect">
+            <summary>
+            Explicitly allow HTTPS connection to servers
+            that do not support RFC 5746 secure
+            renegotiation
+            </summary>
+        </member>
+        <member name="P:YoutubeDLSharp.Options.OptionSet.NoCheckCertificates">
+            <summary>
+            Suppress HTTPS certificate validation
+            </summary>
+        </member>
+        <member name="P:YoutubeDLSharp.Options.OptionSet.PreferInsecure">
+            <summary>
+            Use an unencrypted connection to retrieve
+            information about the video (Currently
+            supported only for YouTube)
+            </summary>
+        </member>
+        <member name="P:YoutubeDLSharp.Options.OptionSet.AddHeaders">
+            <summary>
+            Specify a custom HTTP header and its value,
+            separated by a colon &quot;:&quot;. You can use this
+            option multiple times
+            </summary>
+        </member>
+        <member name="P:YoutubeDLSharp.Options.OptionSet.BidiWorkaround">
+            <summary>
+            Work around terminals that lack
+            bidirectional text support. Requires bidiv
+            or fribidi executable in PATH
+            </summary>
+        </member>
+        <member name="P:YoutubeDLSharp.Options.OptionSet.SleepRequests">
+            <summary>
+            Number of seconds to sleep between requests
+            during data extraction
+            </summary>
+        </member>
+        <member name="P:YoutubeDLSharp.Options.OptionSet.SleepInterval">
+            <summary>
+            Number of seconds to sleep before each
+            download. This is the minimum time to sleep
+            when used along with --max-sleep-interval
+            (Alias: --min-sleep-interval)
+            </summary>
+        </member>
+        <member name="P:YoutubeDLSharp.Options.OptionSet.MaxSleepInterval">
+            <summary>
+            Maximum number of seconds to sleep. Can only
+            be used along with --min-sleep-interval
+            </summary>
+        </member>
+        <member name="P:YoutubeDLSharp.Options.OptionSet.SleepSubtitles">
+            <summary>
+            Number of seconds to sleep before each
+            subtitle download
+            </summary>
+        </member>
+        <member name="T:YoutubeDLSharp.RunResult`1">
+            <summary>
+            Encapsulates the output of a yt-dlp download operation.
+            </summary>
+            <typeparam name="T"></typeparam>
+        </member>
+        <member name="P:YoutubeDLSharp.RunResult`1.Success">
+            <summary>
+            Indicates whether the operation was successful.
+            </summary>
+        </member>
+        <member name="P:YoutubeDLSharp.RunResult`1.ErrorOutput">
+            <summary>
+            The accumulated error output.
+            </summary>
+        </member>
+        <member name="P:YoutubeDLSharp.RunResult`1.Data">
+            <summary>
+            The output data.
+            </summary>
+        </member>
+        <member name="M:YoutubeDLSharp.RunResult`1.#ctor(System.Boolean,System.String[],`0)">
+            <summary>
+            Creates a new instance of class RunResult.
+            </summary>
+        </member>
+        <member name="T:YoutubeDLSharp.Utils">
+            <summary>
+            Utility methods.
+            </summary>
+        </member>
+        <member name="M:YoutubeDLSharp.Utils.Sanitize(System.String,System.Boolean)">
+            <summary>
+            Sanitize a string to be a valid file name.
+            Ported from:
+            https://github.com/ytdl-org/youtube-dl/blob/33c1c7d80fd99024879a5f087b55b24374385e43/youtube_dl/utils.py#L2067
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:YoutubeDLSharp.Utils.GetFullPath(System.String)">
+            <summary>
+            Returns the absolute path for the specified path string.
+            Also searches the environment's PATH variable.
+            </summary>
+            <param name="fileName">The relative path string.</param>
+            <returns>The absolute path or null if the file was not found.</returns>
+        </member>
+        <member name="T:YoutubeDLSharp.YoutubeDL">
+            <summary>
+            A class providing methods for downloading videos using yt-dlp.
+            </summary>
+        </member>
+        <member name="P:YoutubeDLSharp.YoutubeDL.YoutubeDLPath">
+            <summary>
+            Path to the yt-dlp executable.
+            </summary>
+        </member>
+        <member name="P:YoutubeDLSharp.YoutubeDL.FFmpegPath">
+            <summary>
+            Path to the FFmpeg executable.
+            </summary>
+        </member>
+        <member name="P:YoutubeDLSharp.YoutubeDL.OutputFolder">
+            <summary>
+            Path of the folder where items will be downloaded to.
+            </summary>
+        </member>
+        <member name="P:YoutubeDLSharp.YoutubeDL.OutputFileTemplate">
+            <summary>
+            Template of the name of the downloaded file on yt-dlp style.
+            See https://github.com/yt-dlp/yt-dlp#output-template.
+            </summary>
+        </member>
+        <member name="P:YoutubeDLSharp.YoutubeDL.RestrictFilenames">
+            <summary>
+            If set to true, file names a re restricted to ASCII characters.
+            </summary>
+        </member>
+        <member name="P:YoutubeDLSharp.YoutubeDL.OverwriteFiles">
+            <summary>
+            If set to true, force overwriting of files.
+            </summary>
+        </member>
+        <member name="P:YoutubeDLSharp.YoutubeDL.IgnoreDownloadErrors">
+            <summary>
+            If set to true, download errors are ignored and downloading is continued.
+            </summary>
+        </member>
+        <member name="P:YoutubeDLSharp.YoutubeDL.PythonInterpreterPath">
+            <summary>
+            Optional. If set, will use python to run yt-dlp and <see cref="P:YoutubeDLSharp.YoutubeDL.YoutubeDLPath"/> must be lead to the python script.
+            </summary>
+        </member>
+        <member name="P:YoutubeDLSharp.YoutubeDL.Version">
+            <summary>
+            Gets the product version of the yt-dlp executable file.
+            </summary>
+        </member>
+        <member name="M:YoutubeDLSharp.YoutubeDL.#ctor(System.Byte)">
+            <summary>
+            Creates a new instance of the YoutubeDL class.
+            </summary>
+            <param name="maxNumberOfProcesses">The maximum number of concurrent yt-dlp processes.</param>
+        </member>
+        <member name="M:YoutubeDLSharp.YoutubeDL.SetMaxNumberOfProcesses(System.Byte)">
+            <summary>
+            Sets the maximal number of parallel download processes.
+            </summary>
+            <param name="count"></param>
+            <returns></returns>
+        </member>
+        <member name="M:YoutubeDLSharp.YoutubeDL.RunWithOptions(System.String[],YoutubeDLSharp.Options.OptionSet,System.Threading.CancellationToken)">
+            <summary>
+            Runs yt-dlp with the given option set.
+            </summary>
+            <param name="urls">The video URLs passed to yt-dlp.</param>
+            <param name="options">The OptionSet of yt-dlp options.</param>
+            <param name="ct">A CancellationToken used to cancel the process.</param>
+            <returns>A RunResult object containing the output of yt-dlp as an array of string.</returns>
+        </member>
+        <member name="M:YoutubeDLSharp.YoutubeDL.RunWithOptions(System.String,YoutubeDLSharp.Options.OptionSet,System.Threading.CancellationToken,System.IProgress{YoutubeDLSharp.DownloadProgress},System.IProgress{System.String},System.Boolean)">
+            <summary>
+            Runs yt-dlp with the given option set and additional parameters.
+            </summary>
+            <param name="url">The video URL passed to yt-dlp.</param>
+            <param name="options">The OptionSet of yt-dlp options.</param>
+            <param name="ct">A CancellationToken used to cancel the process.</param>
+            <param name="progress">A progress provider used to get download progress information.</param>
+            <param name="output">A progress provider used to capture the standard output.</param>
+            <param name="showArgs">When true, outputs full download arguments</param>
+            <returns>A RunResult object containing the path to the downloaded and converted video.</returns>
+        </member>
+        <member name="M:YoutubeDLSharp.YoutubeDL.RunUpdate">
+            <summary>
+            Runs an update of yt-dlp.
+            </summary>
+            <returns>The output of yt-dlp as string.</returns>
+        </member>
+        <member name="M:YoutubeDLSharp.YoutubeDL.RunVideoDataFetch(System.String,System.Threading.CancellationToken,System.Boolean,System.Boolean,YoutubeDLSharp.Options.OptionSet)">
+            <summary>
+            Runs a fetch of information for the given video without downloading the video.
+            </summary>
+            <param name="url">The URL of the video to fetch information for.</param>
+            <param name="ct">A CancellationToken used to cancel the process.</param>
+            <param name="flat">If set to true, does not extract information for each video in a playlist.</param>
+            <param name="fetchComments">If set to true, fetch comment data for the given video.</param>
+            <param name="overrideOptions">Override options of the default option set for this run.</param>
+            <returns>A RunResult object containing a VideoData object with the requested video information.</returns>
+        </member>
+        <member name="M:YoutubeDLSharp.YoutubeDL.RunVideoDownload(System.String,System.String,YoutubeDLSharp.Options.DownloadMergeFormat,YoutubeDLSharp.Options.VideoRecodeFormat,System.Threading.CancellationToken,System.IProgress{YoutubeDLSharp.DownloadProgress},System.IProgress{System.String},YoutubeDLSharp.Options.OptionSet)">
+            <summary>
+            Runs a download of the specified video with an optional conversion afterwards.
+            </summary>
+            <param name="url">The URL of the video to be downloaded.</param>
+            <param name="format">A format selection string in yt-dlp style.</param>
+            <param name="mergeFormat">If a merge is required, the container format of the merged downloads.</param>
+            <param name="recodeFormat">The video format the output will be recoded to after download.</param>
+            <param name="ct">A CancellationToken used to cancel the download.</param>
+            <param name="progress">A progress provider used to get download progress information.</param>
+            <param name="output">A progress provider used to capture the standard output.</param>
+            <param name="overrideOptions">Override options of the default option set for this run.</param>
+            <returns>A RunResult object containing the path to the downloaded and converted video.</returns>
+        </member>
+        <member name="M:YoutubeDLSharp.YoutubeDL.RunVideoPlaylistDownload(System.String,System.Nullable{System.Int32},System.Nullable{System.Int32},System.Int32[],System.String,YoutubeDLSharp.Options.VideoRecodeFormat,System.Threading.CancellationToken,System.IProgress{YoutubeDLSharp.DownloadProgress},System.IProgress{System.String},YoutubeDLSharp.Options.OptionSet)">
+            <summary>
+            Runs a download of the specified video playlist with an optional conversion afterwards.
+            </summary>
+            <param name="url">The URL of the playlist to be downloaded.</param>
+            <param name="start">The index of the first playlist video to download (starting at 1).</param>
+            <param name="end">The index of the last playlist video to dowload (if null, download to end).</param>
+            <param name="items">An array of indices of playlist video to download.</param>
+            <param name="format">A format selection string in yt-dlp style.</param>
+            <param name="recodeFormat">The video format the output will be recoded to after download.</param>
+            <param name="ct">A CancellationToken used to cancel the download.</param>
+            <param name="progress">A progress provider used to get download progress information.</param>
+            <param name="output">A progress provider used to capture the standard output.</param>
+            <param name="overrideOptions">Override options of the default option set for this run.</param>
+            <returns>A RunResult object containing the paths to the downloaded and converted videos.</returns>
+        </member>
+        <member name="M:YoutubeDLSharp.YoutubeDL.RunAudioDownload(System.String,YoutubeDLSharp.Options.AudioConversionFormat,System.Threading.CancellationToken,System.IProgress{YoutubeDLSharp.DownloadProgress},System.IProgress{System.String},YoutubeDLSharp.Options.OptionSet)">
+            <summary>
+            Runs a download of the specified video with and converts it to an audio format afterwards.
+            </summary>
+            <param name="url">The URL of the video to be downloaded.</param>
+            <param name="format">The audio format the video will be converted to after downloaded.</param>
+            <param name="ct">A CancellationToken used to cancel the download.</param>
+            <param name="progress">A progress provider used to get download progress information.</param>
+            <param name="output">A progress provider used to capture the standard output.</param>
+            <param name="overrideOptions">Override options of the default option set for this run.</param>
+            <returns>A RunResult object containing the path to the downloaded and converted video.</returns>
+        </member>
+        <member name="M:YoutubeDLSharp.YoutubeDL.RunAudioPlaylistDownload(System.String,System.Nullable{System.Int32},System.Nullable{System.Int32},System.Int32[],YoutubeDLSharp.Options.AudioConversionFormat,System.Threading.CancellationToken,System.IProgress{YoutubeDLSharp.DownloadProgress},System.IProgress{System.String},YoutubeDLSharp.Options.OptionSet)">
+            <summary>
+            Runs a download of the specified video playlist and converts all videos to an audio format afterwards.
+            </summary>
+            <param name="url">The URL of the playlist to be downloaded.</param>
+            <param name="start">The index of the first playlist video to download (starting at 1).</param>
+            <param name="end">The index of the last playlist video to dowload (if null, download to end).</param>
+            <param name="items">An array of indices of playlist video to download.</param>
+            <param name="format">The audio format the videos will be converted to after downloaded.</param>
+            <param name="ct">A CancellationToken used to cancel the download.</param>
+            <param name="progress">A progress provider used to get download progress information.</param>
+            <param name="output">A progress provider used to capture the standard output.</param>
+            <param name="overrideOptions">Override options of the default option set for this run.</param>
+            <returns>A RunResult object containing the paths to the downloaded and converted videos.</returns>
+        </member>
+        <member name="M:YoutubeDLSharp.YoutubeDL.GetDownloadOptions">
+            <summary>
+            Returns an option set with default options used for most downloading operations.
+            </summary>
+        </member>
+        <member name="T:YoutubeDLSharp.YoutubeDLProcess">
+            <summary>
+            A low-level wrapper for the yt-dlp executable.
+            </summary>
+        </member>
+        <member name="P:YoutubeDLSharp.YoutubeDLProcess.PythonPath">
+            <summary>
+            The path to the Python interpreter.
+            If this property is non-empty, yt-dlp will be run using the Python interpreter.
+            In this case, ExecutablePath should point to a non-binary, Python version of yt-dlp.
+            </summary>
+        </member>
+        <member name="P:YoutubeDLSharp.YoutubeDLProcess.ExecutablePath">
+            <summary>
+            The path to the yt-dlp executable.
+            </summary>
+        </member>
+        <member name="P:YoutubeDLSharp.YoutubeDLProcess.UseWindowsEncodingWorkaround">
+            <summary>
+            Windows only. If set to true, start process via cmd.exe to support Unicode chars.
+            </summary>
+        </member>
+        <member name="E:YoutubeDLSharp.YoutubeDLProcess.OutputReceived">
+            <summary>
+            Occurs each time yt-dlp writes to the standard output.
+            </summary>
+        </member>
+        <member name="E:YoutubeDLSharp.YoutubeDLProcess.ErrorReceived">
+            <summary>
+            Occurs each time yt-dlp writes to the error output.
+            </summary>
+        </member>
+        <member name="M:YoutubeDLSharp.YoutubeDLProcess.#ctor(System.String)">
+            <summary>
+            Creates a new instance of the YoutubeDLProcess class.
+            </summary>
+            <param name="executablePath">The path to the yt-dlp executable.</param>
+        </member>
+        <member name="M:YoutubeDLSharp.YoutubeDLProcess.RunAsync(System.String[],YoutubeDLSharp.Options.OptionSet)">
+            <summary>
+            Invokes yt-dlp with the specified parameters and options.
+            </summary>
+            <param name="urls">The video URLs to be passed to yt-dlp.</param>
+            <param name="options">An OptionSet specifying the options to be passed to yt-dlp.</param>
+            <returns>The exit code of the yt-dlp process.</returns>
+        </member>
+        <member name="M:YoutubeDLSharp.YoutubeDLProcess.RunAsync(System.String[],YoutubeDLSharp.Options.OptionSet,System.Threading.CancellationToken,System.IProgress{YoutubeDLSharp.DownloadProgress})">
+            <summary>
+            Invokes yt-dlp with the specified parameters and options.
+            </summary>
+            <param name="urls">The video URLs to be passed to yt-dlp.</param>
+            <param name="options">An OptionSet specifying the options to be passed to yt-dlp.</param>
+            <param name="ct">A CancellationToken used to cancel the download.</param>
+            <param name="progress">A progress provider used to get download progress information.</param>
+            <returns>The exit code of the yt-dlp process.</returns>
+        </member>
+    </members>
+</doc>
