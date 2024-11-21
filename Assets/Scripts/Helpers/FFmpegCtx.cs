@@ -38,7 +38,7 @@ namespace FFmpeg.Unity.Helpers
             ffmpeg.avformat_open_input(&pFormatContext, url, null, null).ThrowExceptionIfError();
             ffmpeg.avformat_find_stream_info(_pFormatContext, null).ThrowExceptionIfError();
 
-            _videoIndex = ffmpeg.av_find_best_stream(_pFormatContext, AVMediaType.AVMEDIA_TYPE_VIDEO, -1, -1, null, 0).ThrowExceptionIfError();
+            _videoIndex = ffmpeg.av_find_best_stream(_pFormatContext, AVMediaType.AVMEDIA_TYPE_VIDEO, -1, -1, null, 0);
 
             _pPacket = ffmpeg.av_packet_alloc();
             IsValid = true;
@@ -51,7 +51,7 @@ namespace FFmpeg.Unity.Helpers
             ffmpeg.avformat_open_input(&pFormatContext, url, null, null).ThrowExceptionIfError();
             ffmpeg.avformat_find_stream_info(_pFormatContext, null).ThrowExceptionIfError();
 
-            _videoIndex = ffmpeg.av_find_best_stream(_pFormatContext, AVMediaType.AVMEDIA_TYPE_VIDEO, -1, -1, null, 0).ThrowExceptionIfError();
+            _videoIndex = ffmpeg.av_find_best_stream(_pFormatContext, AVMediaType.AVMEDIA_TYPE_VIDEO, -1, -1, null, 0);
 
             _pPacket = ffmpeg.av_packet_alloc();
             IsValid = true;

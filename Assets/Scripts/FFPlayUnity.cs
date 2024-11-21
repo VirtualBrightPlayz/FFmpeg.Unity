@@ -7,10 +7,13 @@ namespace FFmpeg.Unity
         public FFTimings videoTimings;
         public FFTimings audioTimings;
 
+        public double videoOffset = 0d;
         public double audioOffset = 0d;
 
         public FFTexturePlayer texturePlayer;
         public FFAudioPlayer audioPlayer;
+
+        private double timeOffset = 0d;
 
         public void Play(string url)
         {
@@ -23,19 +26,26 @@ namespace FFmpeg.Unity
             videoTimings = new FFTimings(urlV, AVMediaType.AVMEDIA_TYPE_VIDEO, AVHWDeviceType.AV_HWDEVICE_TYPE_D3D11VA);
             audioTimings = new FFTimings(urlA, AVMediaType.AVMEDIA_TYPE_AUDIO);
             audioPlayer.Init(audioTimings.decoder.SampleRate, audioTimings.decoder.Channels, audioTimings.decoder.SampleFormat);
+            timeOffset = Time.timeAsDouble;
         }
 
         private void Start()
         {
-            Play("https://virtualwebsite.net/files/hidden/memes/crack.mp4");
+            // Play(@"e:\Apps\Hypernex\Hypernex.Unity_Data\StreamingAssets\ytdl\Downloads\hypernexdevs [hypernexdevs].mov");
         }
 
         private void Update()
         {
-            videoTimings.Update(Time.timeAsDouble);
-            audioTimings.Update(Time.timeAsDouble + audioOffset);
-            texturePlayer.PlayPacket(videoTimings.GetCurrentFrame());
-            audioPlayer.PlayPackets(audioTimings.GetCurrentFrames());
+            if (videoTimings != null)
+            {
+                videoTimings.Update(Time.timeAsDouble - timeOffset + videoOffset);
+                texturePlayer.PlayPacket(videoTimings.GetCurrentFrame());
+            }
+            if (audioTimings != null)
+            {
+                audioTimings.Update(Time.timeAsDouble - timeOffset + audioOffset);
+                audioPlayer.PlayPackets(audioTimings.GetCurrentFrames());
+            }
         }
 
         private void OnDestroy()

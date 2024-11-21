@@ -10,6 +10,7 @@ namespace FFmpeg.Unity
         public long pts;
         // public long counter;
         public AudioSource source;
+        public BufferAudioSource source2;
         private AudioClip clip;
         private float[] RingBuffer = new float[48_000];
         private int RingBufferPosition = 0;
@@ -24,11 +25,11 @@ namespace FFmpeg.Unity
             Debug.Log($"Freq={frequency}");
             clip = AudioClip.Create("BufferAudio", frequency * channels, channels, frequency, false);
             RingBuffer = new float[clip.samples];
-            RingBufferPosition = 0;
-            source.clip = clip;
-            source.loop = true;
-            source.Stop();
-            source.Play();
+            RingBufferPosition = clip.samples / 2;
+            // source.clip = clip;
+            // source.loop = true;
+            // source.Stop();
+            // source.Play();
         }
 
         public void PlayPackets(List<AVFrame> frames)
@@ -44,7 +45,7 @@ namespace FFmpeg.Unity
             }
             // Debug.Log($"frames={frames.Count} pcm={pcm.Count}");
             // counter += pcm.Count;
-            FillBuffer();
+            // FillBuffer();
         }
 
         private void FillBuffer()
@@ -66,6 +67,7 @@ namespace FFmpeg.Unity
 
         private unsafe void QueuePacket(AVFrame frame)
         {
+            pcm.Clear();
             pts = frame.pts;
             for (uint ch = 0; ch < channels; ch++)
             {
@@ -83,7 +85,9 @@ namespace FFmpeg.Unity
                 {
                     pcm.Add(backBuffer3[i]);
                 }
+                break;
             }
+            source2.AddQueue(pcm.ToArray(), 1, clip.frequency);
         }
     }
 }

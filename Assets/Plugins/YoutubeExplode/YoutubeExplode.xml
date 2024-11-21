@@ -69,6 +69,11 @@
             Represents a syntactically valid YouTube channel handle.
             </summary>
         </member>
+        <member name="M:YoutubeExplode.Channels.ChannelHandle.#ctor(System.String)">
+            <summary>
+            Represents a syntactically valid YouTube channel handle.
+            </summary>
+        </member>
         <member name="P:YoutubeExplode.Channels.ChannelHandle.Value">
             <summary>
             Raw handle value.
@@ -99,6 +104,11 @@
             </summary>
         </member>
         <member name="T:YoutubeExplode.Channels.ChannelId">
+            <summary>
+            Represents a syntactically valid YouTube channel ID.
+            </summary>
+        </member>
+        <member name="M:YoutubeExplode.Channels.ChannelId.#ctor(System.String)">
             <summary>
             Represents a syntactically valid YouTube channel ID.
             </summary>
@@ -152,6 +162,11 @@
             </summary>
         </member>
         <member name="T:YoutubeExplode.Channels.ChannelSlug">
+            <summary>
+            Represents a syntactically valid YouTube channel slug.
+            </summary>
+        </member>
+        <member name="M:YoutubeExplode.Channels.ChannelSlug.#ctor(System.String)">
             <summary>
             Represents a syntactically valid YouTube channel slug.
             </summary>
@@ -211,6 +226,11 @@
             </summary>
         </member>
         <member name="T:YoutubeExplode.Channels.UserName">
+            <summary>
+            Represents a syntactically valid YouTube user name.
+            </summary>
+        </member>
+        <member name="M:YoutubeExplode.Channels.UserName.#ctor(System.String)">
             <summary>
             Represents a syntactically valid YouTube user name.
             </summary>
@@ -522,7 +542,7 @@
             Metadata associated with a YouTube playlist.
             </summary>
         </member>
-        <member name="M:YoutubeExplode.Playlists.Playlist.#ctor(YoutubeExplode.Playlists.PlaylistId,System.String,YoutubeExplode.Common.Author,System.String,System.Collections.Generic.IReadOnlyList{YoutubeExplode.Common.Thumbnail})">
+        <member name="M:YoutubeExplode.Playlists.Playlist.#ctor(YoutubeExplode.Playlists.PlaylistId,System.String,YoutubeExplode.Common.Author,System.String,System.Nullable{System.Int32},System.Collections.Generic.IReadOnlyList{YoutubeExplode.Common.Thumbnail})">
             <summary>
             Metadata associated with a YouTube playlist.
             </summary>
@@ -543,6 +563,14 @@
             <summary>
             Playlist description.
             </summary>
+        </member>
+        <member name="P:YoutubeExplode.Playlists.Playlist.Count">
+            <summary>
+            Total count of videos included in the playlist.
+            </summary>
+            <remarks>
+            May be null in case of infinite playlists (e.g. auto-generated mixes).
+            </remarks>
         </member>
         <member name="P:YoutubeExplode.Playlists.Playlist.Thumbnails">
             <inheritdoc />
@@ -576,6 +604,11 @@
             </summary>
         </member>
         <member name="T:YoutubeExplode.Playlists.PlaylistId">
+            <summary>
+            Represents a syntactically valid YouTube playlist ID.
+            </summary>
+        </member>
+        <member name="M:YoutubeExplode.Playlists.PlaylistId.#ctor(System.String)">
             <summary>
             Represents a syntactically valid YouTube playlist ID.
             </summary>
@@ -1574,6 +1607,11 @@
             <summary>
             Gets muxed streams (i.e. streams containing both audio and video).
             </summary>
+            <remarks>
+            These streams are generally deprecated by YouTube and may not be available
+            for every video. If needed, use the YoutubeExplode.Converter package to
+            manually mux audio-only and video-only streams into a single container.
+            </remarks>
         </member>
         <member name="M:YoutubeExplode.Videos.Streams.StreamManifest.GetAudioOnlyStreams">
             <summary>
@@ -1771,6 +1809,11 @@
             Represents a syntactically valid YouTube video ID.
             </summary>
         </member>
+        <member name="M:YoutubeExplode.Videos.VideoId.#ctor(System.String)">
+            <summary>
+            Represents a syntactically valid YouTube video ID.
+            </summary>
+        </member>
         <member name="P:YoutubeExplode.Videos.VideoId.Value">
             <summary>
             Raw ID value.
@@ -1825,26 +1868,6 @@
             Client for interacting with YouTube.
             </summary>
         </member>
-        <member name="P:YoutubeExplode.YoutubeClient.Videos">
-            <summary>
-            Operations related to YouTube videos.
-            </summary>
-        </member>
-        <member name="P:YoutubeExplode.YoutubeClient.Playlists">
-            <summary>
-            Operations related to YouTube playlists.
-            </summary>
-        </member>
-        <member name="P:YoutubeExplode.YoutubeClient.Channels">
-            <summary>
-            Operations related to YouTube channels.
-            </summary>
-        </member>
-        <member name="P:YoutubeExplode.YoutubeClient.Search">
-            <summary>
-            Operations related to YouTube search.
-            </summary>
-        </member>
         <member name="M:YoutubeExplode.YoutubeClient.#ctor(System.Net.Http.HttpClient,System.Collections.Generic.IReadOnlyList{System.Net.Cookie})">
             <summary>
             Initializes an instance of <see cref="T:YoutubeExplode.YoutubeClient" />.
@@ -1863,6 +1886,26 @@
         <member name="M:YoutubeExplode.YoutubeClient.#ctor">
             <summary>
             Initializes an instance of <see cref="T:YoutubeExplode.YoutubeClient" />.
+            </summary>
+        </member>
+        <member name="P:YoutubeExplode.YoutubeClient.Videos">
+            <summary>
+            Operations related to YouTube videos.
+            </summary>
+        </member>
+        <member name="P:YoutubeExplode.YoutubeClient.Playlists">
+            <summary>
+            Operations related to YouTube playlists.
+            </summary>
+        </member>
+        <member name="P:YoutubeExplode.YoutubeClient.Channels">
+            <summary>
+            Operations related to YouTube channels.
+            </summary>
+        </member>
+        <member name="P:YoutubeExplode.YoutubeClient.Search">
+            <summary>
+            Operations related to YouTube search.
             </summary>
         </member>
     </members>

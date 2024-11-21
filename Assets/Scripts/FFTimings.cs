@@ -24,8 +24,6 @@ namespace FFmpeg.Unity
 
         private AVFrame currentFrame;
 
-        private double currentFrameTimer;
-
         public FFTimings(string url, AVMediaType mediaType, AVHWDeviceType deviceType = AVHWDeviceType.AV_HWDEVICE_TYPE_NONE)
         {
             context = new FFmpegCtx(url);
@@ -38,12 +36,7 @@ namespace FFmpeg.Unity
             {
                 timeBaseSeconds = ffmpeg.av_q2d(timeBase);
                 decoder = new VideoStreamDecoder(context, type, deviceType);
-                // if (context.NextFrame(out currentPacket))
                 {
-                    // pts = currentPacket.pts;
-                    // currentFrame = DecodeFrame();
-                    currentFrameTimer = 0d;
-                    // Debug.Log($"pts={pts}");
                     Debug.Log($"timeBase={timeBase.num}/{timeBase.den}");
                     Debug.Log($"timeBaseSeconds={timeBaseSeconds}");
                 }
@@ -53,8 +46,6 @@ namespace FFmpeg.Unity
         public void Update(double timestamp)
         {
             pts = (long)(Math.Max(double.Epsilon, timestamp) / timeBaseSeconds);
-            // currentFrameTimer = timestamp / timeBase.num;
-            // pts = (long)(currentFrameTimer * timeBase.den);
         }
 
         /// <summary>
@@ -86,7 +77,7 @@ namespace FFmpeg.Unity
             {
                 if (context.NextFrame(out AVPacket packet))
                 {
-                    AVFrame frame = DecodeMultiFrame();
+                    AVFrame frame = DecodeFrame();
                     if (frame.format != -1)
                     {
                         currentPacket = packet;
