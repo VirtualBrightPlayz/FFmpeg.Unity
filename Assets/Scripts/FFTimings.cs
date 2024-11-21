@@ -53,7 +53,7 @@ namespace FFmpeg.Unity
         /// </summary>
         public AVFrame GetCurrentFrame()
         {
-            while (pts >= currentPacket.pts || currentPacket.pts == ffmpeg.AV_NOPTS_VALUE)
+            while (pts >= currentPacket.dts || currentPacket.dts == ffmpeg.AV_NOPTS_VALUE)
             {
                 if (context.NextFrame(out AVPacket packet))
                 {
@@ -73,7 +73,7 @@ namespace FFmpeg.Unity
         public List<AVFrame> GetCurrentFrames()
         {
             List<AVFrame> frames = new List<AVFrame>();
-            while (pts >= currentPacket.pts || currentPacket.pts == ffmpeg.AV_NOPTS_VALUE)
+            while (pts >= currentPacket.dts || currentPacket.dts == ffmpeg.AV_NOPTS_VALUE)
             {
                 if (context.NextFrame(out AVPacket packet))
                 {
