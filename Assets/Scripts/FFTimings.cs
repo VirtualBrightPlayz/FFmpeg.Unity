@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.IO;
 using FFmpeg.Unity.Helpers;
 using UnityEngine;
 
@@ -30,6 +31,13 @@ namespace FFmpeg.Unity
         public FFTimings(string url, AVMediaType mediaType, AVHWDeviceType deviceType = AVHWDeviceType.AV_HWDEVICE_TYPE_NONE)
         {
             context = new FFmpegCtx(url);
+            IsInputValid = context.HasStream(mediaType);
+            Init(mediaType, deviceType);
+        }
+
+        public FFTimings(Stream stream, AVMediaType mediaType, AVHWDeviceType deviceType = AVHWDeviceType.AV_HWDEVICE_TYPE_NONE)
+        {
+            context = new FFmpegCtx(stream);
             IsInputValid = context.HasStream(mediaType);
             Init(mediaType, deviceType);
         }
@@ -78,6 +86,13 @@ namespace FFmpeg.Unity
             if (!IsInputValid)
                 return 0d;
             return context.GetLength(decoder);
+        }
+
+        public bool IsEndOfFile()
+        {
+            if (!IsInputValid)
+                return false;
+            return context.EndReached;
         }
 
         /// <summary>

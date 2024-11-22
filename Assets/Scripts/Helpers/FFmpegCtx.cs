@@ -22,6 +22,8 @@ namespace FFmpeg.Unity.Helpers
 
         public FFmpegCtx(Stream stream, uint bufferSize = 16_000_000)
         {
+            if (stream == null)
+                return;
             _stream = stream;
             bufferPtr = (byte*)ffmpeg.av_malloc(bufferSize);
             read = ReadPacketCallback;
@@ -34,7 +36,7 @@ namespace FFmpeg.Unity.Helpers
             _pFormatContext->flags |= ffmpeg.AVFMT_FLAG_SHORTEST;
             _pFormatContext->max_interleave_delta = 100_000_000;
             _pFormatContext->pb = _pIOContext;
-            _pFormatContext->flags |= ffmpeg.AVFMT_FLAG_CUSTOM_IO | ffmpeg.AVFMT_NOFILE;
+            _pFormatContext->flags |= ffmpeg.AVFMT_FLAG_CUSTOM_IO;
             var pFormatContext = _pFormatContext;
             var url = "some_dummy_filename";
             ffmpeg.avformat_open_input(&pFormatContext, url, null, null).ThrowExceptionIfError();
@@ -48,9 +50,13 @@ namespace FFmpeg.Unity.Helpers
 
         public FFmpegCtx(string url)
         {
+            if (string.IsNullOrWhiteSpace(url))
+                return;
             _pFormatContext = ffmpeg.avformat_alloc_context();
             _pFormatContext->flags |= ffmpeg.AVFMT_FLAG_SHORTEST;
             _pFormatContext->max_interleave_delta = 100_000_000;
+
+            _pFormatContext->avio_flags = ffmpeg.AVIO_FLAG_READ;
 
             var pFormatContext = _pFormatContext;
             ffmpeg.avformat_open_input(&pFormatContext, url, null, null).ThrowExceptionIfError();
@@ -64,6 +70,8 @@ namespace FFmpeg.Unity.Helpers
 
         public bool HasStream(AVMediaType type)
         {
+            if (!IsValid)
+                return false;
             return ffmpeg.av_find_best_stream(_pFormatContext, type, -1, -1, null, 0) >= 0;
         }
 
@@ -268,6 +276,8 @@ namespace FFmpeg.Unity.Helpers
 
         public void Dispose()
         {
+            if (!IsValid)
+                return;
             IsValid = false;
             var pPacket = _pPacket;
             ffmpeg.av_packet_free(&pPacket);

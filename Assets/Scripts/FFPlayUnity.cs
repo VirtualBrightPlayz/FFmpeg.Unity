@@ -1,3 +1,5 @@
+using System;
+using System.IO;
 using UnityEngine;
 
 namespace FFmpeg.Unity
@@ -6,6 +8,11 @@ namespace FFmpeg.Unity
     {
         public FFTimings videoTimings;
         public FFTimings audioTimings;
+
+        public event Action OnEndReached;
+        public event Action OnVideoEndReached;
+        public event Action OnAudioEndReached;
+        public event Action OnError;
 
         public double videoOffset = 0d;
         public double audioOffset = 0d;
@@ -28,17 +35,35 @@ namespace FFmpeg.Unity
             Play(url, url);
         }
 
+        public void Play(Stream streamV, Stream streamA)
+        {
+            Resume();
+            videoTimings = new FFTimings(streamV, AVMediaType.AVMEDIA_TYPE_VIDEO);
+            audioTimings = new FFTimings(streamA, AVMediaType.AVMEDIA_TYPE_AUDIO);
+            Init();
+        }
+
         public void Play(string urlV, string urlA)
         {
             Resume();
             videoTimings = new FFTimings(urlV, AVMediaType.AVMEDIA_TYPE_VIDEO);
             audioTimings = new FFTimings(urlA, AVMediaType.AVMEDIA_TYPE_AUDIO);
+            Init();
+        }
+
+        private void Init()
+        {
             if (audioTimings.IsInputValid)
                 audioPlayer.Init(audioTimings.decoder.SampleRate, audioTimings.decoder.Channels, audioTimings.decoder.SampleFormat);
             if (videoTimings.IsInputValid)
                 timeOffset = Time.timeAsDouble - videoTimings.StartTime;
             else
                 timeOffset = Time.timeAsDouble;
+            if (!videoTimings.IsInputValid && !audioTimings.IsInputValid)
+            {
+                Debug.LogError("AV not found");
+                OnError?.Invoke();
+            }
         }
 
         public void Seek(double timestamp)
@@ -85,11 +110,23 @@ namespace FFmpeg.Unity
                 {
                     videoTimings.Update(VideoTime);
                     texturePlayer.PlayPacket(videoTimings.GetCurrentFrame());
+                    if (videoTimings.IsEndOfFile())
+                    {
+                        Pause();
+                        OnVideoEndReached?.Invoke();
+                        OnEndReached?.Invoke();
+                    }
                 }
                 if (audioTimings != null)
                 {
                     audioTimings.Update(AudioTime);
                     audioPlayer.PlayPackets(audioTimings.GetCurrentFrames());
+                    if (audioTimings.IsEndOfFile())
+                    {
+                        Pause();
+                        OnAudioEndReached?.Invoke();
+                        OnEndReached?.Invoke();
+                    }
                 }
             }
         }
