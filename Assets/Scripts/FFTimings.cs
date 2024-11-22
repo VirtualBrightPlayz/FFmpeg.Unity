@@ -15,6 +15,8 @@ namespace FFmpeg.Unity
         public FFmpegCtx context;
         public VideoStreamDecoder decoder;
 
+        public bool IsInputValid;
+
         private long pts;
 
         private AVRational timeBase;
@@ -27,11 +29,14 @@ namespace FFmpeg.Unity
         public FFTimings(string url, AVMediaType mediaType, AVHWDeviceType deviceType = AVHWDeviceType.AV_HWDEVICE_TYPE_NONE)
         {
             context = new FFmpegCtx(url);
+            IsInputValid = context.HasStream(mediaType);
             Init(mediaType, deviceType);
         }
 
         private void Init(AVMediaType type, AVHWDeviceType deviceType)
         {
+            if (!IsInputValid)
+                return;
             if (context.TryGetTimeBase(type, out timeBase))
             {
                 timeBaseSeconds = ffmpeg.av_q2d(timeBase);
@@ -45,6 +50,8 @@ namespace FFmpeg.Unity
 
         public void Update(double timestamp)
         {
+            if (!IsInputValid)
+                return;
             pts = (long)(Math.Max(double.Epsilon, timestamp) / timeBaseSeconds);
         }
 
@@ -53,6 +60,11 @@ namespace FFmpeg.Unity
         /// </summary>
         public AVFrame GetCurrentFrame()
         {
+            if (!IsInputValid)
+                return new AVFrame()
+                {
+                    format = -1
+                };
             while (pts >= currentPacket.dts || currentPacket.dts == ffmpeg.AV_NOPTS_VALUE)
             {
                 if (context.NextFrame(out AVPacket packet))
@@ -72,6 +84,8 @@ namespace FFmpeg.Unity
 
         public List<AVFrame> GetCurrentFrames()
         {
+            if (!IsInputValid)
+                return new List<AVFrame>();
             List<AVFrame> frames = new List<AVFrame>();
             while (pts >= currentPacket.dts || currentPacket.dts == ffmpeg.AV_NOPTS_VALUE)
             {
@@ -110,8 +124,8 @@ namespace FFmpeg.Unity
 
         public void Dispose()
         {
-            decoder.Dispose();
-            context.Dispose();
+            decoder?.Dispose();
+            context?.Dispose();
         }
     }
 }

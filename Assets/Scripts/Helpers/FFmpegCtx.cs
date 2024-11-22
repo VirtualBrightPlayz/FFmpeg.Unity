@@ -57,6 +57,11 @@ namespace FFmpeg.Unity.Helpers
             IsValid = true;
         }
 
+        public bool HasStream(AVMediaType type)
+        {
+            return ffmpeg.av_find_best_stream(_pFormatContext, type, -1, -1, null, 0) >= 0;
+        }
+
         public static string AVRationalToString(AVRational av)
         {
             return $"{av.num}/{av.den}";

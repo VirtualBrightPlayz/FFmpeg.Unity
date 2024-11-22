@@ -116,6 +116,7 @@ public class FFTest2 : MonoBehaviour
             return;
         }
 
+#if false
         var ytdlPath = Path.Combine(Application.streamingAssetsPath, "yt-dlp.exe");
         var ytdl = new YoutubeDL();
         ytdl.YoutubeDLPath = ytdlPath;
@@ -126,8 +127,7 @@ public class FFTest2 : MonoBehaviour
         var audio = res.Data.Formats.FirstOrDefault(x => x.FormatId == formats[1]);
         Debug.Log("Done");
         ffmpeg.Play(video.Url, audio.Url);
-
-#if false
+#else
         // ffmpeg.CanSeek = false;
         var yt = new YoutubeClient();
         Debug.Log("Start");
