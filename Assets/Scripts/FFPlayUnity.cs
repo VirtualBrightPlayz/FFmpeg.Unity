@@ -14,6 +14,14 @@ namespace FFmpeg.Unity
         public FFAudioPlayer audioPlayer;
 
         private double timeOffset = 0d;
+        private double pauseTime = 0d;
+
+        public bool IsPaused { get; private set; } = false;
+
+        public double PlaybackTime => IsPaused ? pauseTime : Time.timeAsDouble - timeOffset;
+
+        public double VideoTime => Time.timeAsDouble - timeOffset + videoOffset;
+        public double AudioTime => Time.timeAsDouble - timeOffset + audioOffset;
 
         public void Play(string url)
         {
@@ -22,25 +30,67 @@ namespace FFmpeg.Unity
 
         public void Play(string urlV, string urlA)
         {
-            DynamicallyLinkedBindings.Initialize();
+            Resume();
             videoTimings = new FFTimings(urlV, AVMediaType.AVMEDIA_TYPE_VIDEO);
             audioTimings = new FFTimings(urlA, AVMediaType.AVMEDIA_TYPE_AUDIO);
             if (audioTimings.IsInputValid)
                 audioPlayer.Init(audioTimings.decoder.SampleRate, audioTimings.decoder.Channels, audioTimings.decoder.SampleFormat);
-            timeOffset = Time.timeAsDouble;
+            if (videoTimings.IsInputValid)
+                timeOffset = Time.timeAsDouble - videoTimings.StartTime;
+            else
+                timeOffset = Time.timeAsDouble;
+        }
+
+        public void Seek(double timestamp)
+        {
+            timeOffset = Time.timeAsDouble - timestamp;
+            if (videoTimings != null)
+            {
+                videoTimings.Seek(VideoTime);
+            }
+            if (audioTimings != null)
+            {
+                audioTimings.Seek(AudioTime);
+            }
+        }
+
+        public double GetLength()
+        {
+            if (videoTimings != null && videoTimings.IsInputValid)
+                return videoTimings.GetLength();
+            if (audioTimings != null && audioTimings.IsInputValid)
+                return audioTimings.GetLength();
+            return 0d;
+        }
+
+        public void Pause()
+        {
+            pauseTime = PlaybackTime;
+            audioPlayer.Pause();
+            IsPaused = true;
+        }
+
+        public void Resume()
+        {
+            timeOffset = Time.timeAsDouble - pauseTime;
+            audioPlayer.Resume();
+            IsPaused = false;
         }
 
         private void Update()
         {
-            if (videoTimings != null)
+            if (!IsPaused)
             {
-                videoTimings.Update(Time.timeAsDouble - timeOffset + videoOffset);
-                texturePlayer.PlayPacket(videoTimings.GetCurrentFrame());
-            }
-            if (audioTimings != null)
-            {
-                audioTimings.Update(Time.timeAsDouble - timeOffset + audioOffset);
-                audioPlayer.PlayPackets(audioTimings.GetCurrentFrames());
+                if (videoTimings != null)
+                {
+                    videoTimings.Update(VideoTime);
+                    texturePlayer.PlayPacket(videoTimings.GetCurrentFrame());
+                }
+                if (audioTimings != null)
+                {
+                    audioTimings.Update(AudioTime);
+                    audioPlayer.PlayPackets(audioTimings.GetCurrentFrames());
+                }
             }
         }
 

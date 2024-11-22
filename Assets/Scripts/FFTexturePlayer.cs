@@ -26,15 +26,7 @@ namespace FFmpeg.Unity
                 image.SetPixelData(data, 0);
                 image.Apply(false);
             }
-            else
-            {
-                // Debug.LogError("Could not save frame");
-            }
             Display(image);
-        }
-
-        private void Update()
-        {
         }
 
         private void Display(Texture2D texture)

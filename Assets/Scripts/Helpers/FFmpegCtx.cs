@@ -67,10 +67,13 @@ namespace FFmpeg.Unity.Helpers
             return $"{av.num}/{av.den}";
         }
 
-        public double GetLength()
+        public double GetLength(VideoStreamDecoder decoder)
         {
-            double time_base = (double)_pFormatContext->streams[_videoIndex]->time_base.num / _pFormatContext->streams[_videoIndex]->time_base.den;
-            return _pFormatContext->streams[_videoIndex]->duration * time_base;
+            int _streamIndex = decoder._streamIndex;
+            if (_streamIndex < 0 || _streamIndex > _pFormatContext->nb_streams)
+                return 0d;
+            double time_base = (double)_pFormatContext->streams[_streamIndex]->time_base.num / _pFormatContext->streams[_streamIndex]->time_base.den;
+            return _pFormatContext->streams[_streamIndex]->duration * time_base;
         }
 
         public bool TryGetFps(out double fps)

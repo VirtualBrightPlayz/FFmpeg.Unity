@@ -365,8 +365,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   pts: 0
-  source: {fileID: 1264032664}
-  source2: {fileID: 1264032665}
+  source: {fileID: 1264032665}
 --- !u!114 &744513913
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -383,6 +382,7 @@ MonoBehaviour:
   contentUrl: 
   stream: 0
   mesh: {fileID: 1264032661}
+  source: {fileID: 1264032664}
 --- !u!1 &963194225
 GameObject:
   m_ObjectHideFlags: 0
@@ -691,6 +691,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b2c04debbdd7eaf4a8c0abbb01bd3742, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  audioSource: {fileID: 0}
   bufferDelay: 2
 --- !u!850595691 &1495372973
 LightingSettings:

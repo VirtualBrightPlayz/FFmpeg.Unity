@@ -280,7 +280,7 @@ namespace FFmpeg.Unity
             if (_videoWatch == null || _streamVideoCtx == null)
                 return;
             
-            if (CanSeek && (_offset >= _streamVideoCtx.GetLength() || (_streamVideoCtx.EndReached && (_audioDecoder == null || _streamAudioCtx.EndReached) && _videoTextures.Count == 0 && (_audioDecoder == null || _audioStream.Count == 0))) && !_paused)
+            if (CanSeek && (_offset >= _streamVideoCtx.GetLength(_videoDecoder) || (_streamVideoCtx.EndReached && (_audioDecoder == null || _streamAudioCtx.EndReached) && _videoTextures.Count == 0 && (_audioDecoder == null || _audioStream.Count == 0))) && !_paused)
             {
                 Pause();
                 // Finished

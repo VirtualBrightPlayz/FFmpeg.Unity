@@ -13,7 +13,8 @@ public class BufferAudioSource : MonoBehaviour
     private int lastTimeSamples = 0;
     private int maxEmptyReads = 0;
     private AudioClip clip = null;
-    private AudioSource audioSource;
+    [HideInInspector]
+    public AudioSource audioSource;
     public float bufferDelay = 1f;
 
     private float[] spectrum = new float[1024];

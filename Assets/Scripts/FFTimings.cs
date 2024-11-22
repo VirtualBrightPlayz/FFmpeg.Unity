@@ -16,6 +16,7 @@ namespace FFmpeg.Unity
         public VideoStreamDecoder decoder;
 
         public bool IsInputValid;
+        public double StartTime;
 
         private long pts;
 
@@ -41,10 +42,18 @@ namespace FFmpeg.Unity
             {
                 timeBaseSeconds = ffmpeg.av_q2d(timeBase);
                 decoder = new VideoStreamDecoder(context, type, deviceType);
+                if (type == AVMediaType.AVMEDIA_TYPE_VIDEO && context.NextFrame(out AVPacket packet))
                 {
-                    Debug.Log($"timeBase={timeBase.num}/{timeBase.den}");
-                    Debug.Log($"timeBaseSeconds={timeBaseSeconds}");
+                    StartTime = packet.dts * timeBaseSeconds;
+                    AVFrame frame = DecodeFrame();
+                    if (frame.format != -1)
+                    {
+                        currentPacket = packet;
+                        currentFrame = frame;
+                    }
                 }
+                Debug.Log($"timeBase={timeBase.num}/{timeBase.den}");
+                Debug.Log($"timeBaseSeconds={timeBaseSeconds}");
             }
         }
 
@@ -53,6 +62,22 @@ namespace FFmpeg.Unity
             if (!IsInputValid)
                 return;
             pts = (long)(Math.Max(double.Epsilon, timestamp) / timeBaseSeconds);
+        }
+
+        public void Seek(double timestamp)
+        {
+            if (!IsInputValid)
+                return;
+            context.Seek(decoder, timestamp);
+            Update(timestamp);
+            currentPacket = default;
+        }
+
+        public double GetLength()
+        {
+            if (!IsInputValid)
+                return 0d;
+            return context.GetLength(decoder);
         }
 
         /// <summary>

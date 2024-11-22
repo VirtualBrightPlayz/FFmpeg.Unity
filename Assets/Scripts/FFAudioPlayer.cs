@@ -8,12 +8,8 @@ namespace FFmpeg.Unity
     public class FFAudioPlayer : MonoBehaviour
     {
         public long pts;
-        // public long counter;
-        public AudioSource source;
-        public BufferAudioSource source2;
+        public BufferAudioSource source;
         private AudioClip clip;
-        private float[] RingBuffer = new float[48_000];
-        private int RingBufferPosition = 0;
         private int channels;
         private AVSampleFormat sampleFormat;
         private List<float> pcm = new List<float>();
@@ -24,12 +20,16 @@ namespace FFmpeg.Unity
             this.sampleFormat = sampleFormat;
             Debug.Log($"Freq={frequency}");
             clip = AudioClip.Create("BufferAudio", frequency * channels, channels, frequency, false);
-            RingBuffer = new float[clip.samples];
-            RingBufferPosition = clip.samples / 2;
-            // source.clip = clip;
-            // source.loop = true;
-            // source.Stop();
-            // source.Play();
+        }
+
+        public void Pause()
+        {
+            source.audioSource.Pause();
+        }
+
+        public void Resume()
+        {
+            source.audioSource.UnPause();
         }
 
         public void PlayPackets(List<AVFrame> frames)
@@ -38,30 +38,9 @@ namespace FFmpeg.Unity
             {
                 return;
             }
-            pcm.Clear();
             foreach (var frame in frames)
             {
                 QueuePacket(frame);
-            }
-            // Debug.Log($"frames={frames.Count} pcm={pcm.Count}");
-            // counter += pcm.Count;
-            // FillBuffer();
-        }
-
-        private void FillBuffer()
-        {
-            int c = pcm.Count / channels;
-            for (int i = 0; i < c; i++)
-            {
-                for (int j = 0; j < channels; j++)
-                {
-                    RingBuffer[RingBufferPosition] = pcm[i + c * j];
-                    RingBufferPosition = (RingBufferPosition + 1) % RingBuffer.Length;
-                }
-            }
-            if (clip != null)
-            {
-                clip.SetData(RingBuffer, 0);
             }
         }
 
@@ -87,7 +66,7 @@ namespace FFmpeg.Unity
                 }
                 break;
             }
-            source2.AddQueue(pcm.ToArray(), 1, clip.frequency);
+            source.AddQueue(pcm.ToArray(), 1, clip.frequency);
         }
     }
 }
