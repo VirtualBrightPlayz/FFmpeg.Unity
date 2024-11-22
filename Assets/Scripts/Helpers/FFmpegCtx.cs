@@ -31,8 +31,8 @@ namespace FFmpeg.Unity.Helpers
             _pIOContext = ffmpeg.avio_alloc_context(bufferPtr, (int)bufferSize, 0, GCHandle.ToIntPtr(streamHandle).ToPointer(), read, null, seek);
 
             _pFormatContext = ffmpeg.avformat_alloc_context();
-            // _pFormatContext->flags |= ffmpeg.AVFMT_FLAG_SHORTEST;
-            // _pFormatContext->max_interleave_delta = 100_000_000;
+            _pFormatContext->flags |= ffmpeg.AVFMT_FLAG_SHORTEST;
+            _pFormatContext->max_interleave_delta = 100_000_000;
             _pFormatContext->pb = _pIOContext;
             _pFormatContext->flags |= ffmpeg.AVFMT_FLAG_CUSTOM_IO | ffmpeg.AVFMT_NOFILE;
             var pFormatContext = _pFormatContext;
@@ -49,8 +49,8 @@ namespace FFmpeg.Unity.Helpers
         public FFmpegCtx(string url)
         {
             _pFormatContext = ffmpeg.avformat_alloc_context();
-            // _pFormatContext->flags |= ffmpeg.AVFMT_FLAG_SHORTEST;
-            // _pFormatContext->max_interleave_delta = 100_000_000;
+            _pFormatContext->flags |= ffmpeg.AVFMT_FLAG_SHORTEST;
+            _pFormatContext->max_interleave_delta = 100_000_000;
 
             var pFormatContext = _pFormatContext;
             ffmpeg.avformat_open_input(&pFormatContext, url, null, null).ThrowExceptionIfError();
