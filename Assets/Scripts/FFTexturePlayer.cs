@@ -10,7 +10,7 @@ namespace FFmpeg.Unity
         public MeshRenderer renderMesh;
         public int materialIndex = -1;
         private MaterialPropertyBlock propertyBlock;
-        private Action<Texture2D> OnDisplay = null;
+        public Action<Texture2D> OnDisplay = null;
         private Texture2D image;
 
         public void PlayPacket(AVFrame frame)
