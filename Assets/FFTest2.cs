@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Text.Json;
 using FFmpeg.Unity;
 using UnityEngine;
 using YoutubeDLSharp;
@@ -18,6 +19,7 @@ public class FFTest2 : MonoBehaviour
     private Rect windowRect = new Rect(0, 0, 250, 300);
     private Vector2 scrollPosition;
     public MeshRenderer mesh;
+    public AudioSource source;
 
     private void Start()
     {
@@ -52,7 +54,6 @@ public class FFTest2 : MonoBehaviour
             {
                 Play();
             }
-            /*
             if (ffmpeg.IsPaused)
             {
                 if (GUILayout.Button("Resume"))
@@ -67,12 +68,10 @@ public class FFTest2 : MonoBehaviour
                     ffmpeg.Pause();
                 }
             }
-            */
         }
         GUILayout.EndHorizontal();
         GUILayout.Label("Volume:");
-        /*
-        ffmpeg.source.volume = GUILayout.HorizontalSlider(ffmpeg.source.volume, 0f, 1f);
+        source.volume = GUILayout.HorizontalSlider(source.volume, 0f, 1f);
         GUILayout.BeginHorizontal();
         if (GUILayout.Button("<<"))
         {
@@ -91,8 +90,8 @@ public class FFTest2 : MonoBehaviour
             ffmpeg.Seek(ffmpeg.PlaybackTime + 10d);
         }
         GUILayout.EndHorizontal();
-        */
         // GUILayout.Toggle(!ffmpeg.CanSeek, "Live Stream");
+        GUILayout.Label($"{ffmpeg.PlaybackTime:0.0}/{ffmpeg.GetLength():0.0} seconds");
         GUILayout.Label($"{1 / Time.deltaTime:0} FPS");
         scrollPosition = GUILayout.BeginScrollView(scrollPosition);
         GUILayout.EndScrollView();
@@ -122,11 +121,19 @@ public class FFTest2 : MonoBehaviour
         ytdl.YoutubeDLPath = ytdlPath;
         Debug.Log("Start");
         var res = await ytdl.RunVideoDataFetch(contentUrl);
-        string[] formats = res.Data.FormatID.Split('+');
-        var video = res.Data.Formats.FirstOrDefault(x => x.FormatId == formats[0]);
-        var audio = res.Data.Formats.FirstOrDefault(x => x.FormatId == formats[1]);
         Debug.Log("Done");
-        ffmpeg.Play(video.Url, audio.Url);
+        // File.WriteAllText("test.txt", JsonSerializer.Serialize(res.Data));
+        if (string.IsNullOrEmpty(res.Data.Url))
+        {
+            string[] formats = res.Data.FormatID.Split('+');
+            var video = res.Data.Formats.FirstOrDefault(x => x.FormatId == formats[0]);
+            var audio = res.Data.Formats.FirstOrDefault(x => x.FormatId == formats[1]);
+            ffmpeg.Play(video.Url, audio.Url);
+        }
+        else
+        {
+            ffmpeg.Play(res.Data.Url);
+        }
 #else
         // ffmpeg.CanSeek = false;
         var yt = new YoutubeClient();
