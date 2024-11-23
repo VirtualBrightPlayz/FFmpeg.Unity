@@ -318,7 +318,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: eb91949b94ee7de44a9894f670dddb9c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  videoOffset: -2
+  videoOffset: -1
   audioOffset: 0
   texturePlayer: {fileID: 744513911}
   audioPlayer: {fileID: 744513912}
@@ -692,7 +692,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   audioSource: {fileID: 0}
-  bufferDelay: 2
+  bufferDelay: 1
 --- !u!850595691 &1495372973
 LightingSettings:
   m_ObjectHideFlags: 0

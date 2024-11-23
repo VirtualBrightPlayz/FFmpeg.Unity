@@ -69,6 +69,7 @@ namespace FFmpeg.Unity
         public void Seek(double timestamp)
         {
             timeOffset = Time.timeAsDouble - timestamp;
+            pauseTime = timestamp;
             if (videoTimings != null)
             {
                 videoTimings.Seek(VideoTime);
@@ -76,6 +77,7 @@ namespace FFmpeg.Unity
             if (audioTimings != null)
             {
                 audioTimings.Seek(AudioTime);
+                audioPlayer.Seek();
             }
         }
 

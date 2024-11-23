@@ -25,7 +25,6 @@ namespace FFmpeg.Unity
         private double timeBaseSeconds;
 
         private AVPacket currentPacket;
-
         private AVFrame currentFrame;
 
         public FFTimings(string url, AVMediaType mediaType, AVHWDeviceType deviceType = AVHWDeviceType.AV_HWDEVICE_TYPE_NONE)

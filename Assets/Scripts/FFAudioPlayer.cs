@@ -31,6 +31,11 @@ namespace FFmpeg.Unity
         {
             source.audioSource.UnPause();
         }
+        
+        public void Seek()
+        {
+            source.Stop();
+        }
 
         public void PlayPackets(List<AVFrame> frames)
         {

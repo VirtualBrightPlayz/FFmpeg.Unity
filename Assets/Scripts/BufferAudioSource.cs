@@ -10,6 +10,7 @@ public class BufferAudioSource : MonoBehaviour
 
     private bool shouldStop = false;
     private int stopTime = 0;
+    private float stopTimer = 0;
     private int lastTimeSamples = 0;
     private int maxEmptyReads = 0;
     private AudioClip clip = null;
@@ -28,12 +29,16 @@ public class BufferAudioSource : MonoBehaviour
     {
         if (clip == null)
             return;
+        /*
         int currentDeltaSamples = audioSource.timeSamples - lastTimeSamples;
         if (audioSource.timeSamples < lastTimeSamples)
             currentDeltaSamples = clip.samples - audioSource.timeSamples;
-        stopTime -= currentDeltaSamples;
-        if (stopTime <= 0)
+        */
+        stopTimer -= Time.deltaTime;
+        if (stopTimer <= 0)
+        {
             shouldStop = true;
+        }
         lastTimeSamples = audioSource.timeSamples;
 
         audioSource.GetSpectrumData(spectrum, 0, FFTWindow.Rectangular);
@@ -47,7 +52,7 @@ public class BufferAudioSource : MonoBehaviour
 
         if (shouldStop && audioSource.isPlaying)
         {
-            // audioSource.Stop();
+            audioSource.Stop();
         }
     }
 
@@ -56,7 +61,7 @@ public class BufferAudioSource : MonoBehaviour
         for (int i = 0; i < data.Length; i++)
         {
             data[i] = RingBuffer[PlaybackPosition];
-            RingBuffer[PlaybackPosition] = 0f;
+            // RingBuffer[PlaybackPosition] = 0f;
             PlaybackPosition = (PlaybackPosition + 1) % RingBuffer.Length;
         }
     }
@@ -65,12 +70,22 @@ public class BufferAudioSource : MonoBehaviour
     {
         if (RingBuffer == null)
             return;
+        shouldStop = false;
         stopTime += pcm.Length;
+        stopTimer += (float)pcm.Length / clip.frequency / clip.channels;
         for (int i = 0; i < pcm.Length; i++)
         {
             RingBuffer[RingBufferPosition] = pcm[i];
             RingBufferPosition = (RingBufferPosition + 1) % RingBuffer.Length;
         }
+    }
+
+    public void Stop()
+    {
+        shouldStop = true;
+        audioSource.Stop();
+        RingBufferPosition = 0;
+        PlaybackPosition = 0;
     }
 
     public void AddQueue(float[] pcm, int channels, int frequency)
@@ -81,37 +96,26 @@ public class BufferAudioSource : MonoBehaviour
             maxEmptyReads = (int)(frequency * channels * bufferDelay);
             newClip = true;
         }
+        if (shouldStop && !audioSource.isPlaying)
+        {
+            newClip = true;
+        }
         AddRingBuffer(pcm);
         if (newClip)
         {
+            Debug.Log("New clip");
             shouldStop = false;
             RingBuffer = new float[maxEmptyReads];
             clip = AudioClip.Create("BufferAudio", RingBuffer.Length, channels, frequency, true, PcmCallback);
             audioSource.clip = clip;
             audioSource.loop = true;
             audioSource.Stop();
-            RingBufferPosition = maxEmptyReads / 2;
+            RingBufferPosition = 0;
             PlaybackPosition = 0;
             stopTime = RingBufferPosition + pcm.Length;
+            stopTimer = bufferDelay * 2f;
             AddRingBuffer(pcm);
-            // clip.SetData(RingBuffer, 0);
             audioSource.Play();
-            AudioConfiguration conf = AudioSettings.GetConfiguration();
-            // audioSource.PlayDelayed((float)conf.dspBufferSize / conf.sampleRate);
-        }
-        if (shouldStop && !audioSource.isPlaying)
-        {
-            shouldStop = false;
-            RingBuffer = new float[clip.samples];
-            audioSource.Stop();
-            RingBufferPosition = maxEmptyReads / 2;
-            PlaybackPosition = 0;
-            stopTime = RingBufferPosition + pcm.Length;
-            AddRingBuffer(pcm);
-            // clip.SetData(RingBuffer, 0);
-            audioSource.Play();
-            AudioConfiguration conf = AudioSettings.GetConfiguration();
-            // audioSource.PlayDelayed((float)conf.dspBufferSize / conf.sampleRate);
         }
     }
 }
