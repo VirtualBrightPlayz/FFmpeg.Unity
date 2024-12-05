@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Runtime.InteropServices;
+using System.Threading;
 using UnityEngine;
 
 namespace FFmpeg.Unity
@@ -11,6 +12,7 @@ namespace FFmpeg.Unity
         public BufferAudioSource source;
         private AudioClip clip;
         private int channels;
+        private int frequency;
         private AVSampleFormat sampleFormat;
         private List<float> pcm = new List<float>();
 
@@ -18,6 +20,7 @@ namespace FFmpeg.Unity
         {
             this.channels = channels;
             this.sampleFormat = sampleFormat;
+            this.frequency = frequency;
             Debug.Log($"Freq={frequency}");
             clip = AudioClip.Create("BufferAudio", frequency * channels, channels, frequency, false);
         }
@@ -71,7 +74,7 @@ namespace FFmpeg.Unity
                 }
                 break;
             }
-            source.AddQueue(pcm.ToArray(), 1, clip.frequency);
+            source.AddQueue(pcm.ToArray(), 1, frequency);
         }
     }
 }

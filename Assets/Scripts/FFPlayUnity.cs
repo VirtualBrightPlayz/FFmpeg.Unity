@@ -1,5 +1,6 @@
 using System;
 using System.IO;
+using System.Threading;
 using UnityEngine;
 
 namespace FFmpeg.Unity
@@ -8,6 +9,8 @@ namespace FFmpeg.Unity
     {
         public FFTimings videoTimings;
         public FFTimings audioTimings;
+
+        private Thread thread;
 
         public event Action OnEndReached;
         public event Action OnVideoEndReached;
@@ -23,12 +26,18 @@ namespace FFmpeg.Unity
         private double timeOffset = 0d;
         private double pauseTime = 0d;
 
+        public bool IsPlaying { get; private set; } = false;
+        public bool IsStream { get; private set; } = false;
+
         public bool IsPaused { get; private set; } = false;
 
-        public double PlaybackTime => IsPaused ? pauseTime : Time.timeAsDouble - timeOffset;
+        // public double timeAsDouble => Time.timeAsDouble;
+        public double timeAsDouble { get; private set; }
 
-        public double VideoTime => Time.timeAsDouble - timeOffset + videoOffset;
-        public double AudioTime => Time.timeAsDouble - timeOffset + audioOffset;
+        public double PlaybackTime => IsPaused ? pauseTime : timeAsDouble - timeOffset;
+
+        public double VideoTime => timeAsDouble - timeOffset + videoOffset;
+        public double AudioTime => timeAsDouble - timeOffset + audioOffset;
 
         public void Play(string url)
         {
@@ -37,7 +46,9 @@ namespace FFmpeg.Unity
 
         public void Play(Stream streamV, Stream streamA)
         {
-            Resume();
+            IsPlaying = false;
+            StopThread();
+            OnDestroy();
             videoTimings = new FFTimings(streamV, AVMediaType.AVMEDIA_TYPE_VIDEO);
             audioTimings = new FFTimings(streamA, AVMediaType.AVMEDIA_TYPE_AUDIO);
             Init();
@@ -45,7 +56,9 @@ namespace FFmpeg.Unity
 
         public void Play(string urlV, string urlA)
         {
-            Resume();
+            IsPlaying = false;
+            StopThread();
+            OnDestroy();
             videoTimings = new FFTimings(urlV, AVMediaType.AVMEDIA_TYPE_VIDEO);
             audioTimings = new FFTimings(urlA, AVMediaType.AVMEDIA_TYPE_AUDIO);
             Init();
@@ -56,19 +69,34 @@ namespace FFmpeg.Unity
             if (audioTimings.IsInputValid)
                 audioPlayer.Init(audioTimings.decoder.SampleRate, audioTimings.decoder.Channels, audioTimings.decoder.SampleFormat);
             if (videoTimings.IsInputValid)
-                timeOffset = Time.timeAsDouble - videoTimings.StartTime;
+            {
+                timeOffset = timeAsDouble - videoTimings.StartTime;
+                IsStream = Math.Abs(videoTimings.StartTime) > 5d;
+            }
             else
-                timeOffset = Time.timeAsDouble;
+                timeOffset = timeAsDouble;
             if (!videoTimings.IsInputValid && !audioTimings.IsInputValid)
             {
+                IsPaused = true;
+                StopThread();
                 Debug.LogError("AV not found");
+                IsPlaying = false;
                 OnError?.Invoke();
+            }
+            else
+            {
+                audioPlayer.Resume();
+                RunThread();
+                IsPlaying = true;
             }
         }
 
         public void Seek(double timestamp)
         {
-            timeOffset = Time.timeAsDouble - timestamp;
+            if (IsStream)
+                return;
+            StopThread();
+            timeOffset = timeAsDouble - timestamp;
             pauseTime = timestamp;
             if (videoTimings != null)
             {
@@ -77,8 +105,10 @@ namespace FFmpeg.Unity
             if (audioTimings != null)
             {
                 audioTimings.Seek(AudioTime);
+                audioTimings.GetFrames();
                 audioPlayer.Seek();
             }
+            RunThread();
         }
 
         public double GetLength()
@@ -92,26 +122,39 @@ namespace FFmpeg.Unity
 
         public void Pause()
         {
+            if (IsPaused)
+                return;
             pauseTime = PlaybackTime;
             audioPlayer.Pause();
             IsPaused = true;
+            StopThread();
+            IsPlaying = false;
         }
 
         public void Resume()
         {
-            timeOffset = Time.timeAsDouble - pauseTime;
+            if (!IsPaused)
+                return;
+            StopThread();
+            timeOffset = timeAsDouble - pauseTime;
             audioPlayer.Resume();
             IsPaused = false;
+            RunThread();
+            IsPlaying = true;
         }
 
         private void Update()
         {
+            timeAsDouble = Time.timeAsDouble;
             if (!IsPaused)
             {
+                if (!thread.IsAlive && IsPlaying)
+                {
+                    // StopThread();
+                    // RunThread();
+                }
                 if (videoTimings != null)
                 {
-                    videoTimings.Update(VideoTime);
-                    texturePlayer.PlayPacket(videoTimings.GetCurrentFrame());
                     if (videoTimings.IsEndOfFile())
                     {
                         Pause();
@@ -121,8 +164,6 @@ namespace FFmpeg.Unity
                 }
                 if (audioTimings != null)
                 {
-                    audioTimings.Update(AudioTime);
-                    audioPlayer.PlayPackets(audioTimings.GetCurrentFrames());
                     if (audioTimings.IsEndOfFile())
                     {
                         Pause();
@@ -133,12 +174,72 @@ namespace FFmpeg.Unity
             }
         }
 
+        private void ThreadUpdate()
+        {
+            Debug.Log("ThreadUpdate Start");
+            while (!IsPaused)
+            {
+                Thread.Sleep(3);
+                try
+                {
+                    if (videoTimings != null)
+                    {
+                        videoTimings.Update(VideoTime);
+                        texturePlayer.PlayPacket(videoTimings.GetFrame());
+                    }
+                    if (audioTimings != null)
+                    {
+                        audioTimings.Update(AudioTime);
+                        audioPlayer.PlayPackets(audioTimings.GetFrames());
+                    }
+                }
+                catch (Exception e)
+                {
+                    Debug.LogException(e);
+                    break;
+                }
+            }
+            Debug.Log("ThreadUpdate Done");
+        }
+
         private void OnDestroy()
         {
             videoTimings?.Dispose();
             videoTimings = null;
             audioTimings?.Dispose();
             audioTimings = null;
+        }
+
+        private void RunThread()
+        {
+            if (thread.IsAlive)
+                throw new Exception();
+            // if (thread.IsAlive() && thread.IsStarted())
+                // StopThread();
+            IsPaused = false;
+            thread = new Thread(ThreadUpdate);
+            thread.Start();
+        }
+
+        private void StopThread()
+        {
+            bool paused = IsPaused;
+            IsPaused = true;
+            if (thread.IsAlive)
+                thread.Join();
+            IsPaused = paused;
+        }
+
+        public void OnEnable()
+        {
+            thread = new Thread(ThreadUpdate);
+        }
+
+        public void OnDisable()
+        {
+            IsPaused = true;
+            StopThread();
+            OnDestroy();
         }
     }
 }

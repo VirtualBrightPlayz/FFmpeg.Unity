@@ -104,6 +104,16 @@ namespace FFmpeg.Unity
                 {
                     format = -1
                 };
+            return currentFrame;
+        }
+
+        public AVFrame GetFrame()
+        {
+            if (!IsInputValid)
+                return new AVFrame()
+                {
+                    format = -1
+                };
             while (pts >= currentPacket.dts || currentPacket.dts == ffmpeg.AV_NOPTS_VALUE)
             {
                 if (context.NextFrame(out AVPacket packet))
@@ -121,7 +131,7 @@ namespace FFmpeg.Unity
             return currentFrame;
         }
 
-        public List<AVFrame> GetCurrentFrames()
+        public List<AVFrame> GetFrames()
         {
             if (!IsInputValid)
                 return new List<AVFrame>();

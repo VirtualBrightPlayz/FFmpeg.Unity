@@ -1,4 +1,6 @@
 using System;
+using System.Collections.Generic;
+using System.Threading;
 using UnityEngine;
 
 [RequireComponent(typeof(AudioSource))]
@@ -20,6 +22,11 @@ public class BufferAudioSource : MonoBehaviour
 
     private float[] spectrum = new float[1024];
 
+    private Mutex queueMutex = new Mutex();
+    private Queue<KeyValuePair<Delegate, object[]>> actionQueue = new Queue<KeyValuePair<Delegate, object[]>>();
+    private int clipchannels;
+    private int clipfrequency;
+
     private void Awake()
     {
         audioSource = GetComponent<AudioSource>();
@@ -27,6 +34,21 @@ public class BufferAudioSource : MonoBehaviour
 
     private void Update()
     {
+        if (queueMutex.WaitOne(0))
+        {
+            try
+            {
+                while (actionQueue.TryDequeue(out var result))
+                {
+                    result.Key.DynamicInvoke(result.Value);
+                }
+            }
+            finally
+            {
+                queueMutex.ReleaseMutex();
+            }
+        }
+
         if (clip == null)
             return;
         /*
@@ -68,11 +90,11 @@ public class BufferAudioSource : MonoBehaviour
 
     private void AddRingBuffer(float[] pcm)
     {
-        if (RingBuffer == null)
+        if (RingBuffer == null || clipchannels == 0 || clipfrequency == 0)
             return;
         shouldStop = false;
         stopTime += pcm.Length;
-        stopTimer += (float)pcm.Length / clip.frequency / clip.channels;
+        stopTimer += (float)pcm.Length / clipfrequency / clipchannels;
         for (int i = 0; i < pcm.Length; i++)
         {
             RingBuffer[RingBufferPosition] = pcm[i];
@@ -88,34 +110,62 @@ public class BufferAudioSource : MonoBehaviour
         PlaybackPosition = 0;
     }
 
-    public void AddQueue(float[] pcm, int channels, int frequency)
+    public void RunOnMain(Delegate method, params object[] args)
+    {
+        if (queueMutex.WaitOne())
+        {
+            try
+            {
+                actionQueue.Enqueue(new KeyValuePair<Delegate, object[]>(method, args));
+            }
+            finally
+            {
+                queueMutex.ReleaseMutex();
+            }
+        }
+    }
+
+    private void TryCreateNewClip(float[] pcm, int channels, int frequency, bool newClip2)
     {
         bool newClip = false;
-        if (clip == null || clip.channels != channels || clip.frequency != frequency)
+        if (clip == null || clipchannels != channels || clipfrequency != frequency)
         {
             maxEmptyReads = (int)(frequency * channels * bufferDelay);
             newClip = true;
         }
-        if (shouldStop && !audioSource.isPlaying)
+        AddRingBuffer(pcm);
+        if (/*shouldStop &&*/ !audioSource.isPlaying)
         {
             newClip = true;
         }
+        if (!newClip)
+            return;
+        Debug.Log("New clip");
+        shouldStop = false;
+        clipchannels = channels;
+        clipfrequency = frequency;
+        RingBuffer = new float[maxEmptyReads];
+        clip = AudioClip.Create("BufferAudio", RingBuffer.Length, channels, frequency, true, PcmCallback);
+        audioSource.clip = clip;
+        audioSource.loop = true;
+        audioSource.Stop();
+        RingBufferPosition = 0;
+        PlaybackPosition = 0;
+        stopTime = RingBufferPosition + pcm.Length;
+        stopTimer = bufferDelay * 2f;
         AddRingBuffer(pcm);
-        if (newClip)
+        audioSource.Play();
+    }
+
+    public void AddQueue(float[] pcm, int channels, int frequency)
+    {
+        bool newClip = false;
+        /*if (clip == null || clipchannels != channels || clipfrequency != frequency)
         {
-            Debug.Log("New clip");
-            shouldStop = false;
-            RingBuffer = new float[maxEmptyReads];
-            clip = AudioClip.Create("BufferAudio", RingBuffer.Length, channels, frequency, true, PcmCallback);
-            audioSource.clip = clip;
-            audioSource.loop = true;
-            audioSource.Stop();
-            RingBufferPosition = 0;
-            PlaybackPosition = 0;
-            stopTime = RingBufferPosition + pcm.Length;
-            stopTimer = bufferDelay * 2f;
-            AddRingBuffer(pcm);
-            audioSource.Play();
+            maxEmptyReads = (int)(frequency * channels * bufferDelay);
+            newClip = true;
         }
+        AddRingBuffer(pcm);*/
+        RunOnMain(new Action<float[], int, int, bool>(TryCreateNewClip), pcm, channels, frequency, newClip);
     }
 }

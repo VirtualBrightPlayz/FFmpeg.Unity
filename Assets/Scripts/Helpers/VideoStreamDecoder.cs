@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.IO;
 using System.Runtime.InteropServices;
+using UnityEngine;
 
 namespace FFmpeg.Unity.Helpers
 {
@@ -39,19 +40,19 @@ namespace FFmpeg.Unity.Helpers
                     // UnityEngine.Debug.Log($"HW at index {i} ({codecHWConfig->device_type}) {codecHWConfig->methods}");
                     if (codecHWConfig == null)
                     {
-                        UnityEngine.Debug.LogError("No HW decoder found.");
+                        Debug.LogError("No HW decoder found.");
                         HWDeviceType = AVHWDeviceType.AV_HWDEVICE_TYPE_NONE;
                         break;
                     }
                     else if ((codecHWConfig->methods & 1) == 0 || codecHWConfig->device_type != HWDeviceType)
                     {
-                        UnityEngine.Debug.LogWarning($"HW at index {i} ({codecHWConfig->device_type}) not support/selected.");
+                        Debug.Log($"HW at index {i} ({codecHWConfig->device_type}) not support/selected.");
                         continue;
                     }
                     else
                     {
                         HWPixelFormat = codecHWConfig->pix_fmt;
-                        UnityEngine.Debug.Log($"HW at index {i} ({codecHWConfig->device_type}) format {HWPixelFormat} selected.");
+                        Debug.Log($"HW at index {i} ({codecHWConfig->device_type}) format {HWPixelFormat} selected.");
                         break;
                     }
                 }
@@ -152,9 +153,16 @@ namespace FFmpeg.Unity.Helpers
             }
             ffmpeg.av_frame_unref(_pFrame);
             ffmpeg.av_frame_unref(_receivedFrame);
-            ffmpeg.avcodec_send_packet(_pCodecContext, _ctx._pPacket).ThrowExceptionIfError();
-            int error = ffmpeg.avcodec_receive_frame(_pCodecContext, _pFrame);
-            if (error == ffmpeg.AVERROR(ffmpeg.EAGAIN))
+            int error;
+            int error2;
+            do
+            {
+                error = ffmpeg.avcodec_send_packet(_pCodecContext, _ctx._pPacket);
+                error2 = ffmpeg.avcodec_receive_frame(_pCodecContext, _pFrame);
+            }
+            while (error == ffmpeg.AVERROR(ffmpeg.EAGAIN));
+            error.ThrowExceptionIfError();
+            if (error2 == ffmpeg.AVERROR(ffmpeg.EAGAIN))
             {
                 frame = new AVFrame()
                 {
@@ -162,7 +170,7 @@ namespace FFmpeg.Unity.Helpers
                 };
                 return 1;
             }
-            error.ThrowExceptionIfError();
+            error2.ThrowExceptionIfError();
 
             if (_pCodecContext->hw_device_ctx != null)
             {
