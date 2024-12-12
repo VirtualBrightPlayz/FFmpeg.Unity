@@ -64,7 +64,8 @@ namespace FFmpeg.Unity
                 image = new Texture2D(16, 16, TextureFormat.RGB24, false);
             if (image.width != framewidth || image.height != frameheight)
                 image.Reinitialize(framewidth, frameheight);
-            image.SetPixelData(data, 0);
+            var arr = image.GetRawTextureData<byte>();
+            arr.CopyFrom(data);
             image.Apply(false);
         }
 

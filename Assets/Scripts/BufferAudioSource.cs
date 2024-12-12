@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Threading;
 using UnityEngine;
@@ -6,6 +7,13 @@ using UnityEngine;
 [RequireComponent(typeof(AudioSource))]
 public class BufferAudioSource : MonoBehaviour
 {
+    public struct BufferValue
+    {
+        public float[] pcm;
+        public int channels;
+        public int frequency;
+    }
+
     private float[] RingBuffer = null;
     private int RingBufferPosition = 0;
     private int PlaybackPosition = 0;
@@ -22,8 +30,9 @@ public class BufferAudioSource : MonoBehaviour
 
     private float[] spectrum = new float[1024];
 
-    private Mutex queueMutex = new Mutex();
-    private Queue<KeyValuePair<Delegate, object[]>> actionQueue = new Queue<KeyValuePair<Delegate, object[]>>();
+    // private Mutex queueMutex = new Mutex();
+    private ConcurrentQueue<KeyValuePair<Delegate, object[]>> actionQueue = new ConcurrentQueue<KeyValuePair<Delegate, object[]>>();
+    private ConcurrentQueue<BufferValue> bufferQueue = new ConcurrentQueue<BufferValue>();
     private int clipchannels;
     private int clipfrequency;
 
@@ -34,7 +43,11 @@ public class BufferAudioSource : MonoBehaviour
 
     private void Update()
     {
-        if (queueMutex.WaitOne(0))
+        while (bufferQueue.TryDequeue(out var result))
+        {
+            TryCreateNewClip(result.pcm, result.channels, result.frequency, false);
+        }
+        // if (queueMutex.WaitOne(0))
         {
             try
             {
@@ -45,7 +58,7 @@ public class BufferAudioSource : MonoBehaviour
             }
             finally
             {
-                queueMutex.ReleaseMutex();
+                // queueMutex.ReleaseMutex();
             }
         }
 
@@ -62,15 +75,6 @@ public class BufferAudioSource : MonoBehaviour
             shouldStop = true;
         }
         lastTimeSamples = audioSource.timeSamples;
-
-        audioSource.GetSpectrumData(spectrum, 0, FFTWindow.Rectangular);
-        for (int i = 1; i < spectrum.Length - 1; i++)
-        {
-            Debug.DrawLine(new Vector3(i - 1, spectrum[i] + 10, 0), new Vector3(i, spectrum[i + 1] + 10, 0), Color.red);
-            Debug.DrawLine(new Vector3(i - 1, Mathf.Log(spectrum[i - 1]) + 10, 2), new Vector3(i, Mathf.Log(spectrum[i]) + 10, 2), Color.cyan);
-            Debug.DrawLine(new Vector3(Mathf.Log(i - 1), spectrum[i - 1] - 10, 1), new Vector3(Mathf.Log(i), spectrum[i] - 10, 1), Color.green);
-            Debug.DrawLine(new Vector3(Mathf.Log(i - 1), Mathf.Log(spectrum[i - 1]), 3), new Vector3(Mathf.Log(i), Mathf.Log(spectrum[i]), 3), Color.blue);
-        }
 
         if (shouldStop && audioSource.isPlaying)
         {
@@ -112,7 +116,7 @@ public class BufferAudioSource : MonoBehaviour
 
     public void RunOnMain(Delegate method, params object[] args)
     {
-        if (queueMutex.WaitOne())
+        // if (queueMutex.WaitOne())
         {
             try
             {
@@ -120,9 +124,19 @@ public class BufferAudioSource : MonoBehaviour
             }
             finally
             {
-                queueMutex.ReleaseMutex();
+                // queueMutex.ReleaseMutex();
             }
         }
+    }
+
+    private void RunOnMain2(float[] pcm, int channels, int frequency)
+    {
+        bufferQueue.Enqueue(new BufferValue()
+        {
+            pcm = pcm,
+            channels = channels,
+            frequency = frequency,
+        });
     }
 
     private void TryCreateNewClip(float[] pcm, int channels, int frequency, bool newClip2)
@@ -166,6 +180,7 @@ public class BufferAudioSource : MonoBehaviour
             newClip = true;
         }
         AddRingBuffer(pcm);*/
-        RunOnMain(new Action<float[], int, int, bool>(TryCreateNewClip), pcm, channels, frequency, newClip);
+        // RunOnMain(new Action<float[], int, int, bool>(TryCreateNewClip), pcm, channels, frequency, newClip);
+        RunOnMain2(pcm, channels, frequency);
     }
 }
