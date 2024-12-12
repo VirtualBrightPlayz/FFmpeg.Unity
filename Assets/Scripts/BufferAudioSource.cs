@@ -30,8 +30,6 @@ public class BufferAudioSource : MonoBehaviour
 
     private float[] spectrum = new float[1024];
 
-    // private Mutex queueMutex = new Mutex();
-    private ConcurrentQueue<KeyValuePair<Delegate, object[]>> actionQueue = new ConcurrentQueue<KeyValuePair<Delegate, object[]>>();
     private ConcurrentQueue<BufferValue> bufferQueue = new ConcurrentQueue<BufferValue>();
     private int clipchannels;
     private int clipfrequency;
@@ -46,20 +44,6 @@ public class BufferAudioSource : MonoBehaviour
         while (bufferQueue.TryDequeue(out var result))
         {
             TryCreateNewClip(result.pcm, result.channels, result.frequency, false);
-        }
-        // if (queueMutex.WaitOne(0))
-        {
-            try
-            {
-                while (actionQueue.TryDequeue(out var result))
-                {
-                    result.Key.DynamicInvoke(result.Value);
-                }
-            }
-            finally
-            {
-                // queueMutex.ReleaseMutex();
-            }
         }
 
         if (clip == null)
@@ -114,22 +98,7 @@ public class BufferAudioSource : MonoBehaviour
         PlaybackPosition = 0;
     }
 
-    public void RunOnMain(Delegate method, params object[] args)
-    {
-        // if (queueMutex.WaitOne())
-        {
-            try
-            {
-                actionQueue.Enqueue(new KeyValuePair<Delegate, object[]>(method, args));
-            }
-            finally
-            {
-                // queueMutex.ReleaseMutex();
-            }
-        }
-    }
-
-    private void RunOnMain2(float[] pcm, int channels, int frequency)
+    private void RunOnMain(float[] pcm, int channels, int frequency)
     {
         bufferQueue.Enqueue(new BufferValue()
         {
@@ -166,7 +135,7 @@ public class BufferAudioSource : MonoBehaviour
         RingBufferPosition = 0;
         PlaybackPosition = 0;
         stopTime = RingBufferPosition + pcm.Length;
-        stopTimer = bufferDelay * 2f;
+        stopTimer = bufferDelay;
         AddRingBuffer(pcm);
         audioSource.Play();
     }
@@ -181,6 +150,6 @@ public class BufferAudioSource : MonoBehaviour
         }
         AddRingBuffer(pcm);*/
         // RunOnMain(new Action<float[], int, int, bool>(TryCreateNewClip), pcm, channels, frequency, newClip);
-        RunOnMain2(pcm, channels, frequency);
+        RunOnMain(pcm, channels, frequency);
     }
 }

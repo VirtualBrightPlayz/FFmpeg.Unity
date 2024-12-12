@@ -76,6 +76,17 @@ namespace FFmpeg.Unity
             if (!IsInputValid)
                 return;
             context.Seek(decoder, timestamp);
+            if (context.NextFrame(out AVPacket packet))
+            {
+                AVFrame frame = DecodeFrame();
+                if (frame.format != -1)
+                {
+                    currentPacket = packet;
+                    currentFrame = frame;
+                    pts = currentPacket.dts;
+                    return;
+                }
+            }
             Update(timestamp);
             currentPacket = default;
         }
@@ -131,17 +142,18 @@ namespace FFmpeg.Unity
             return currentFrame;
         }
 
-        public List<AVFrame> GetFrames()
+        public List<AVFrame> GetFrames(double maxDelta)
         {
             if (!IsInputValid)
                 return new List<AVFrame>();
+            long ptsDelta = (long)(Math.Max(double.Epsilon, maxDelta) / timeBaseSeconds);
             List<AVFrame> frames = new List<AVFrame>();
             while (pts >= currentPacket.dts || currentPacket.dts == ffmpeg.AV_NOPTS_VALUE)
             {
                 if (context.NextFrame(out AVPacket packet))
                 {
                     AVFrame frame = DecodeFrame();
-                    if (frame.format != -1)
+                    if (frame.format != -1 && Math.Abs(pts - packet.dts) <= ptsDelta)
                     {
                         currentPacket = packet;
                         currentFrame = frame;

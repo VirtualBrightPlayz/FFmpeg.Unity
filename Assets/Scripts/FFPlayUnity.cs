@@ -105,7 +105,7 @@ namespace FFmpeg.Unity
             if (audioTimings != null)
             {
                 audioTimings.Seek(AudioTime);
-                audioTimings.GetFrames();
+                audioTimings.GetFrames(10d);
                 audioPlayer.Seek();
             }
             RunThread();
@@ -190,7 +190,7 @@ namespace FFmpeg.Unity
                     if (audioTimings != null)
                     {
                         audioTimings.Update(AudioTime);
-                        audioPlayer.PlayPackets(audioTimings.GetFrames());
+                        audioPlayer.PlayPackets(audioTimings.GetFrames(audioPlayer.source.bufferDelay));
                     }
                 }
                 catch (Exception e)
