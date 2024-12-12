@@ -115,25 +115,30 @@ public class FFTest2 : MonoBehaviour
             return;
         }
 
-#if false
+#if true
+        Debug.Log("Start");
         var ytdlPath = Path.Combine(Application.streamingAssetsPath, "yt-dlp.exe");
+        await Utils.DownloadYtDlp(Application.streamingAssetsPath);
         var ytdl = new YoutubeDL();
         ytdl.YoutubeDLPath = ytdlPath;
-        Debug.Log("Start");
+        ytdl.OutputFolder = Application.streamingAssetsPath;
         var res = await ytdl.RunVideoDataFetch(contentUrl);
-        Debug.Log("Done");
-        // File.WriteAllText("test.txt", JsonSerializer.Serialize(res.Data));
-        if (string.IsNullOrEmpty(res.Data.Url))
+        if (res.Success)
         {
-            string[] formats = res.Data.FormatID.Split('+');
-            var video = res.Data.Formats.FirstOrDefault(x => x.FormatId == formats[0]);
-            var audio = res.Data.Formats.FirstOrDefault(x => x.FormatId == formats[1]);
-            ffmpeg.Play(video.Url, audio.Url);
+            if (string.IsNullOrEmpty(res.Data.Url))
+            {
+                var video = await ytdl.RunVideoDownload(contentUrl, "bestvideo[height<=?1080]/best");
+                var audio = await ytdl.RunAudioDownload(contentUrl);
+                ffmpeg.Play(video.Data, audio.Data);
+            }
+            else
+            {
+                ffmpeg.Play(res.Data.Url);
+            }
         }
         else
-        {
-            ffmpeg.Play(res.Data.Url);
-        }
+            ffmpeg.Play(contentUrl);
+        Debug.Log("Done");
 #else
         // ffmpeg.CanSeek = false;
         var yt = new YoutubeClient();
