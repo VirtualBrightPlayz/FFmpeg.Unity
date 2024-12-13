@@ -74,10 +74,6 @@ namespace FFmpeg.Unity
             context.Seek(decoder, timestamp);
             if (context.NextFrame(out AVPacket packet))
             {
-                currentPacket = packet;
-                currentFrame = default;
-                pts = currentPacket.dts;
-                return;
                 AVFrame frame = DecodeFrame();
                 if (frame.format != -1)
                 {
