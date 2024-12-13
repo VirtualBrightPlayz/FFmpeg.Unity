@@ -246,7 +246,8 @@ namespace FFmpeg.Unity.Helpers
                     return false;
                 }
                 error.ThrowExceptionIfError();
-            } while (error == ffmpeg.AVERROR(ffmpeg.EAGAIN));
+            }
+            while (error == ffmpeg.AVERROR(ffmpeg.EAGAIN));
             packet = *_pPacket;
             EndReached = false;
             return true;

@@ -185,12 +185,12 @@ namespace FFmpeg.Unity
                     if (videoTimings != null)
                     {
                         videoTimings.Update(VideoTime);
-                        texturePlayer.PlayPacket(videoTimings.GetFrame());
+                        texturePlayer.PlayPacket(videoTimings.GetFrame(250));
                     }
                     if (audioTimings != null)
                     {
                         audioTimings.Update(AudioTime);
-                        audioPlayer.PlayPackets(audioTimings.GetFrames(audioPlayer.source.bufferDelay));
+                        audioPlayer.PlayPackets(audioTimings.GetFrames(audioPlayer.source.bufferDelay, 500));
                     }
                 }
                 catch (Exception e)
