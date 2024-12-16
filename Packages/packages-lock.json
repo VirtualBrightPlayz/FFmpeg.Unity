@@ -162,7 +162,7 @@
       },
       "url": "https://packages.unity.com"
     },
-    "com.virtualplayz.ffmpegunity": {
+    "net.virtualwebsite.ffmpegunity": {
       "version": "file:FFmpeg.Unity",
       "depth": 0,
       "source": "embedded",
