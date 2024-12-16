@@ -38,7 +38,7 @@ RenderSettings:
   m_ReflectionIntensity: 1
   m_CustomReflection: {fileID: 0}
   m_Sun: {fileID: 705507994}
-  m_IndirectSpecularColor: {r: 0.18028352, g: 0.22571376, b: 0.3069224, a: 1}
+  m_IndirectSpecularColor: {r: 0.18028378, g: 0.22571412, b: 0.30692285, a: 1}
   m_UseRadianceAmbientProbe: 0
 --- !u!157 &3
 LightmapSettings:
@@ -129,8 +129,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 371282585}
-  - component: {fileID: 371282588}
-  - component: {fileID: 371282587}
   - component: {fileID: 371282584}
   - component: {fileID: 371282583}
   - component: {fileID: 371282586}
@@ -302,44 +300,6 @@ AudioSource:
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
---- !u!114 &371282587
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 371282581}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 2b4072dd8c68c4e4e8c0fd42a77a6774, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  renderMesh: {fileID: 371282583}
-  source: {fileID: 371282586}
-  materialIndex: -1
-  _paused: 0
-  _offset: 0
-  timer: 0
-  _videoTimeBuffer: 0.25
-  _videoSkipBuffer: 0.2
-  _audioTimeBuffer: 0.25
-  _audioSkipBuffer: 0.2
-  _hwType: 7
---- !u!114 &371282588
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 371282581}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 453036e66d6ce914dbbfcee2983886af, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  ffmpeg: {fileID: 371282587}
-  contentUrl: 
-  stream: 0
 --- !u!1 &705507993
 GameObject:
   m_ObjectHideFlags: 0
@@ -535,8 +495,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1029918182}
-  - component: {fileID: 1029918181}
-  - component: {fileID: 1029918180}
   - component: {fileID: 1029918179}
   - component: {fileID: 1029918178}
   - component: {fileID: 1029918177}
@@ -693,44 +651,6 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1029918176}
   m_Mesh: {fileID: 10209, guid: 0000000000000000e000000000000000, type: 0}
---- !u!114 &1029918180
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1029918176}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 2b4072dd8c68c4e4e8c0fd42a77a6774, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  renderMesh: {fileID: 1029918178}
-  source: {fileID: 1029918177}
-  materialIndex: -1
-  _paused: 0
-  _offset: 0
-  timer: 0
-  _videoTimeBuffer: 0.25
-  _videoSkipBuffer: 0.2
-  _audioTimeBuffer: 0.25
-  _audioSkipBuffer: 0.2
-  _hwType: 7
---- !u!114 &1029918181
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1029918176}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 453036e66d6ce914dbbfcee2983886af, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  ffmpeg: {fileID: 1029918180}
-  contentUrl: 
-  stream: 0
 --- !u!4 &1029918182
 Transform:
   m_ObjectHideFlags: 0
