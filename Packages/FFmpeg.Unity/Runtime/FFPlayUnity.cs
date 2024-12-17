@@ -12,10 +12,21 @@ namespace FFmpeg.Unity
 
         private Thread thread;
 
-        public event Action OnEndReached;
-        public event Action OnVideoEndReached;
-        public event Action OnAudioEndReached;
-        public event Action OnError;
+        public delegate void OnEndReachedDelegate();
+
+        public delegate void OnVideoEndReachedDelegate();
+
+        public delegate void OnAudioEndReachedDelegate();
+
+        public delegate void OnErrorDelegate();
+
+        public delegate void OnMediaReadyDelegate();
+
+        public OnEndReachedDelegate OnEndReached;
+        public OnVideoEndReachedDelegate OnVideoEndReached;
+        public OnAudioEndReachedDelegate OnAudioEndReached;
+        public OnErrorDelegate OnError;
+        public OnMediaReadyDelegate OnMediaReady;
 
         public double videoOffset = 0d;
         public double audioOffset = 0d;
@@ -85,6 +96,7 @@ namespace FFmpeg.Unity
             }
             else
             {
+                OnMediaReady?.Invoke();
                 audioPlayer.Resume();
                 RunThread();
                 IsPlaying = true;
@@ -187,10 +199,11 @@ namespace FFmpeg.Unity
                         videoTimings.Update(VideoTime);
                         texturePlayer.PlayPacket(videoTimings.GetFrame(250));
                     }
+
                     if (audioTimings != null)
                     {
                         audioTimings.Update(AudioTime);
-                        audioPlayer.PlayPackets(audioTimings.GetFrames(audioPlayer.source.bufferDelay, 500));
+                        audioPlayer.PlayPackets(audioTimings.GetFrames(audioPlayer.bufferDelay, 500));
                     }
                 }
                 catch (Exception e)
@@ -199,6 +212,7 @@ namespace FFmpeg.Unity
                     break;
                 }
             }
+
             Debug.Log("ThreadUpdate Done");
         }
 

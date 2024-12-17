@@ -24,9 +24,11 @@ public class BufferAudioSource : MonoBehaviour
     private int lastTimeSamples = 0;
     private int maxEmptyReads = 0;
     private AudioClip clip = null;
-    [HideInInspector]
-    public AudioSource audioSource;
-    public float bufferDelay = 1f;
+    public FFmpeg.Unity.FFAudioPlayer audioPlayer;
+    [HideInInspector] public AudioSource audioSource;
+
+    [SerializeField] private bool lockVolume;
+    [SerializeField] private bool volumeControlsMute;
 
     private float[] spectrum = new float[1024];
 
@@ -37,6 +39,41 @@ public class BufferAudioSource : MonoBehaviour
     private void Awake()
     {
         audioSource = GetComponent<AudioSource>();
+        audioPlayer.OnPause += Pause;
+        audioPlayer.OnResume += Resume;
+        audioPlayer.OnSeek += Seek;
+        audioPlayer.OnVolumeChange += SetVolume;
+        audioPlayer.AddQueue += AddQueue;
+    }
+
+    private void OnDestroy()
+    {
+        audioPlayer.OnPause -= Pause;
+        audioPlayer.OnResume -= Resume;
+        audioPlayer.OnSeek -= Seek;
+        audioPlayer.OnVolumeChange -= SetVolume;
+        audioPlayer.AddQueue -= AddQueue;
+    }
+
+    public void Pause()
+    {
+        audioSource.Pause();
+    }
+
+    public void Resume()
+    {
+        audioSource.UnPause();
+    }
+
+    public void Seek()
+    {
+        Stop();
+    }
+
+    private void SetVolume(float volume)
+    {
+        if (!lockVolume) audioSource.volume = volume;
+        if (volumeControlsMute) audioSource.mute = volume == 0;
     }
 
     private void Update()
@@ -113,7 +150,7 @@ public class BufferAudioSource : MonoBehaviour
         bool newClip = false;
         if (clip == null || clipchannels != channels || clipfrequency != frequency)
         {
-            maxEmptyReads = (int)(frequency * channels * bufferDelay);
+            maxEmptyReads = (int)(frequency * channels * audioPlayer.bufferDelay);
             newClip = true;
         }
         AddRingBuffer(pcm);
@@ -135,7 +172,7 @@ public class BufferAudioSource : MonoBehaviour
         RingBufferPosition = 0;
         PlaybackPosition = 0;
         stopTime = RingBufferPosition + pcm.Length;
-        stopTimer = bufferDelay;
+        stopTimer = audioPlayer.bufferDelay;
         AddRingBuffer(pcm);
         audioSource.Play();
     }
