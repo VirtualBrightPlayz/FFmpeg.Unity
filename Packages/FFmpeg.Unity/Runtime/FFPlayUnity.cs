@@ -22,11 +22,11 @@ namespace FFmpeg.Unity
 
         public delegate void OnMediaReadyDelegate();
 
-        public OnEndReachedDelegate OnEndReached;
-        public OnVideoEndReachedDelegate OnVideoEndReached;
-        public OnAudioEndReachedDelegate OnAudioEndReached;
-        public OnErrorDelegate OnError;
-        public OnMediaReadyDelegate OnMediaReady;
+        public event OnEndReachedDelegate OnEndReached;
+        public event OnVideoEndReachedDelegate OnVideoEndReached;
+        public event OnAudioEndReachedDelegate OnAudioEndReached;
+        public event OnErrorDelegate OnError;
+        public event OnMediaReadyDelegate OnMediaReady;
 
         public double videoOffset = 0d;
         public double audioOffset = 0d;
