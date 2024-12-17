@@ -18,11 +18,11 @@ namespace FFmpeg.Unity
 
         public delegate void AddQueueDelegate(float[] pcm, int channels, int frequency);
 
-        public OnResumeDelegate OnResume;
-        public OnPauseDelegate OnPause;
-        public OnSeekDelegate OnSeek;
-        public OnVolumeChangeDelegate OnVolumeChange;
-        public AddQueueDelegate AddQueue;
+        public event OnResumeDelegate OnResume;
+        public event OnPauseDelegate OnPause;
+        public event OnSeekDelegate OnSeek;
+        public event OnVolumeChangeDelegate OnVolumeChange;
+        public event AddQueueDelegate AddQueue;
 
         public long pts;
         public float bufferDelay = 1f;
@@ -30,7 +30,7 @@ namespace FFmpeg.Unity
         private int channels;
         private int frequency;
         private AVSampleFormat sampleFormat;
-        private List<float> pcm = new List<float>();
+        private readonly List<float> pcm = new List<float>();
 
         public void Init(int frequency, int channels, AVSampleFormat sampleFormat)
         {

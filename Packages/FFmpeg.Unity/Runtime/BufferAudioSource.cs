@@ -36,8 +36,13 @@ public class BufferAudioSource : MonoBehaviour
     private int clipchannels;
     private int clipfrequency;
 
-    private void Awake()
+    private void Start()
     {
+        if (!audioPlayer) audioPlayer = GetComponentInParent<FFmpeg.Unity.FFAudioPlayer>(true);
+        if (!audioPlayer)
+        {
+            Debug.LogWarning("No FFAudioPlayer found.");
+        }
         audioSource = GetComponent<AudioSource>();
         audioPlayer.OnPause += Pause;
         audioPlayer.OnResume += Resume;
