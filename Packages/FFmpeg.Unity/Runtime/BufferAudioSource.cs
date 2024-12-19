@@ -30,7 +30,7 @@ public class BufferAudioSource : MonoBehaviour
     [SerializeField] private bool lockVolume;
     [SerializeField] private bool volumeControlsMute;
 
-    private float[] spectrum = new float[1024];
+    public float bufferDelay = 0f;
 
     private ConcurrentQueue<BufferValue> bufferQueue = new ConcurrentQueue<BufferValue>();
     private int clipchannels;
@@ -90,15 +90,11 @@ public class BufferAudioSource : MonoBehaviour
 
         if (clip == null)
             return;
-        /*
-        int currentDeltaSamples = audioSource.timeSamples - lastTimeSamples;
-        if (audioSource.timeSamples < lastTimeSamples)
-            currentDeltaSamples = clip.samples - audioSource.timeSamples;
-        */
         stopTimer -= Time.deltaTime;
         if (stopTimer <= 0)
         {
             shouldStop = true;
+            stopTimer += audioPlayer.bufferSize;
         }
         lastTimeSamples = audioSource.timeSamples;
 
@@ -110,12 +106,14 @@ public class BufferAudioSource : MonoBehaviour
 
     private void PcmCallback(float[] data)
     {
+        int pos = PlaybackPosition;
         for (int i = 0; i < data.Length; i++)
         {
-            data[i] = RingBuffer[PlaybackPosition];
-            // RingBuffer[PlaybackPosition] = 0f;
-            PlaybackPosition = (PlaybackPosition + 1) % RingBuffer.Length;
+            data[i] = RingBuffer[pos];
+            RingBuffer[pos] = 0f;
+            pos = (pos + 1) % RingBuffer.Length;
         }
+        PlaybackPosition = pos;
     }
 
     private void AddRingBuffer(float[] pcm)
@@ -125,11 +123,13 @@ public class BufferAudioSource : MonoBehaviour
         shouldStop = false;
         stopTime += pcm.Length;
         stopTimer += (float)pcm.Length / clipfrequency / clipchannels;
+        int pos = RingBufferPosition;
         for (int i = 0; i < pcm.Length; i++)
         {
-            RingBuffer[RingBufferPosition] = pcm[i];
-            RingBufferPosition = (RingBufferPosition + 1) % RingBuffer.Length;
+            RingBuffer[pos] = pcm[i];
+            pos = (pos + 1) % RingBuffer.Length;
         }
+        RingBufferPosition = pos;
     }
 
     public void Stop()
@@ -150,16 +150,28 @@ public class BufferAudioSource : MonoBehaviour
         });
     }
 
-    private void TryCreateNewClip(float[] pcm, int channels, int frequency, bool newClip2)
+    private void TryCreateNewClip(float[] pcm, int channels, int frequency, bool thread)
     {
         bool newClip = false;
         if (clip == null || clipchannels != channels || clipfrequency != frequency)
         {
-            maxEmptyReads = (int)(frequency * channels * audioPlayer.bufferDelay);
+            maxEmptyReads = (int)(frequency * channels * audioPlayer.bufferSize);
             newClip = true;
         }
+        if (thread)
+        {
+            if (newClip)
+            {
+                RunOnMain(pcm, channels, frequency);
+            }
+            else
+            {
+                AddRingBuffer(pcm);
+            }
+            return;
+        }
         AddRingBuffer(pcm);
-        if (/*shouldStop &&*/ !audioSource.isPlaying)
+        if (!audioSource.isPlaying)
         {
             newClip = true;
         }
@@ -174,24 +186,17 @@ public class BufferAudioSource : MonoBehaviour
         audioSource.clip = clip;
         audioSource.loop = true;
         audioSource.Stop();
-        RingBufferPosition = 0;
+        RingBufferPosition = (int)(frequency * channels * bufferDelay);
         PlaybackPosition = 0;
         stopTime = RingBufferPosition + pcm.Length;
-        stopTimer = audioPlayer.bufferDelay;
+        stopTimer = audioPlayer.bufferSize;
         AddRingBuffer(pcm);
         audioSource.Play();
     }
 
     public void AddQueue(float[] pcm, int channels, int frequency)
     {
-        bool newClip = false;
-        /*if (clip == null || clipchannels != channels || clipfrequency != frequency)
-        {
-            maxEmptyReads = (int)(frequency * channels * bufferDelay);
-            newClip = true;
-        }
-        AddRingBuffer(pcm);*/
-        // RunOnMain(new Action<float[], int, int, bool>(TryCreateNewClip), pcm, channels, frequency, newClip);
         RunOnMain(pcm, channels, frequency);
+        // TryCreateNewClip(pcm, channels, frequency, true);
     }
 }

@@ -31,6 +31,8 @@ namespace FFmpeg.Unity
         public double videoOffset = 0d;
         public double audioOffset = 0d;
 
+        public double maxAudioDelta = 0.5d;
+
         public FFTexturePlayer texturePlayer;
         public FFAudioPlayer audioPlayer;
 
@@ -42,8 +44,8 @@ namespace FFmpeg.Unity
 
         public bool IsPaused { get; private set; } = false;
 
-        // public double timeAsDouble => Time.timeAsDouble;
-        public double timeAsDouble { get; private set; }
+        public double timeAsDouble => AudioSettings.dspTime;
+        // public double timeAsDouble { get; private set; }
 
         public double PlaybackTime => IsPaused ? pauseTime : timeAsDouble - timeOffset;
 
@@ -157,7 +159,7 @@ namespace FFmpeg.Unity
 
         private void Update()
         {
-            timeAsDouble = Time.timeAsDouble;
+            // timeAsDouble = Time.timeAsDouble;
             if (!IsPaused)
             {
                 if (!thread.IsAlive && IsPlaying)
@@ -203,7 +205,7 @@ namespace FFmpeg.Unity
                     if (audioTimings != null)
                     {
                         audioTimings.Update(AudioTime);
-                        audioPlayer.PlayPackets(audioTimings.GetFrames(audioPlayer.bufferDelay, 500));
+                        audioPlayer.PlayPackets(audioTimings.GetFrames(maxAudioDelta, 500));
                     }
                 }
                 catch (Exception e)

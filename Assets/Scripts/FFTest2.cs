@@ -7,8 +7,6 @@ using FFmpeg.Unity;
 using UnityEngine;
 using YoutubeDLSharp;
 using YoutubeDLSharp.Options;
-using YoutubeExplode;
-using YoutubeExplode.Exceptions;
 
 public class FFTest2 : MonoBehaviour
 {
@@ -115,7 +113,6 @@ public class FFTest2 : MonoBehaviour
             return;
         }
 
-#if true
         Debug.Log("Start");
         if (!Directory.Exists(Application.streamingAssetsPath))
             Directory.CreateDirectory(Application.streamingAssetsPath);
@@ -141,35 +138,5 @@ public class FFTest2 : MonoBehaviour
         else
             ffmpeg.Play(contentUrl);
         Debug.Log("Done");
-#else
-        // ffmpeg.CanSeek = false;
-        var yt = new YoutubeClient();
-        Debug.Log("Start");
-        try
-        {
-            var video = await yt.Videos.Streams.GetManifestAsync(contentUrl);
-            var ytVideoStream = video.GetVideoStreams().OrderByDescending(x => x.VideoResolution.Height /** x.VideoQuality.Framerate*/).FirstOrDefault(x => x.VideoResolution.Height <= 1080);
-            var ytAudioStream = video.GetAudioStreams()/*.OrderByDescending(x => x.Bitrate)*/.FirstOrDefault();
-            if (ytVideoStream == null && ytAudioStream == null)
-            {
-                // ffmpeg.CanSeek = !contentUrl.StartsWith("rtmp://");
-                ffmpeg.Play(contentUrl, contentUrl);
-                return;
-            }
-            // ffmpeg.CanSeek = true;
-            ffmpeg.Play(ytVideoStream.Url, ytAudioStream.Url);
-        }
-        catch (VideoUnplayableException)
-        {
-            var live = await yt.Videos.Streams.GetHttpLiveStreamUrlAsync(contentUrl);
-            // ffmpeg.CanSeek = false;
-            ffmpeg.Play(live, live);
-        }
-        catch (ArgumentException)
-        {
-            // ffmpeg.CanSeek = !contentUrl.StartsWith("rtmp://");
-            ffmpeg.Play(contentUrl, contentUrl);
-        }
-#endif
     }
 }

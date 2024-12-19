@@ -32,7 +32,7 @@ namespace FFmpeg.Unity.Helpers
             _pIOContext = ffmpeg.avio_alloc_context(bufferPtr, (int)bufferSize, 0, GCHandle.ToIntPtr(streamHandle).ToPointer(), read, null, seek);
 
             _pFormatContext = ffmpeg.avformat_alloc_context();
-            _pFormatContext->flags |= ffmpeg.AVFMT_FLAG_SHORTEST;// | ffmpeg.AVFMT_FLAG_SORT_DTS | ffmpeg.AVFMT_FLAG_DISCARD_CORRUPT;
+            _pFormatContext->flags |= ffmpeg.AVFMT_FLAG_SHORTEST | ffmpeg.AVFMT_FLAG_SORT_DTS;// | ffmpeg.AVFMT_FLAG_DISCARD_CORRUPT;
             _pFormatContext->max_interleave_delta = 100_000_000;
             _pFormatContext->pb = _pIOContext;
             _pFormatContext->flags |= ffmpeg.AVFMT_FLAG_CUSTOM_IO | ffmpeg.AVIO_FLAG_NONBLOCK;
@@ -52,7 +52,7 @@ namespace FFmpeg.Unity.Helpers
             if (string.IsNullOrWhiteSpace(url))
                 return;
             _pFormatContext = ffmpeg.avformat_alloc_context();
-            _pFormatContext->flags |= ffmpeg.AVFMT_FLAG_SHORTEST;// | ffmpeg.AVFMT_FLAG_SORT_DTS | ffmpeg.AVFMT_FLAG_DISCARD_CORRUPT;
+            _pFormatContext->flags |= ffmpeg.AVFMT_FLAG_SHORTEST | ffmpeg.AVFMT_FLAG_SORT_DTS;// | ffmpeg.AVFMT_FLAG_DISCARD_CORRUPT;
             _pFormatContext->max_interleave_delta = 100_000_000;
 
             _pFormatContext->avio_flags = ffmpeg.AVIO_FLAG_READ | ffmpeg.AVIO_FLAG_NONBLOCK;

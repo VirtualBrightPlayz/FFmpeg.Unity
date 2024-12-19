@@ -318,8 +318,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: eb91949b94ee7de44a9894f670dddb9c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  videoOffset: -1
+  videoOffset: -0.5
   audioOffset: 0
+  maxAudioDelta: 0.5
   texturePlayer: {fileID: 744513911}
   audioPlayer: {fileID: 744513912}
 --- !u!4 &744513910
@@ -363,7 +364,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   pts: 0
-  bufferDelay: 1
+  bufferSize: 2
 --- !u!114 &744513913
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -694,6 +695,7 @@ MonoBehaviour:
   audioSource: {fileID: 0}
   lockVolume: 0
   volumeControlsMute: 0
+  bufferDelay: 0
 --- !u!114 &1264032666
 MonoBehaviour:
   m_ObjectHideFlags: 0

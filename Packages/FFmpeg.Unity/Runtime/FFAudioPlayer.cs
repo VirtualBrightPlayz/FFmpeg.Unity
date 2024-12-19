@@ -25,8 +25,7 @@ namespace FFmpeg.Unity
         public event AddQueueDelegate AddQueue;
 
         public long pts;
-        public float bufferDelay = 1f;
-        private AudioClip clip;
+        public float bufferSize = 2f;
         private int channels;
         private int frequency;
         private AVSampleFormat sampleFormat;
@@ -38,7 +37,6 @@ namespace FFmpeg.Unity
             this.sampleFormat = sampleFormat;
             this.frequency = frequency;
             Debug.Log($"Freq={frequency}");
-            clip = AudioClip.Create("BufferAudio", frequency * channels, channels, frequency, false);
         }
 
         public void Pause() => OnPause?.Invoke();
