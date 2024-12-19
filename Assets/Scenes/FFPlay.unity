@@ -295,10 +295,10 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 744513910}
+  - component: {fileID: 744513913}
   - component: {fileID: 744513909}
   - component: {fileID: 744513911}
   - component: {fileID: 744513912}
-  - component: {fileID: 744513913}
   m_Layer: 0
   m_Name: FFPlay
   m_TagString: Untagged
@@ -350,8 +350,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   pts: 0
-  renderMesh: {fileID: 1264032661}
-  materialIndex: -1
 --- !u!114 &744513912
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -365,7 +363,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   pts: 0
-  source: {fileID: 1264032665}
+  bufferDelay: 1
 --- !u!114 &744513913
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -509,6 +507,7 @@ GameObject:
   - component: {fileID: 1264032663}
   - component: {fileID: 1264032662}
   - component: {fileID: 1264032661}
+  - component: {fileID: 1264032666}
   - component: {fileID: 1264032664}
   - component: {fileID: 1264032665}
   m_Layer: 0
@@ -691,8 +690,26 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b2c04debbdd7eaf4a8c0abbb01bd3742, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  audioPlayer: {fileID: 744513912}
   audioSource: {fileID: 0}
-  bufferDelay: 1
+  lockVolume: 0
+  volumeControlsMute: 0
+--- !u!114 &1264032666
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1264032659}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: caf3d4a9062b4bd8b88773a3e6adc754, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  texturePlayer: {fileID: 744513911}
+  materialIndex: -1
+  textureProperty: _EmissionMap
+  updateGIRealtime: 1
 --- !u!850595691 &1495372973
 LightingSettings:
   m_ObjectHideFlags: 0
@@ -1020,5 +1037,5 @@ SceneRoots:
   - {fileID: 963194228}
   - {fileID: 1601762792}
   - {fileID: 1961929551}
-  - {fileID: 1264032663}
   - {fileID: 744513910}
+  - {fileID: 1264032663}

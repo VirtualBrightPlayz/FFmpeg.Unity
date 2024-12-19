@@ -7,16 +7,15 @@ namespace FFmpeg.Unity
 {
     public class FFTexturePlayer : MonoBehaviour
     {
+        public delegate void OnDisplayDelegate(Texture2D texture);
+
         public long pts;
-        public MeshRenderer renderMesh;
-        public int materialIndex = -1;
-        private MaterialPropertyBlock propertyBlock;
-        public Action<Texture2D> OnDisplay = null;
+        public event OnDisplayDelegate OnDisplay;
         private Texture2D image;
-        private int framewidth;
-        private int frameheight;
-        private byte[] framedata = new byte[0];
-        private Mutex mutex = new Mutex();
+        private int frameWidth;
+        private int frameHeight;
+        private byte[] frameData = new byte[0];
+        private readonly Mutex mutex = new Mutex();
 
         public void PlayPacket(AVFrame frame)
         {
@@ -28,9 +27,9 @@ namespace FFmpeg.Unity
                 {
                     try
                     {
-                        framewidth = frame.width;
-                        frameheight = frame.height;
-                        framedata = data;
+                        frameWidth = frame.width;
+                        frameHeight = frame.height;
+                        frameData = data;
                     }
                     finally
                     {
@@ -46,8 +45,8 @@ namespace FFmpeg.Unity
             {
                 try
                 {
-                    DisplayBytes(framedata, framewidth, frameheight);
-                    Display(image);
+                    DisplayBytes(frameData, frameWidth, frameHeight);
+                    OnDisplay?.Invoke(image);
                 }
                 finally
                 {
@@ -56,42 +55,17 @@ namespace FFmpeg.Unity
             }
         }
 
-        private void DisplayBytes(byte[] data, int framewidth, int frameheight)
+        private void DisplayBytes(byte[] data, int width, int height)
         {
             if (data == null || data.Length == 0)
                 return;
             if (image == null)
                 image = new Texture2D(16, 16, TextureFormat.RGB24, false);
-            if (image.width != framewidth || image.height != frameheight)
-                image.Reinitialize(framewidth, frameheight);
+            if (image.width != width || image.height != height)
+                image.Reinitialize(width, height);
             var arr = image.GetRawTextureData<byte>();
             arr.CopyFrom(data);
             image.Apply(false);
-        }
-
-        private void Display(Texture2D texture)
-        {
-            if (OnDisplay == null)
-            {
-                if (propertyBlock == null)
-                    propertyBlock = new MaterialPropertyBlock();
-                if (texture != null)
-                {
-                    propertyBlock.SetTexture("_MainTex", texture);
-                    propertyBlock.SetTexture("_EmissionMap", texture);
-                }
-                if (renderMesh != null)
-                {
-                    if (materialIndex == -1)
-                        renderMesh.SetPropertyBlock(propertyBlock);
-                    else
-                        renderMesh.SetPropertyBlock(propertyBlock, materialIndex);
-                }
-            }
-            else
-            {
-                OnDisplay.Invoke(texture);
-            }
         }
 
         #region Utils
@@ -99,7 +73,7 @@ namespace FFmpeg.Unity
         [ThreadStatic]
         private static byte[] line;
 
-        public unsafe static bool SaveFrame(AVFrame frame, byte[] texture)
+        public static unsafe bool SaveFrame(AVFrame frame, byte[] texture)
         {
             if (line == null)
             {

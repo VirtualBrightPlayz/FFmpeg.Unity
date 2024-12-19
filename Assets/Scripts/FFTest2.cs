@@ -24,7 +24,7 @@ public class FFTest2 : MonoBehaviour
     private void Start()
     {
         id = GetInstanceID();
-        ffmpeg.texturePlayer.OnDisplay = OnDisplay;
+        ffmpeg.texturePlayer.OnDisplay += OnDisplay;
         Play();
     }
 

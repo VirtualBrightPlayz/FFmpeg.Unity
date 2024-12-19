@@ -8,13 +8,29 @@ namespace FFmpeg.Unity
 {
     public class FFAudioPlayer : MonoBehaviour
     {
+        public delegate void OnResumeDelegate();
+
+        public delegate void OnPauseDelegate();
+
+        public delegate void OnSeekDelegate();
+
+        public delegate void OnVolumeChangeDelegate(float volume);
+
+        public delegate void AddQueueDelegate(float[] pcm, int channels, int frequency);
+
+        public event OnResumeDelegate OnResume;
+        public event OnPauseDelegate OnPause;
+        public event OnSeekDelegate OnSeek;
+        public event OnVolumeChangeDelegate OnVolumeChange;
+        public event AddQueueDelegate AddQueue;
+
         public long pts;
-        public BufferAudioSource source;
+        public float bufferDelay = 1f;
         private AudioClip clip;
         private int channels;
         private int frequency;
         private AVSampleFormat sampleFormat;
-        private List<float> pcm = new List<float>();
+        private readonly List<float> pcm = new List<float>();
 
         public void Init(int frequency, int channels, AVSampleFormat sampleFormat)
         {
@@ -25,20 +41,10 @@ namespace FFmpeg.Unity
             clip = AudioClip.Create("BufferAudio", frequency * channels, channels, frequency, false);
         }
 
-        public void Pause()
-        {
-            source.audioSource.Pause();
-        }
-
-        public void Resume()
-        {
-            source.audioSource.UnPause();
-        }
-        
-        public void Seek()
-        {
-            source.Stop();
-        }
+        public void Pause() => OnPause?.Invoke();
+        public void Resume() => OnResume?.Invoke();
+        public void Seek() => OnSeek?.Invoke();
+        public void SetVolume(float volume) => OnVolumeChange?.Invoke(volume);
 
         public void PlayPackets(List<AVFrame> frames)
         {
@@ -46,6 +52,7 @@ namespace FFmpeg.Unity
             {
                 return;
             }
+
             foreach (var frame in frames)
             {
                 QueuePacket(frame);
@@ -64,6 +71,7 @@ namespace FFmpeg.Unity
                     Debug.LogError("audio buffer size is less than zero");
                     continue;
                 }
+
                 byte[] backBuffer2 = new byte[size];
                 float[] backBuffer3 = new float[size / sizeof(float)];
                 Marshal.Copy((IntPtr)frame.data[ch], backBuffer2, 0, size);
@@ -72,9 +80,11 @@ namespace FFmpeg.Unity
                 {
                     pcm.Add(backBuffer3[i]);
                 }
+
                 break;
             }
-            source.AddQueue(pcm.ToArray(), 1, frequency);
+
+            AddQueue?.Invoke(pcm.ToArray(), 1, frequency);
         }
     }
 }
