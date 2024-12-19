@@ -15,13 +15,16 @@ namespace FFmpeg.Unity
         private int frameWidth;
         private int frameHeight;
         private byte[] frameData = new byte[0];
+        private byte[] backbuffer = new byte[0];
         private readonly Mutex mutex = new Mutex();
 
         public void PlayPacket(AVFrame frame)
         {
             pts = frame.pts;
-            byte[] data = new byte[frame.width * frame.height * 3];
-            if (SaveFrame(frame, data))
+            int len = frame.width * frame.height * 3;
+            if (backbuffer.Length != len)
+                backbuffer = new byte[len];
+            if (SaveFrame(frame, backbuffer))
             {
                 if (mutex.WaitOne())
                 {
@@ -29,7 +32,9 @@ namespace FFmpeg.Unity
                     {
                         frameWidth = frame.width;
                         frameHeight = frame.height;
-                        frameData = data;
+                        if (frameData.Length != len)
+                            frameData = new byte[len];
+                        Array.Copy(backbuffer, frameData, len);
                     }
                     finally
                     {
@@ -85,8 +90,9 @@ namespace FFmpeg.Unity
             }
             using var converter = new VideoFrameConverter(new System.Drawing.Size(frame.width, frame.height), (AVPixelFormat)frame.format, new System.Drawing.Size(frame.width, frame.height), AVPixelFormat.AV_PIX_FMT_RGB24);
             var convFrame = converter.Convert(frame);
-            Marshal.Copy((IntPtr)convFrame.data[0], line, 0, frame.width * frame.height * 3);
-            Array.Copy(line, 0, texture, 0, frame.width * frame.height * 3);
+            int len = frame.width * frame.height * 3;
+            Marshal.Copy((IntPtr)convFrame.data[0], line, 0, len);
+            Array.Copy(line, 0, texture, 0, len);
             return true;
         }
 

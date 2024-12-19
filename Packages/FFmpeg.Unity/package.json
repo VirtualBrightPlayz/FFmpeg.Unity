@@ -1,6 +1,6 @@
 {
     "name": "net.virtualwebsite.ffmpegunity",
     "displayName": "FFmpeg.Unity",
-    "version": "0.3.1",
+    "version": "0.3.2",
     "description": "Video player system for Unity using FFmpeg."
 }
