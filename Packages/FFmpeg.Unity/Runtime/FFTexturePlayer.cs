@@ -14,13 +14,13 @@ namespace FFmpeg.Unity
         private Texture2D image;
         private int frameWidth;
         private int frameHeight;
+        private long framePts;
         private byte[] frameData = new byte[0];
         private byte[] backbuffer = new byte[0];
         private readonly Mutex mutex = new Mutex();
 
         public void PlayPacket(AVFrame frame)
         {
-            pts = frame.pts;
             int len = frame.width * frame.height * 3;
             if (backbuffer.Length != len)
                 backbuffer = new byte[len];
@@ -30,6 +30,7 @@ namespace FFmpeg.Unity
                 {
                     try
                     {
+                        framePts = frame.pts;
                         frameWidth = frame.width;
                         frameHeight = frame.height;
                         if (frameData.Length != len)
@@ -46,10 +47,11 @@ namespace FFmpeg.Unity
 
         private void Update()
         {
-            if (mutex.WaitOne(0))
+            if (framePts != pts && mutex.WaitOne(0))
             {
                 try
                 {
+                    pts = framePts;
                     DisplayBytes(frameData, frameWidth, frameHeight);
                     OnDisplay?.Invoke(image);
                 }
