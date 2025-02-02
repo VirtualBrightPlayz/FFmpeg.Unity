@@ -1,7 +1,9 @@
 {
-    "name": "FFmpeg.AutoGen.Abstractions",
+    "name": "FFmpeg.AutoGen.Bindings.DynamicallyLoaded",
     "rootNamespace": "",
-    "references": [],
+    "references": [
+        "GUID:2208e7b5b5196e843bc46d6a3442ecb9"
+    ],
     "includePlatforms": [],
     "excludePlatforms": [],
     "allowUnsafeCode": true,
