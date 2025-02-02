@@ -115,7 +115,7 @@ public class FFTest2 : MonoBehaviour
         Debug.Log("Start");
         if (!Directory.Exists(Application.streamingAssetsPath))
             Directory.CreateDirectory(Application.streamingAssetsPath);
-        var ytdlPath = Path.Combine(Application.streamingAssetsPath, "yt-dlp.exe");
+        var ytdlPath = Path.Combine(Application.streamingAssetsPath, "yt-dlp");
         await Utils.DownloadYtDlp(Application.streamingAssetsPath);
         var ytdl = new YoutubeDL();
         ytdl.YoutubeDLPath = ytdlPath;

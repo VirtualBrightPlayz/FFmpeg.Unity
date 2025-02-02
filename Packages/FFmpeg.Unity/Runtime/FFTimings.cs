@@ -11,7 +11,7 @@ namespace FFmpeg.Unity
         static FFTimings()
         {
             // DynamicallyLinkedBindings.Initialize();
-            DynamicallyLoadedBindings.LibrariesPath = Path.Combine(Application.streamingAssetsPath, "ffmpeg");
+            DynamicallyLoadedBindings.LibrariesPath = Path.Combine(Application.streamingAssetsPath, "ffmpeg") + "/";
             Debug.Log(DynamicallyLoadedBindings.LibrariesPath);
             DynamicallyLoadedBindings.Initialize();
         }
