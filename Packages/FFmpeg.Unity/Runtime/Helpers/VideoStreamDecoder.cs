@@ -82,7 +82,7 @@ namespace FFmpeg.Unity.Helpers
             }
             ffmpeg.avcodec_open2(_pCodecContext, codec, null).ThrowExceptionIfError();
 
-            CodecName = ffmpeg.avcodec_get_name(codec->id);
+            // CodecName = ffmpeg.avcodec_get_name(codec->id); // breaks IL2CPP
             FrameSize = new Size(_pCodecContext->width, _pCodecContext->height);
             PixelFormat = _pCodecContext->pix_fmt;
             Channels = _pCodecContext->ch_layout.nb_channels;
