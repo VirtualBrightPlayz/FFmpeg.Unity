@@ -32,7 +32,7 @@ namespace FFmpeg.Unity.Helpers
             _pIOContext = ffmpeg.avio_alloc_context(bufferPtr, (int)bufferSize, 0, GCHandle.ToIntPtr(streamHandle).ToPointer(), read, null, seek);
 
             _pFormatContext = ffmpeg.avformat_alloc_context();
-            _pFormatContext->flags |= ffmpeg.AVFMT_FLAG_SHORTEST | ffmpeg.AVFMT_FLAG_SORT_DTS;// | ffmpeg.AVFMT_FLAG_DISCARD_CORRUPT;
+            _pFormatContext->flags |= ffmpeg.AVFMT_FLAG_SHORTEST;// | ffmpeg.AVFMT_FLAG_SORT_DTS | ffmpeg.AVFMT_FLAG_DISCARD_CORRUPT;
             _pFormatContext->max_interleave_delta = 100_000_000;
             _pFormatContext->pb = _pIOContext;
             _pFormatContext->flags |= ffmpeg.AVFMT_FLAG_CUSTOM_IO | ffmpeg.AVIO_FLAG_NONBLOCK;
@@ -52,7 +52,7 @@ namespace FFmpeg.Unity.Helpers
             if (string.IsNullOrWhiteSpace(url))
                 return;
             _pFormatContext = ffmpeg.avformat_alloc_context();
-            _pFormatContext->flags |= ffmpeg.AVFMT_FLAG_SHORTEST | ffmpeg.AVFMT_FLAG_SORT_DTS;// | ffmpeg.AVFMT_FLAG_DISCARD_CORRUPT;
+            _pFormatContext->flags |= ffmpeg.AVFMT_FLAG_SHORTEST;// | ffmpeg.AVFMT_FLAG_SORT_DTS | ffmpeg.AVFMT_FLAG_DISCARD_CORRUPT;
             _pFormatContext->max_interleave_delta = 100_000_000;
 
             _pFormatContext->avio_flags = ffmpeg.AVIO_FLAG_READ | ffmpeg.AVIO_FLAG_NONBLOCK;
@@ -82,10 +82,12 @@ namespace FFmpeg.Unity.Helpers
         public double GetLength(VideoStreamDecoder decoder)
         {
             int _streamIndex = decoder._streamIndex;
-            if (_streamIndex < 0 || _streamIndex > _pFormatContext->nb_streams)
+            if (_streamIndex < 0 || _streamIndex >= _pFormatContext->nb_streams)
                 return 0d;
-            double time_base = (double)_pFormatContext->streams[_streamIndex]->time_base.num / _pFormatContext->streams[_streamIndex]->time_base.den;
-            return _pFormatContext->streams[_streamIndex]->duration * time_base;
+            AVRational base_q = _pFormatContext->streams[_streamIndex]->time_base;
+            long offset = _pFormatContext->streams[_streamIndex]->duration;
+            double time = ffmpeg.av_q2d(base_q);
+            return offset * time;
         }
 
         public bool TryGetFps(out double fps)
@@ -246,8 +248,7 @@ namespace FFmpeg.Unity.Helpers
                     return false;
                 }
                 error.ThrowExceptionIfError();
-            }
-            while (error == ffmpeg.AVERROR(ffmpeg.EAGAIN));
+            } while (error == ffmpeg.AVERROR(ffmpeg.EAGAIN));
             packet = *_pPacket;
             EndReached = false;
             return true;

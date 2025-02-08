@@ -20,6 +20,8 @@ public class FFTest2 : MonoBehaviour
 
     private void Start()
     {
+        DynamicallyLoadedBindings.LibrariesPath = Path.Combine(Application.streamingAssetsPath, "ffmpeg") + "/";
+        DynamicallyLoadedBindings.Initialize();
         id = GetInstanceID();
         ffmpeg.texturePlayer.OnDisplay += OnDisplay;
         Play();

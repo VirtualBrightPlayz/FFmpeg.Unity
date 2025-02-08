@@ -8,14 +8,6 @@ namespace FFmpeg.Unity
 {
     public class FFTimings : IDisposable
     {
-        static FFTimings()
-        {
-            // DynamicallyLinkedBindings.Initialize();
-            DynamicallyLoadedBindings.LibrariesPath = Path.Combine(Application.streamingAssetsPath, "ffmpeg") + "/";
-            Debug.Log(DynamicallyLoadedBindings.LibrariesPath);
-            DynamicallyLoadedBindings.Initialize();
-        }
-
         public FFmpegCtx context;
         public VideoStreamDecoder decoder;
 
@@ -52,11 +44,23 @@ namespace FFmpeg.Unity
             {
                 timeBaseSeconds = ffmpeg.av_q2d(timeBase);
                 decoder = new VideoStreamDecoder(context, type, deviceType);
-                if (type == AVMediaType.AVMEDIA_TYPE_VIDEO)
                 {
-                    pts = 0;
-                    AVFrame frame = GetFrame();
-                    StartTime = currentPacket.dts * timeBaseSeconds;
+                    // find the start time/time offset
+                    while (true)
+                    {
+                        if (context.NextFrame(out AVPacket packet))
+                        {
+                            if (decoder.Decode(out AVFrame frame) == 0)
+                            {
+                                currentPacket = packet;
+                                currentFrame = frame;
+                                StartTime = currentPacket.dts * timeBaseSeconds;
+                                break;
+                            }
+                        }
+                        else
+                            break;
+                    }
                 }
                 Debug.Log($"timeBase={timeBase.num}/{timeBase.den}");
                 Debug.Log($"timeBaseSeconds={timeBaseSeconds}");
@@ -75,17 +79,7 @@ namespace FFmpeg.Unity
             if (!IsInputValid)
                 return;
             context.Seek(decoder, timestamp);
-            if (context.NextFrame(out AVPacket packet))
-            {
-                AVFrame frame = DecodeFrame();
-                if (frame.format != -1)
-                {
-                    currentPacket = packet;
-                    currentFrame = frame;
-                    pts = currentPacket.dts;
-                    return;
-                }
-            }
+            decoder.Seek();
             Update(timestamp);
             currentPacket = default;
         }
@@ -130,8 +124,7 @@ namespace FFmpeg.Unity
                 i++;
                 if (context.NextFrame(out AVPacket packet))
                 {
-                    AVFrame frame = DecodeFrame();
-                    if (frame.format != -1)
+                    if (decoder.Decode(out AVFrame frame) == 0)
                     {
                         currentPacket = packet;
                         currentFrame = frame;
@@ -156,8 +149,7 @@ namespace FFmpeg.Unity
                 i++;
                 if (context.NextFrame(out AVPacket packet))
                 {
-                    AVFrame frame = DecodeFrame();
-                    if (frame.format != -1)
+                    if (decoder.Decode(out AVFrame frame) == 0)
                     {
                         currentPacket = packet;
                         currentFrame = frame;
