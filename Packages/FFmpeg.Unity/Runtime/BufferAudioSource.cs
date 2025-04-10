@@ -186,7 +186,7 @@ public class BufferAudioSource : MonoBehaviour
         audioSource.clip = clip;
         audioSource.loop = true;
         audioSource.Stop();
-        RingBufferPosition = (int)(frequency * channels * bufferDelay);
+        RingBufferPosition = (int)(frequency * channels * bufferDelay) % RingBuffer.Length;
         PlaybackPosition = 0;
         stopTime = RingBufferPosition + pcm.Length;
         stopTimer = audioPlayer.bufferSize;
