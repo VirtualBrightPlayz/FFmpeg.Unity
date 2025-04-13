@@ -19,7 +19,6 @@ public class BufferAudioSource : MonoBehaviour
     private int PlaybackPosition = 0;
 
     private bool shouldStop = false;
-    private int stopTime = 0;
     private float stopTimer = 0;
     private int lastTimeSamples = 0;
     private int maxEmptyReads = 0;
@@ -90,11 +89,13 @@ public class BufferAudioSource : MonoBehaviour
 
         if (clip == null)
             return;
-        stopTimer -= Time.deltaTime;
+        if (!shouldStop)
+            stopTimer -= Time.deltaTime;
         if (stopTimer <= 0)
         {
             shouldStop = true;
-            stopTimer += audioPlayer.bufferSize;
+            stopTimer = 0;
+            // stopTimer += audioPlayer.bufferSize;
         }
         lastTimeSamples = audioSource.timeSamples;
 
@@ -121,7 +122,6 @@ public class BufferAudioSource : MonoBehaviour
         if (RingBuffer == null || clipchannels == 0 || clipfrequency == 0)
             return;
         shouldStop = false;
-        stopTime += pcm.Length;
         stopTimer += (float)pcm.Length / clipfrequency / clipchannels;
         int pos = RingBufferPosition;
         for (int i = 0; i < pcm.Length; i++)
@@ -186,9 +186,9 @@ public class BufferAudioSource : MonoBehaviour
         audioSource.clip = clip;
         audioSource.loop = true;
         audioSource.Stop();
-        RingBufferPosition = (int)(frequency * channels * bufferDelay) % RingBuffer.Length;
+        // RingBufferPosition = (int)(frequency * channels * bufferDelay) % RingBuffer.Length;
+        RingBufferPosition = 0;
         PlaybackPosition = 0;
-        stopTime = RingBufferPosition + pcm.Length;
         stopTimer = audioPlayer.bufferSize;
         AddRingBuffer(pcm);
         audioSource.Play();

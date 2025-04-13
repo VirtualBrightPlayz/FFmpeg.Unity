@@ -36,7 +36,7 @@ namespace FFmpeg.Unity
             this.channels = channels;
             this.sampleFormat = sampleFormat;
             this.frequency = frequency;
-            Debug.Log($"Freq={frequency}");
+            Debug.Log($"Freq={frequency} channels={channels}");
         }
 
         public void Pause() => OnPause?.Invoke();
@@ -59,27 +59,33 @@ namespace FFmpeg.Unity
 
         private unsafe void QueuePacket(AVFrame frame)
         {
+            // TODO: multi-channel output support
             pcm.Clear();
             pts = frame.pts;
+            int size = ffmpeg.av_samples_get_buffer_size(null, 1, frame.nb_samples, sampleFormat, 1);
+            if (size < 0)
+            {
+                Debug.LogError("audio buffer size is less than zero");
+                return;
+            }
+            for (int i = 0; i < size / sizeof(float); i++)
+                pcm.Add(0f);
             for (uint ch = 0; ch < channels; ch++)
             {
-                int size = ffmpeg.av_samples_get_buffer_size(null, 1, frame.nb_samples, sampleFormat, 1);
-                if (size < 0)
-                {
-                    Debug.LogError("audio buffer size is less than zero");
-                    continue;
-                }
-
                 byte[] backBuffer2 = new byte[size];
                 float[] backBuffer3 = new float[size / sizeof(float)];
                 Marshal.Copy((IntPtr)frame.data[ch], backBuffer2, 0, size);
                 Buffer.BlockCopy(backBuffer2, 0, backBuffer3, 0, backBuffer2.Length);
                 for (int i = 0; i < backBuffer3.Length; i++)
                 {
-                    pcm.Add(backBuffer3[i]);
+                    if (ch == 0)
+                        pcm[i] = backBuffer3[i];
+                    else
+                        pcm[i] = (pcm[i] + backBuffer3[i]) / 2f;
+                    // pcm.Add(backBuffer3[i]);
                 }
 
-                break;
+                // break;
             }
 
             AddQueue?.Invoke(pcm.ToArray(), 1, frequency);
