@@ -11,6 +11,7 @@ namespace FFmpeg.Unity
         public FFTimings audioTimings;
 
         private Thread thread;
+        private Thread audioDecodeThread;
 
         public delegate void OnEndReachedDelegate();
 
@@ -119,7 +120,7 @@ namespace FFmpeg.Unity
             if (audioTimings != null)
             {
                 audioTimings.Seek(AudioTime);
-                audioTimings.GetFrames(10d);
+                // audioTimings.GetFrames(10d);
                 audioPlayer.Seek();
             }
             RunThread();
@@ -162,7 +163,7 @@ namespace FFmpeg.Unity
             // timeAsDouble = Time.timeAsDouble;
             if (!IsPaused)
             {
-                if (!thread.IsAlive && IsPlaying)
+                // if (!thread.IsAlive && IsPlaying)
                 {
                     // StopThread();
                     // RunThread();
@@ -188,12 +189,11 @@ namespace FFmpeg.Unity
             }
         }
 
-        private void ThreadUpdate()
+        private void VideoDecodeThreadUpdate()
         {
-            Debug.Log("ThreadUpdate Start");
             while (!IsPaused)
             {
-                Thread.Sleep(3);
+                Thread.Yield();
                 try
                 {
                     if (videoTimings != null)
@@ -201,7 +201,22 @@ namespace FFmpeg.Unity
                         videoTimings.Update(VideoTime);
                         texturePlayer.PlayPacket(videoTimings.GetFrame(250));
                     }
+                }
+                catch (Exception e)
+                {
+                    Debug.LogException(e);
+                    break;
+                }
+            }
+        }
 
+        private void AudioDecodeThreadUpdate()
+        {
+            while (!IsPaused)
+            {
+                Thread.Yield();
+                try
+                {
                     if (audioTimings != null)
                     {
                         audioTimings.Update(AudioTime);
@@ -214,8 +229,6 @@ namespace FFmpeg.Unity
                     break;
                 }
             }
-
-            Debug.Log("ThreadUpdate Done");
         }
 
         private void OnDestroy()
@@ -228,13 +241,17 @@ namespace FFmpeg.Unity
 
         private void RunThread()
         {
-            if (thread.IsAlive)
+            if (thread.IsAlive || audioDecodeThread.IsAlive)
                 throw new Exception();
             // if (thread.IsAlive() && thread.IsStarted())
                 // StopThread();
             IsPaused = false;
-            thread = new Thread(ThreadUpdate);
+            thread = new Thread(VideoDecodeThreadUpdate);
+            thread.Name = nameof(VideoDecodeThreadUpdate);
             thread.Start();
+            audioDecodeThread = new Thread(AudioDecodeThreadUpdate);
+            audioDecodeThread.Name = nameof(AudioDecodeThreadUpdate);
+            audioDecodeThread.Start();
         }
 
         private void StopThread()
@@ -243,12 +260,15 @@ namespace FFmpeg.Unity
             IsPaused = true;
             if (thread.IsAlive)
                 thread.Join();
+            if (audioDecodeThread.IsAlive)
+                audioDecodeThread.Join();
             IsPaused = paused;
         }
 
         public void OnEnable()
         {
-            thread = new Thread(ThreadUpdate);
+            thread = new Thread(VideoDecodeThreadUpdate);
+            audioDecodeThread = new Thread(AudioDecodeThreadUpdate);
         }
 
         public void OnDisable()
