@@ -19,7 +19,9 @@ namespace FFmpeg.Unity
         private byte[] frameData = new byte[0];
         private byte[] backbuffer = new byte[0];
         private readonly Mutex mutex = new Mutex();
+        [Tooltip("Force output texture size to specified width. Set to 0 to use source width.")]
         public int imageWidth = 1280;
+        [Tooltip("Force output texture size to specified height. Set to 0 to use source height.")]
         public int imageHeight = 720;
         [Tooltip("Flags whether the texture data should be flipped on the Y axis or not. Minor performance cost when enabled.")]
         public bool flipTexture = true;
@@ -31,8 +33,8 @@ namespace FFmpeg.Unity
 
         public void PlayPacket(AVFrame frame)
         {
-            int width = imageWidth;
-            int height = imageHeight;
+            int width = imageWidth > 0 ? imageWidth : frame.width;
+            int height = imageHeight > 0 ? imageHeight : frame.height;
             int len = width * height * 3;
             if (backbuffer.Length != len)
                 backbuffer = new byte[len];
