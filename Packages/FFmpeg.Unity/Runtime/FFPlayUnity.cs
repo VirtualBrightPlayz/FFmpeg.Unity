@@ -233,6 +233,7 @@ namespace FFmpeg.Unity
 
         private void OnDestroy()
         {
+            StopThread();
             videoTimings?.Dispose();
             videoTimings = null;
             audioTimings?.Dispose();
@@ -274,7 +275,6 @@ namespace FFmpeg.Unity
         public void OnDisable()
         {
             IsPaused = true;
-            StopThread();
             OnDestroy();
         }
     }
