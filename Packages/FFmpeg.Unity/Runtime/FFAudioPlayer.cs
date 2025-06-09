@@ -44,15 +44,15 @@ namespace FFmpeg.Unity
         public void Seek() => OnSeek?.Invoke();
         public void SetVolume(float volume) => OnVolumeChange?.Invoke(volume);
 
-        public void PlayPackets(List<AVFrame> frames)
+        public void PlayPackets(ICollection<AVFrame> frames, int frameCount = -1)
         {
-            if (frames.Count == 0)
-            {
-                return;
-            }
+            if (frames.Count == 0) return;
+            if (frameCount == -1) frameCount = frames.Count;
 
             foreach (var frame in frames)
             {
+                if (frameCount == 0) break;
+                frameCount--;
                 QueuePacket(frame);
             }
         }
@@ -68,6 +68,7 @@ namespace FFmpeg.Unity
                 Debug.LogError("audio buffer size is less than zero");
                 return;
             }
+
             for (int i = 0; i < size / sizeof(float); i++)
                 pcm.Add(0f);
             for (uint ch = 0; ch < channels; ch++)

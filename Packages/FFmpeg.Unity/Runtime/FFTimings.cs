@@ -133,7 +133,43 @@ namespace FFmpeg.Unity
                 else
                     break;
             }
+
             return currentFrame;
+        }
+
+        private readonly AVFrame empty = default;
+
+        public int GetFramesNonAlloc(double maxDelta, ref AVFrame[] frames)
+        {
+            if (!IsInputValid)
+                return 0;
+            long ptsDelta = (long)(Math.Max(double.Epsilon, maxDelta) / timeBaseSeconds);
+            int i = 0, j = 0;
+            long dts = currentPacket.dts;
+            int maxFrames = frames.Length;
+            while ((pts >= dts || currentPacket.dts == ffmpeg.AV_NOPTS_VALUE) && i <= maxFrames)
+            {
+                i++;
+                AVFrame frame = frames[j];
+                if (context.NextFrame(out AVPacket packet))
+                {
+                    if (decoder.DecodeNonAlloc(ref frame) == 0)
+                    {
+                        currentPacket = packet;
+                        currentFrame = frame;
+                        if (Math.Abs(pts - packet.dts) <= ptsDelta)
+                        {
+                            dts = currentPacket.dts;
+                            frames[j++] = frame;
+                        }
+                    }
+                }
+                else break;
+            }
+
+            int capturedFrames = j;
+            while (j < frames.Length) frames[j++] = empty;
+            return capturedFrames;
         }
 
         public List<AVFrame> GetFrames(double maxDelta, int maxFrames = 250)
@@ -163,6 +199,7 @@ namespace FFmpeg.Unity
                 else
                     break;
             }
+
             return frames;
         }
 
@@ -180,6 +217,7 @@ namespace FFmpeg.Unity
             {
                 retCode = decoder.Decode(out frame);
             } while (retCode == 1);
+
             return frame;
         }
 
