@@ -110,7 +110,7 @@ namespace FFmpeg.Unity.Helpers
         {
             int* p;
 
-            for (p = (int*)fmt; *p != -1; p++)
+            for (p = (int*)fmt; *p != -1;)
             {
                 // if (*p == (int)HWPixelFormat)
                     return (AVPixelFormat)(*p);
@@ -139,6 +139,50 @@ namespace FFmpeg.Unity.Helpers
                 return false;
             }
             return true;
+        }
+
+        public int DecodeNonAlloc(ref AVFrame frame)
+        {
+            if (_ctx.EndReached || _ctx._pPacket->stream_index != _streamIndex)
+            {
+                return -1;
+            }
+            ffmpeg.av_frame_unref(_pFrame);
+            ffmpeg.av_frame_unref(_receivedFrame);
+            int error;
+            int error2;
+            do
+            {
+                error = ffmpeg.avcodec_send_packet(_pCodecContext, _ctx._pPacket);
+                error2 = ffmpeg.avcodec_receive_frame(_pCodecContext, _pFrame);
+            }
+            while (error == ffmpeg.AVERROR(ffmpeg.EAGAIN));
+            error.ThrowExceptionIfError();
+            if (error2 == ffmpeg.AVERROR(ffmpeg.EAGAIN))
+            {
+                return -1;
+            }
+            error2.ThrowExceptionIfError();
+
+            if (_pCodecContext->hw_device_ctx != null)
+            {
+                _receivedFrame->hw_frames_ctx = _pCodecContext->hw_device_ctx;
+                ffmpeg.av_hwframe_transfer_data(_receivedFrame, _pFrame, 0).ThrowExceptionIfError();
+                frame = *_receivedFrame;
+                // /*
+                frame.pts = _pFrame->pts;
+                frame.duration = _pFrame->duration;
+                frame.time_base = _pFrame->time_base;
+                // */
+            }
+            else
+                frame = *_pFrame;
+            // fixed (int* w = &frame.width)
+            // fixed (int* h = &frame.height)
+            {
+                // ffmpeg.avcodec_align_dimensions(_pCodecContext, w, h);
+            }
+            return 0;
         }
 
         public int Decode(out AVFrame frame)
@@ -197,9 +241,9 @@ namespace FFmpeg.Unity.Helpers
         {
             ffmpeg.avcodec_flush_buffers(_pCodecContext);
             return;
-            ffmpeg.av_frame_unref(_pFrame);
-            ffmpeg.av_frame_unref(_receivedFrame);
-            ffmpeg.avcodec_flush_buffers(_pCodecContext);
+            // ffmpeg.av_frame_unref(_pFrame);
+            // ffmpeg.av_frame_unref(_receivedFrame);
+            // ffmpeg.avcodec_flush_buffers(_pCodecContext);
             // ffmpeg.avcodec_send_packet(_pCodecContext, null).ThrowExceptionIfError();
         }
 
