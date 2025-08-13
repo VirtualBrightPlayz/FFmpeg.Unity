@@ -7,7 +7,7 @@ using UnityEngine;
 using YoutubeDLSharp;
 using YoutubeDLSharp.Options;
 
-public class FFTest2 : MonoBehaviour
+public class FFPlayPlayer : MonoBehaviour
 {
     public FFPlayUnity ffmpeg;
     public string contentUrl;
