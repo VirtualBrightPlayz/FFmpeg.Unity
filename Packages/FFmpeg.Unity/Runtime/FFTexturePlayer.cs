@@ -19,7 +19,6 @@ namespace FFmpeg.Unity
         private byte[] frameData = new byte[0];
         private byte[] backBuffer = new byte[0];
         private readonly Mutex mutex = new Mutex();
-        private bool graphicsUVStartsAtTop = false;
 
         [Tooltip("Force output texture size to specified width. Set to 0 to use source width.")]
         public int imageWidth = 1280;
@@ -27,17 +26,12 @@ namespace FFmpeg.Unity
         [Tooltip("Force output texture size to specified height. Set to 0 to use source height.")]
         public int imageHeight = 720;
 
-        [Tooltip("Flags whether the texture data should be flipped on the Y axis or not.")]
-        public bool flipTexture = false;
+        [Tooltip("Flags whether the texture data should be flipped on the Y axis or not. Minor performance cost when enabled.")]
+        public bool flipTexture = true;
 
         private NativeArray<byte> texData;
 
         [Header("Runtime Data")] public long pts;
-
-        private void Awake()
-        {
-            graphicsUVStartsAtTop = SystemInfo.graphicsUVStartsAtTop;
-        }
 
         public void PlayPacket(AVFrame frame)
         {
@@ -57,7 +51,7 @@ namespace FFmpeg.Unity
                         frameWidth = width;
                         frameHeight = height;
                         if (frameData.Length != len) frameData = new byte[len];
-                        if (flipTexture != graphicsUVStartsAtTop) CopyAndFlip(backBuffer, frameData, frameWidth, frameHeight, pixelWidth);
+                        if (flipTexture) CopyAndFlip(backBuffer, frameData, frameWidth, frameHeight, pixelWidth);
                         else Array.Copy(backBuffer, frameData, len);
                     }
                     finally
