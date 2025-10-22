@@ -366,7 +366,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   imageWidth: 1280
   imageHeight: 720
-  flipTexture: 0
+  flipTexture: 1
   pts: 0
 --- !u!114 &4059647989644077104
 MonoBehaviour:
