@@ -37,6 +37,8 @@ namespace FFmpeg.Unity
         public FFTexturePlayer texturePlayer;
         public FFAudioPlayer audioPlayer;
 
+        public AVHWDeviceType hardwareAccelAPI = AVHWDeviceType.AV_HWDEVICE_TYPE_NONE;
+
         private double timeOffset = 0d;
         private double pauseTime = 0d;
 
@@ -63,7 +65,7 @@ namespace FFmpeg.Unity
             IsPlaying = false;
             StopThread();
             OnDestroy();
-            videoTimings = new FFTimings(streamV, AVMediaType.AVMEDIA_TYPE_VIDEO);
+            videoTimings = new FFTimings(streamV, AVMediaType.AVMEDIA_TYPE_VIDEO, hardwareAccelAPI);
             audioTimings = new FFTimings(streamA, AVMediaType.AVMEDIA_TYPE_AUDIO);
             Init();
         }
@@ -73,7 +75,7 @@ namespace FFmpeg.Unity
             IsPlaying = false;
             StopThread();
             OnDestroy();
-            videoTimings = new FFTimings(urlV, AVMediaType.AVMEDIA_TYPE_VIDEO);
+            videoTimings = new FFTimings(urlV, AVMediaType.AVMEDIA_TYPE_VIDEO, hardwareAccelAPI);
             audioTimings = new FFTimings(urlA, AVMediaType.AVMEDIA_TYPE_AUDIO);
             Init();
         }
