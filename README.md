@@ -1,21 +1,19 @@
 # FFmpeg.Unity
 
-A Videoplayer for [YoutubeDLSharp](https://github.com/Bluegrams/YoutubeDLSharp) (required).
+A Videoplayer for Unity, with an example using [YoutubeDLSharp](https://github.com/Bluegrams/YoutubeDLSharp).
 
 ## What is it?
 
-FFmpeg.Unity implements a working Videoplayer based on YoutubeDLSharp's yt-dlp and ffmpeg functionality.
-
-Please refer to YoutubeDLSharp's [README.md](https://github.com/Bluegrams/YoutubeDLSharp/blob/master/README.md#how-do-i-install-it) for further information on how to set this up.
+FFmpeg.Unity implements a working Videoplayer based on ffmpeg functionality.
 
 ## How do I install it?
 
-1. Once YoutubeDLSharp is present in your project you can install FFmpeg.Unity through the Unity Package Manager directly from git:
+1. You can install FFmpeg.Unity through the Unity Package Manager directly from git:
 
 ```
 Window > Package Management > Package Manager.
 Click the "+" button, select "Install package from git URL..."
-Paste "https://github.com/VirtualBrightPlayz/FFmpeg.Unity.git?path=/Packages/FFmpeg.Unity#dynload"
+Paste "https://github.com/VirtualBrightPlayz/FFmpeg.Unity.git?path=/Packages/FFmpeg.Unity#master"
 ```
 2. By installing the package using the method above, you will need to copy over the Scenes/ and Scripts/ folders.
 
