@@ -35,7 +35,8 @@ namespace FFmpeg.Unity.Helpers
             _pFormatContext->flags |= ffmpeg.AVFMT_FLAG_SHORTEST;// | ffmpeg.AVFMT_FLAG_SORT_DTS | ffmpeg.AVFMT_FLAG_DISCARD_CORRUPT;
             _pFormatContext->max_interleave_delta = 100_000_000;
             _pFormatContext->pb = _pIOContext;
-            _pFormatContext->flags |= ffmpeg.AVFMT_FLAG_CUSTOM_IO | ffmpeg.AVIO_FLAG_NONBLOCK;
+            _pFormatContext->flags |= ffmpeg.AVFMT_FLAG_CUSTOM_IO;
+            _pFormatContext->avio_flags = ffmpeg.AVIO_FLAG_READ | ffmpeg.AVIO_FLAG_NONBLOCK;
             var pFormatContext = _pFormatContext;
             var url = "some_dummy_filename";
             ffmpeg.avformat_open_input(&pFormatContext, url, null, null).ThrowExceptionIfError();
@@ -290,10 +291,10 @@ namespace FFmpeg.Unity.Helpers
             var pIOContext = _pIOContext;
             if (pIOContext != null)
                 ffmpeg.avio_context_free(&pIOContext);
-            if (streamHandle.IsAllocated)
-                streamHandle.Free();
             if (bufferPtr != null)
                 ffmpeg.av_free(bufferPtr);
+            if (streamHandle.IsAllocated)
+                streamHandle.Free();
         }
     }
 }
