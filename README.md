@@ -23,6 +23,6 @@ Paste "https://github.com/VirtualBrightPlayz/FFmpeg.Unity.git?path=/Packages/FFm
 
 4. Windows: Only copy the .dll files found within the `bin` directory in the downloaded archive to a `Assets/StreamingAssets/ffmpeg` directory in your project.
 
-5. Linux: Only copy the .so files found within the `lib` directorry in the downloaded acrhive to a `Assets/StreamingAssets/ffmpeg`. Make sure to set `Assets/StreamingAssets/yt-dlp` as executable: `chmod u+x yt-dlp`
+5. Linux: Only copy the .so files found within the `lib` directorry in the downloaded acrhive to a `Assets/StreamingAssets/ffmpeg`. If using yt-dlp, make sure to set executable bits on `Assets/StreamingAssets/yt-dlp` e.g. `chmod u+x yt-dlp`
 
-7. You can then open the `Scenes/FFplay` example scene to test the Videoplayer with a working YouTube link in the "Content Url" field of the "FF Play Player" script component during Unity play mode.
+6. You can then open the `Scenes/FFplay` example scene to test the Videoplayer with a working YouTube link in the "Content Url" field of the "FF Play Player" script component during Unity play mode.
