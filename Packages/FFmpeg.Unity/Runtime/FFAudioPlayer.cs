@@ -16,7 +16,7 @@ namespace FFmpeg.Unity
 
         public delegate void OnVolumeChangeDelegate(float volume);
 
-        public delegate void AddQueueDelegate(float[] pcm, int channels, int frequency);
+        public delegate void AddQueueDelegate(ICollection<float> pcm, int channels, int frequency);
 
         public event OnResumeDelegate OnResume;
         public event OnPauseDelegate OnPause;
@@ -89,7 +89,7 @@ namespace FFmpeg.Unity
                 // break;
             }
 
-            AddQueue?.Invoke(pcm.ToArray(), 1, frequency);
+            AddQueue?.Invoke(pcm, 1, frequency);
         }
     }
 }

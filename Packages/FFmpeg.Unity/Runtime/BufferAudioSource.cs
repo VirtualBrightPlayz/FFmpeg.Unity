@@ -9,6 +9,7 @@ public class BufferAudioSource : MonoBehaviour
 {
     public struct BufferValue
     {
+        public double dspTime;
         public float[] pcm;
         public int channels;
         public int frequency;
@@ -117,16 +118,21 @@ public class BufferAudioSource : MonoBehaviour
         PlaybackPosition = pos;
     }
 
-    private void AddRingBuffer(float[] pcm)
+    private float[] pcmBuf = new float[0];
+
+    private void AddRingBuffer(ICollection<float> pcm)
     {
         if (RingBuffer == null || clipchannels == 0 || clipfrequency == 0)
             return;
+        if (pcmBuf.Length != RingBuffer.Length)
+            pcmBuf = new float[RingBuffer.Length];
+        pcm.CopyTo(pcmBuf, 0);
         shouldStop = false;
-        stopTimer += (float)pcm.Length / clipfrequency / clipchannels;
+        stopTimer += (float)pcm.Count / clipfrequency / clipchannels;
         int pos = RingBufferPosition;
-        for (int i = 0; i < pcm.Length; i++)
+        for (int i = 0; i < pcm.Count; i++)
         {
-            RingBuffer[pos] = pcm[i];
+            RingBuffer[pos] = pcmBuf[i];
             pos = (pos + 1) % RingBuffer.Length;
         }
         RingBufferPosition = pos;
@@ -144,6 +150,7 @@ public class BufferAudioSource : MonoBehaviour
     {
         bufferQueue.Enqueue(new BufferValue()
         {
+            dspTime = AudioSettings.dspTime,
             pcm = pcm,
             channels = channels,
             frequency = frequency,
@@ -194,9 +201,10 @@ public class BufferAudioSource : MonoBehaviour
         audioSource.Play();
     }
 
-    public void AddQueue(float[] pcm, int channels, int frequency)
+    public void AddQueue(ICollection<float> pcm, int channels, int frequency)
     {
-        RunOnMain(pcm, channels, frequency);
+        AddRingBuffer(pcm);
+        RunOnMain(Array.Empty<float>(), channels, frequency);
         // TryCreateNewClip(pcm, channels, frequency, true);
     }
 }
