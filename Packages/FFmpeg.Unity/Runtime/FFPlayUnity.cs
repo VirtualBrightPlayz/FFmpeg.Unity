@@ -221,7 +221,7 @@ namespace FFmpeg.Unity
                     if (audioTimings != null)
                     {
                         audioTimings.Update(AudioTime);
-                        int frameCount = audioTimings.GetFramesNonAlloc(maxAudioDelta, ref frames);
+                        int frameCount = audioTimings.GetFramesNonAlloc(250, ref frames);
                         audioPlayer.PlayPackets(frames, frameCount);
                     }
                 }

@@ -139,11 +139,11 @@ namespace FFmpeg.Unity
 
         private readonly AVFrame empty = default;
 
-        public int GetFramesNonAlloc(double maxDelta, ref AVFrame[] frames)
+        public int GetFramesNonAlloc(long maxDelta, ref AVFrame[] frames)
         {
             if (!IsInputValid)
                 return 0;
-            long ptsDelta = (long)(Math.Max(double.Epsilon, maxDelta) / timeBaseSeconds);
+            long ptsDelta = maxDelta;
             int i = 0, j = 0;
             long dts = currentPacket.dts;
             int maxFrames = frames.Length;
