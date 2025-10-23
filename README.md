@@ -17,12 +17,12 @@ Paste "https://github.com/VirtualBrightPlayz/FFmpeg.Unity.git?path=/Packages/FFm
 ```
 2. By installing the package using the method above, you will need to copy over the Scenes/ and Scripts/ folders.
 
-3. You will need the "latest" FFmpeg 6.1 Shared (LGPL):
-[Windows](https://github.com/BtbN/FFmpeg-Builds/releases/download/latest/ffmpeg-n6.1-latest-win64-lgpl-shared-6.1.zip)
-[Linux](https://github.com/BtbN/FFmpeg-Builds/releases/download/latest/ffmpeg-n6.1-latest-linux64-lgpl-shared-6.1.tar.xz)
+3. You will need the "latest" FFmpeg 6.1 Shared (LGPL):<br>
+[Windows](https://github.com/BtbN/FFmpeg-Builds/releases/download/autobuild-2025-08-31-13-00/ffmpeg-n6.1.3-win64-lgpl-shared-6.1.zip)
+[Linux](https://github.com/BtbN/FFmpeg-Builds/releases/download/autobuild-2025-08-31-13-00/ffmpeg-n6.1.3-linux64-lgpl-shared-6.1.tar.xz)
 
-4. Then copy the contents of `FFmpeg/bin` and `FFmpeg/lib` to the `Assets/StreamingAssets/ffmpeg` directory in your project.
+4. Windows: Only copy the .dll files found within the `bin` directory in the downloaded archive to a `Assets/StreamingAssets/ffmpeg` directory in your project.
 
-5. If on Linux, make sure to set `Assets/StreamingAssets/yt-dlp` as executable: `chmod u+x yt-dlp`
+5. Linux: Only copy the .so files found within the `lib` directory in the downloaded archive to a `Assets/StreamingAssets/ffmpeg`. If using yt-dlp, make sure to set executable bits on `Assets/StreamingAssets/yt-dlp` e.g. `chmod u+x yt-dlp`
 
 6. You can then open the `Scenes/FFplay` example scene to test the Videoplayer with a working YouTube link in the "Content Url" field of the "FF Play Player" script component during Unity play mode.

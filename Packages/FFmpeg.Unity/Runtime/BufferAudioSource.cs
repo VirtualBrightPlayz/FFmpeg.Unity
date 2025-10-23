@@ -142,6 +142,7 @@ public class BufferAudioSource : MonoBehaviour
     {
         shouldStop = true;
         audioSource.Stop();
+        Array.Fill(RingBuffer, 0f);
         RingBufferPosition = 0;
         PlaybackPosition = 0;
     }
@@ -193,8 +194,8 @@ public class BufferAudioSource : MonoBehaviour
         audioSource.clip = clip;
         audioSource.loop = true;
         audioSource.Stop();
-        // RingBufferPosition = (int)(frequency * channels * bufferDelay) % RingBuffer.Length;
-        RingBufferPosition = 0;
+        RingBufferPosition = (int)(frequency * channels * bufferDelay) % RingBuffer.Length;
+        // RingBufferPosition = 0;
         PlaybackPosition = 0;
         stopTimer = audioPlayer.bufferSize;
         AddRingBuffer(pcm);

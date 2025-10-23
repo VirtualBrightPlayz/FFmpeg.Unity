@@ -146,7 +146,7 @@ MonoBehaviour:
   audioSource: {fileID: 0}
   lockVolume: 0
   volumeControlsMute: 0
-  bufferDelay: 0
+  bufferDelay: 0.5
 --- !u!1 &280924849296303315
 GameObject:
   m_ObjectHideFlags: 0
@@ -349,7 +349,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   videoOffset: -0.5
   audioOffset: 0
-  maxAudioDelta: 0.5
+  maxAudioDelta: 1
   texturePlayer: {fileID: 1976945391050431591}
   audioPlayer: {fileID: 4059647989644077104}
 --- !u!114 &1976945391050431591
@@ -381,4 +381,4 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   pts: 0
-  bufferSize: 0.5
+  bufferSize: 1
