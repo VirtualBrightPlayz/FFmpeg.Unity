@@ -212,7 +212,7 @@ namespace FFmpeg.Unity
             }
         }
 
-        private AVFrame[] frames = new AVFrame[500];
+        private AVFrame[] frames = new AVFrame[250];
         private void AudioDecodeThreadUpdate()
         {
             while (!IsPaused)
@@ -223,7 +223,7 @@ namespace FFmpeg.Unity
                     if (audioTimings != null)
                     {
                         audioTimings.Update(AudioTime);
-                        int frameCount = audioTimings.GetFramesNonAlloc(250, ref frames);
+                        int frameCount = audioTimings.GetFramesNonAlloc(long.MaxValue, ref frames);
                         audioPlayer.PlayPackets(frames, frameCount);
                     }
                 }
