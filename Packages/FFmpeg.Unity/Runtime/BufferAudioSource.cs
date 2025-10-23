@@ -142,7 +142,8 @@ public class BufferAudioSource : MonoBehaviour
     {
         shouldStop = true;
         audioSource.Stop();
-        Array.Fill(RingBuffer, 0f);
+        if (RingBuffer != null)
+            Array.Fill(RingBuffer, 0f);
         RingBufferPosition = 0;
         PlaybackPosition = 0;
     }
