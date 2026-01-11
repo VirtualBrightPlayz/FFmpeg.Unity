@@ -6,13 +6,12 @@ public static unsafe partial class DynamicallyLoadedBindings
 {
     public static Dictionary<string, int> LibraryVersionMap = new Dictionary<string, int>
     {
-        {"avcodec", 60},
-        {"avdevice", 60},
-        {"avfilter", 9},
-        {"avformat", 60},
-        {"avutil", 58},
-        {"postproc", 57},
-        {"swresample", 4},
-        {"swscale", 7},
+        {"avcodec", 62},
+        {"avdevice", 62},
+        {"avfilter", 11},
+        {"avformat", 62},
+        {"avutil", 60},
+        {"swresample", 6},
+        {"swscale", 9},
     };
 }

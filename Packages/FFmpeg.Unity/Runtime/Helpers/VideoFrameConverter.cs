@@ -27,7 +27,7 @@ public sealed unsafe class VideoFrameConverter : IDisposable
             destinationSize.Width,
             destinationSize.Height,
             destinationPixelFormat,
-            ffmpeg.SWS_POINT,
+            (int)SwsFlags.SWS_POINT,
             // ffmpeg.SWS_FAST_BILINEAR,
             null,
             null,
