@@ -129,7 +129,12 @@ namespace FFmpeg.Unity.Helpers
                 ffmpeg.av_frame_free(&receivedFrame);
 
             if (_pCodecContext != null)
-                ffmpeg.avcodec_close(_pCodecContext);
+            {
+                fixed (AVCodecContext** ctx = &_pCodecContext)
+                {
+                    ffmpeg.avcodec_free_context(ctx);
+                }
+            }
         }
 
         public bool CanDecode()
